@@ -1,0 +1,19 @@
+{
+  "name": "MF Finances",
+  "short_name": "MF Finances",
+  "description": "Martin Family Financial Dashboard",
+  "start_url": "/dashboard/",
+  "scope": "/dashboard/",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#34d399",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
