@@ -3945,6 +3945,9 @@ async function analyzeAffordability() {
     });
 
     const data = await response.json();
+    // Log full response for debugging
+    console.log('Anthropic response:', JSON.stringify(data).substring(0, 500));
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     // Extract text from content blocks — skip tool_use and tool_result blocks
     const textBlocks = (data.content || []).filter(b => b.type === 'text');
     const text = textBlocks.map(b => b.text).join('\n') || 'Unable to generate analysis. Please try again.';
@@ -4078,15 +4081,16 @@ async function analyzeAffordability() {
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
         system: FINANCIAL_CONTEXT,
-        tools: [{
-          type: 'web_search_20250305',
-          name: 'web_search'
-        }],
+        // web_search tool removed — not supported in direct browser API calls
+        // tools: [{ type: 'web_search_20250305', name: 'web_search' }],
         messages: AFFORD_THREAD
       })
     });
 
     const data = await response.json();
+    // Log full response for debugging
+    console.log('Anthropic response:', JSON.stringify(data).substring(0, 500));
+    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
     // Extract text from content blocks — skip tool_use and tool_result blocks
     const textBlocks = (data.content || []).filter(b => b.type === 'text');
     const text = textBlocks.map(b => b.text).join('\n') || 'Unable to generate analysis. Please try again.';
