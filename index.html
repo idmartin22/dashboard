@@ -2835,8 +2835,9 @@ function renderBudget() {
   if (budgetEl) budgetEl.textContent = '$' + monthlyBudget.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   if (budgetSubEl) budgetSubEl.textContent = THREE_PAYCHECK_MONTHS.includes(month) ? '3-paycheck month 🎉' : '2-paycheck month';
 
-  // KPI: Actual spend
-  document.getElementById('bk-actual-val').textContent = anyActuals ? '$' + totalActual.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+  // KPI: Actual income (use totalIncome if available, otherwise show —)
+  const hasMonthIncome = hasIncome && totalIncome > 0;
+  document.getElementById('bk-actual-val').textContent = hasMonthIncome ? '$' + totalIncome.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
   document.getElementById('bk-actual-val').style.color = 'var(--text)';
   const actualSubEl = document.getElementById('bk-actual-sub');
   if (actualSubEl) actualSubEl.textContent = 'current month';
@@ -3735,6 +3736,12 @@ function showDrillDown(lineId, label, budgetAmt) {
   const budget = budgetAmt;
 
   // Build modal
+  // Sort by date descending — most recent first
+  txs.sort((a, b) => {
+    const da = new Date(a.date), db = new Date(b.date);
+    return db - da;
+  });
+
   let rows = '';
   if (txs.length === 0) {
     rows = '<tr><td colspan="2" style="padding:20px;text-align:center;color:var(--muted)">No transactions found</td></tr>';
