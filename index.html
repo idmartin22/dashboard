@@ -2576,48 +2576,20 @@ const DATA_VERSION = 'v6';
 
 async function loadBudgetActuals() {
   try {
-    // Check version — if mismatch, wipe old cache and re-seed from scratch
-    let storedVersion = null;
-    try { const rv = await window.storage.get('budget_data_version'); if (rv) storedVersion = rv.value; } catch(e) {}
-
-    if (storedVersion !== DATA_VERSION) {
-      // Version mismatch — re-seed Jan-Apr, but PRESERVE any synced months beyond seed
-      let existingStored = {};
-      let existingIncome = {};
-      try {
-        const r = await window.storage.get('budget_actuals');
-        if (r) existingStored = JSON.parse(r.value);
-        const ri = await window.storage.get('income_actuals');
-        if (ri) existingIncome = JSON.parse(ri.value);
-      } catch(e) {}
-
-      budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
-      incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
-
-      // Keep any synced months that are NOT in the seed
-      Object.keys(existingStored).forEach(m => {
-        if (!SEEDED_ACTUALS[m]) budgetActuals[m] = existingStored[m];
-      });
-      Object.keys(existingIncome).forEach(m => {
-        if (!SEEDED_INCOME[m]) incomeActuals[m] = existingIncome[m];
-      });
-
-      await window.storage.set('budget_actuals', JSON.stringify(budgetActuals));
-      await window.storage.set('income_actuals', JSON.stringify(incomeActuals));
-      await window.storage.set('budget_data_version', DATA_VERSION);
-      return;
-    }
-
-    // Version matches — seeded months authoritative, synced months preserved
+    // Always start with seeded data (Jan-Apr locked actuals)
     budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
     incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
 
+    // Load whatever is in storage
     const r = await window.storage.get('budget_actuals');
     if (r) {
       const stored = JSON.parse(r.value);
-      // Preserve all non-seeded months (synced via Excel)
+      // Seeded months: seed wins (correct known data)
+      // Non-seeded months (May+): storage wins (synced from Excel)
       Object.keys(stored).forEach(m => {
-        if (!SEEDED_ACTUALS[m]) budgetActuals[m] = stored[m];
+        if (!SEEDED_ACTUALS[m]) {
+          budgetActuals[m] = stored[m];
+        }
       });
     }
 
@@ -2625,13 +2597,15 @@ async function loadBudgetActuals() {
     if (ri) {
       const storedIncome = JSON.parse(ri.value);
       Object.keys(storedIncome).forEach(m => {
-        if (!SEEDED_INCOME[m]) incomeActuals[m] = storedIncome[m];
+        if (!SEEDED_INCOME[m]) {
+          incomeActuals[m] = storedIncome[m];
+        }
       });
     }
 
-    await window.storage.set('budget_actuals', JSON.stringify(budgetActuals));
-    await window.storage.set('income_actuals', JSON.stringify(incomeActuals));
+    console.log('Loaded months:', Object.keys(budgetActuals));
   } catch(e) {
+    console.error('loadBudgetActuals error:', e);
     budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
     incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
   }
@@ -3391,15 +3365,10 @@ renderBudget = function() {
   renderFramework(month);
 };
 
-// Also render on initial load
+// Single unified init — load data once then render everything
 loadBudgetActuals().then(() => {
   renderBudget();
   renderFramework(document.getElementById('budgetMonth')?.value || '2026-05');
-});
-
-// Original load (kept for event delegation)
-loadBudgetActuals().then(() => {
-  renderBudget();
   // Event delegation for budget row drill-down
   document.addEventListener('click', function(e) {
     const tr = e.target.closest('tr[data-line]');
@@ -4509,25 +4478,33 @@ async function handleSyncFile(event) {
     const wsMb = wb.Sheets['Monthly Breakdown'];
     const { budget: newBudget, income: newIncome } = parseMonthlyBreakdown(wsMb);
 
-    // Merge into existing budgetActuals and incomeActuals
-    // Only update months that have data — don't overwrite future empty months
+    // Merge synced data into global actuals (in memory)
+    let monthsFound = [];
     Object.entries(newBudget).forEach(([month, lines]) => {
       if (Object.keys(lines).length > 0) {
-        budgetActuals[month] = lines;
+        // For seeded months (Jan-Apr): merge line by line, Excel wins
+        // For future months (May+): replace entirely
+        if (!budgetActuals[month]) budgetActuals[month] = {};
+        Object.assign(budgetActuals[month], lines);
+        monthsFound.push(month);
       }
     });
     Object.entries(newIncome).forEach(([month, lines]) => {
       if (Object.keys(lines).length > 0) {
-        incomeActuals[month] = lines;
+        if (!incomeActuals[month]) incomeActuals[month] = {};
+        Object.assign(incomeActuals[month], lines);
       }
     });
 
-    // Save to storage
-    try {
-      await window.storage.set('budget_actuals', JSON.stringify(budgetActuals));
-      await window.storage.set('income_actuals', JSON.stringify(incomeActuals));
-      await window.storage.set('budget_data_version', DATA_VERSION);
-    } catch(e) {}
+    // Persist to storage — use try/catch per call to catch individual failures
+    let storageOk = true;
+    try { await window.storage.set('budget_actuals', JSON.stringify(budgetActuals)); }
+    catch(e) { console.error('budget_actuals storage failed:', e); storageOk = false; }
+    try { await window.storage.set('income_actuals', JSON.stringify(incomeActuals)); }
+    catch(e) { console.error('income_actuals storage failed:', e); storageOk = false; }
+    try { await window.storage.set('budget_data_version', DATA_VERSION); }
+    catch(e) { console.error('version storage failed:', e); }
+    console.log('Storage save ok:', storageOk, 'Months updated:', monthsFound);
 
     // ── 4. Share counts ──────────────────────────────────────────────────────
     if (wb.SheetNames.includes('Share Count')) {
