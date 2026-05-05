@@ -4571,12 +4571,16 @@ const GDRIVE_FILE_ID  = '1ZQIpsBkntvBFfXizmg2Er4PZNtw-BUaN';
 
 // Maps Excel line number → dashboard budget line ID
 const EXCEL_TO_DASH_ID = {
+  // Discretionary
   1:'d1', 2:'d2', 3:'d3', 4:'d4', 5:'d5', 6:'d6', 7:'d7', 8:'d8',
+  // Fixed (F type in Excel)
   9:'f9', 10:'f10', 11:'f11', 12:'f12', 13:'f13', 14:'f14', 15:'f15',
   16:'f16', 17:'f17', 18:'f18', 19:'f19', 20:'f20', 21:'f21', 22:'f22',
-  23:'f23', 24:'f24', 25:'f25', 26:'f26',
-  27:'b27', 28:'b28', 29:'b29', 30:'b30', 31:'b31', 32:'b32', 33:'b33',
-  34:'b34', 35:'b35', 36:'b36', 37:'b37'
+  23:'f23', 24:'f24',
+  // Water bills are remapped via LINE_ID_REMAP (42->f25, 43->f26)
+  // Periodic (R type in Excel) are handled separately via R_TO_B map
+  // Savings
+  36:'s38', 37:'s39'
 };
 // GitHub raw content URL — CORS-friendly, works from any browser
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
@@ -4591,6 +4595,9 @@ const MONTH_COL = {
   '2026-09':24,'2026-10':26,'2026-11':28,'2026-12':30
 };
 
+// Water bill line number remapping (Excel uses 42/43, dashboard uses f25/f26)
+const LINE_ID_REMAP = { 42: 'f25', 43: 'f26' };
+
 function parseMonthlyBreakdown(ws) {
   const result = { budget:{}, income:{} };
   const data = window.XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
@@ -4598,10 +4605,28 @@ function parseMonthlyBreakdown(ws) {
     if (!row || !row[0] || !row[1]) return;
     const type = row[0], lineNum = parseInt(row[1]);
     if (isNaN(lineNum)) return;
+
     if (['D','F','B','S'].includes(type)) {
-      const dashId = type === 'S'
-        ? (lineNum===36?'s38':lineNum===37?'s39':null)
-        : EXCEL_TO_DASH_ID[lineNum];
+      // Check remapped IDs first (water bills 42->f25, 43->f26)
+      const dashId = LINE_ID_REMAP[lineNum] ||
+        (type === 'S'
+          ? (lineNum===36?'s38':lineNum===37?'s39':null)
+          : EXCEL_TO_DASH_ID[lineNum]);
+      if (!dashId) return;
+      Object.entries(MONTH_COL).forEach(([month,col]) => {
+        const val = row[col];
+        if (val!==null && val!==undefined && val!==0 && !isNaN(val)) {
+          if (!result.budget[month]) result.budget[month]={};
+          result.budget[month][dashId] = Math.round(Math.abs(val)*100)/100;
+        }
+      });
+    } else if (type === 'R') {
+      // Periodic/recurring lines — map R line numbers to dashboard B IDs
+      // R25->b27, R26->b28, R27->b29, R28->b30, R29->b31, R30->b32
+      // R31->b33, R32->b34, R33->b35, R34->b36, R35->b37
+      const R_TO_B = {25:'b27',26:'b28',27:'b29',28:'b30',29:'b31',
+                      30:'b32',31:'b33',32:'b34',33:'b35',34:'b36',35:'b37'};
+      const dashId = R_TO_B[lineNum];
       if (!dashId) return;
       Object.entries(MONTH_COL).forEach(([month,col]) => {
         const val = row[col];
@@ -4719,9 +4744,21 @@ async function processWorkbook(wb, lastModified) {
   // 3. Budget + income actuals
   const wsMb=wb.Sheets['Monthly Breakdown'];
   const {budget:newBudget,income:newIncome}=parseMonthlyBreakdown(wsMb);
-  const SEEDED=Object.keys(SEEDED_ACTUALS);
-  Object.entries(newBudget).forEach(([m,lines])=>{ if(Object.keys(lines).length>0) budgetActuals[m]=lines; });
-  Object.entries(newIncome).forEach(([m,lines])=>{ if(Object.keys(lines).length>0) incomeActuals[m]=lines; });
+  // Merge sync data on top of seeded — preserves R-type periodic lines not in Monthly Breakdown
+  Object.entries(newBudget).forEach(([m,lines])=>{
+    if(Object.keys(lines).length>0) {
+      const base = SEEDED_ACTUALS[m] ? JSON.parse(JSON.stringify(SEEDED_ACTUALS[m])) : {};
+      Object.assign(base, lines); // Excel overwrites seeded where it has data
+      budgetActuals[m] = base;
+    }
+  });
+  Object.entries(newIncome).forEach(([m,lines])=>{
+    if(Object.keys(lines).length>0) {
+      const base = SEEDED_INCOME[m] ? JSON.parse(JSON.stringify(SEEDED_INCOME[m])) : {};
+      Object.assign(base, lines);
+      incomeActuals[m] = base;
+    }
+  });
   try { await window.storage.set('budget_actuals',JSON.stringify(budgetActuals)); } catch(e) {}
   try { await window.storage.set('income_actuals',JSON.stringify(incomeActuals)); } catch(e) {}
 
