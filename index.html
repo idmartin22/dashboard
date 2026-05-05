@@ -4503,17 +4503,17 @@ function parseMonthlyBreakdown(ws) {
       if (!dashId) return;
       Object.entries(MONTH_COL).forEach(([month, col]) => {
         const val = row[col];
-        if (val !== null && val !== undefined && val !== 0) {
+        if (val !== null && val !== undefined && val !== 0 && !isNaN(val)) {
           if (!result.budget[month]) result.budget[month] = {};
           result.budget[month][dashId] = Math.round(Math.abs(val) * 100) / 100;
         }
       });
     } else if (type === 'I') {
-      // Income line
+      // Income line — skip 0 values (means no income recorded yet)
       const incomeId = 'i' + lineNum;
       Object.entries(MONTH_COL).forEach(([month, col]) => {
         const val = row[col];
-        if (val !== null && val !== undefined && val !== 0) {
+        if (val !== null && val !== undefined && val !== 0 && !isNaN(val)) {
           if (!result.income[month]) result.income[month] = {};
           result.income[month][incomeId] = Math.round(Math.abs(val) * 100) / 100;
         }
