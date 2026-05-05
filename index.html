@@ -3142,8 +3142,9 @@ function renderAnnualBudget() {
   if (kpiActualLabel) kpiActualLabel.textContent = 'YTD actual income';
   if (kpiActualSub) kpiActualSub.textContent = n + ' months of data';
 
-  // Variance = actual - projected (negative = under projection = green)
-  const ytdDisplayVar = anyActuals ? totalActualYTD - ytdBudgetCorrect : null;
+  // Income variance YTD = actual income - projected income
+  const ytdProjectedIncome = ytdBudgetCorrect; // projected income for months with data
+  const ytdDisplayVar = (totalIncomeYTD > 0) ? totalIncomeYTD - ytdProjectedIncome : null;
   const ytdVarColor = ytdDisplayVar === null ? 'var(--muted)' : ytdDisplayVar >= 0 ? 'var(--green)' : 'var(--red)';
   const ytdVarPct = (ytdDisplayVar !== null && ytdBudgetCorrect > 0) ? ' (' + (Math.abs(ytdDisplayVar)/ytdBudgetCorrect*100).toFixed(1) + '%)' : '';
   document.getElementById('bk-variance-val').textContent = ytdDisplayVar === null ? '—'
@@ -4762,12 +4763,29 @@ async function autoSync() {
     const resp = await fetch(GDRIVE_URL);
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
-    const lastModified = resp.headers.get('last-modified');
+    // Try to get last-modified from response headers
+    let lastModified = resp.headers.get('last-modified') || resp.headers.get('x-last-modified');
     const buffer = await resp.arrayBuffer();
     console.log('Buffer size:', buffer.byteLength, 'bytes, last-modified:', lastModified);
     if (buffer.byteLength < 1000) throw new Error('File too small ('+buffer.byteLength+' bytes) — may not be xlsx');
-    const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false});
+    const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false,cellStyles:false});
     console.log('Sheets found:', wb.SheetNames);
+    // Try to get file modified date from workbook properties
+    if (!lastModified && wb.Props && wb.Props.ModifiedDate) {
+      lastModified = wb.Props.ModifiedDate;
+    }
+    // Also try GitHub API for commit date
+    if (!lastModified) {
+      try {
+        const apiResp = await fetch('https://api.github.com/repos/idmartin22/dashboard/commits?path=2026_Family_Budget.xlsx&per_page=1');
+        if (apiResp.ok) {
+          const commits = await apiResp.json();
+          if (commits[0]?.commit?.committer?.date) {
+            lastModified = commits[0].commit.committer.date;
+          }
+        }
+      } catch(e) { console.log('GitHub API fallback failed:', e.message); }
+    }
     const result = await processWorkbook(wb, lastModified);
     setSyncState('success');
     console.log('Auto-sync complete:', result.months);
