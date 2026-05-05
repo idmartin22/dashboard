@@ -1674,12 +1674,22 @@
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">PNC Checking</div>
           <div id="bal-checking" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$2,446.98</div>
-          <div style="font-size:9px;color:var(--hint);margin-top:1px">as of Apr 30, 2026</div>
+          <div id="bal-checking-date" style="font-size:9px;color:var(--hint);margin-top:1px">as of Apr 30, 2026</div>
         </div>
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Cash on Hand</div>
           <div id="bal-cash" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$100.00</div>
           <div style="font-size:9px;color:var(--hint);margin-top:1px">physical cash</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Isaac CC</div>
+          <div id="bal-isaac-cc" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$0.00</div>
+          <div style="font-size:9px;color:var(--hint);margin-top:1px">current balance</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Lorri CC</div>
+          <div id="bal-lorri-cc" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$0.00</div>
+          <div style="font-size:9px;color:var(--hint);margin-top:1px">current balance</div>
         </div>
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">PNC Savings</div>
@@ -3702,7 +3712,8 @@ function showDrillDown(lineId, label, budgetAmt) {
   if (!isAnnual) txs = txs.filter(tx => tx.month === month);
 
   const total = txs.reduce((s, tx) => s + tx.debit - tx.credit, 0);
-  const budget = isAnnual ? budgetAmt * (month === '2026-annual' ? 4 : 1) : budgetAmt;
+  // For annual: budget is already passed as YTD total from data-budget attribute
+  const budget = budgetAmt;
 
   // Build modal
   let rows = '';
@@ -4569,12 +4580,41 @@ async function handleSyncFile(event) {
     }
 
     // Show raw cell data so we can see exactly what SheetJS returns
-    const g1Debug = g1Cell ? JSON.stringify({v:g1Cell.v, w:g1Cell.w, t:g1Cell.t, f:g1Cell.f}) : 'null';
-    const g2Debug = g2Cell ? JSON.stringify({v:g2Cell.v, w:g2Cell.w, t:g2Cell.t, f:g2Cell.f}) : 'null';
-    console.log('G1 raw cell:', g1Debug);
-    console.log('G2 raw cell:', g2Debug);
-    console.log('G1 checking:', checkingBal, 'type:', typeof checkingBal);
-    console.log('G2 cash:', cashOnHand, 'type:', typeof cashOnHand);
+    console.log('G1 checking:', checkingBal, 'G2 cash:', cashOnHand);
+
+    // Read J2 (Isaac CC) and L2 (Lorri CC)
+    const j2Cell = wsCtl['J2'];
+    const l2Cell = wsCtl['L2'];
+    const isaacCC = j2Cell ? fmtBal(j2Cell.v !== undefined ? j2Cell.v : j2Cell.w) : null;
+    const lorriCC = l2Cell ? fmtBal(l2Cell.v !== undefined ? l2Cell.v : l2Cell.w) : null;
+
+    if (isaacCC !== null) {
+      const el = document.getElementById('bal-isaac-cc');
+      if (el) el.textContent = '$' + Math.abs(isaacCC).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      try { await window.storage.set('bal_isaac_cc', String(isaacCC)); } catch(e) {}
+    }
+    if (lorriCC !== null) {
+      const el = document.getElementById('bal-lorri-cc');
+      if (el) el.textContent = '$' + Math.abs(lorriCC).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      try { await window.storage.set('bal_lorri_cc', String(lorriCC)); } catch(e) {}
+    }
+
+    // Find most recent date in column C (index 2)
+    const ctlArr = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:false});
+    let latestDate = null;
+    ctlArr.forEach((row, i) => {
+      if (i < 4) return;
+      const d = row[2];
+      if (!d) return;
+      const parsed = new Date(d);
+      if (!isNaN(parsed) && (!latestDate || parsed > latestDate)) latestDate = parsed;
+    });
+    if (latestDate) {
+      const dateStr = latestDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+      const dateEl = document.getElementById('bal-checking-date');
+      if (dateEl) dateEl.textContent = 'as of ' + dateStr;
+      try { await window.storage.set('bal_checking_date', dateStr); } catch(e) {}
+    }
 
 
     function fmtBal(val) {
@@ -4717,6 +4757,14 @@ loadSyncedCheckingTx();
 loadLastUpdated();
 (async () => {
   try {
+    // Load CC balances
+    const bic = await window.storage.get('bal_isaac_cc');
+    if (bic) { const el = document.getElementById('bal-isaac-cc'); if (el) el.textContent = '$' + Math.abs(parseFloat(bic.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    const blc = await window.storage.get('bal_lorri_cc');
+    if (blc) { const el = document.getElementById('bal-lorri-cc'); if (el) el.textContent = '$' + Math.abs(parseFloat(blc.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    // Load checking date
+    const bcd = await window.storage.get('bal_checking_date');
+    if (bcd) { const el = document.getElementById('bal-checking-date'); if (el) el.textContent = 'as of ' + bcd.value; }
     const bc = await window.storage.get('bal_checking');
     if (bc) {
       const el = document.getElementById('bal-checking');
