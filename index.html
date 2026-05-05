@@ -5113,9 +5113,10 @@ loadLastUpdated();
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
 // Restore savings disbursements and raw TX from storage
+let _hasSyncedDisbursements = false;
 try {
   const sd = localStorage.getItem('mf_savings_disbursements');
-  if (sd) window._savingsDisbursements = JSON.parse(sd);
+  if (sd) { window._savingsDisbursements = JSON.parse(sd); _hasSyncedDisbursements = true; }
   const st = localStorage.getItem('mf_savings_raw_tx');
   if (st) window._savingsRawTx = JSON.parse(st);
 } catch(e) {}
@@ -5123,19 +5124,17 @@ try {
 // Seeded savings disbursements for Jan-Apr 2026 (from known transactions)
 // These are overlaid by sync data once user syncs
 if (!window._savingsDisbursements) window._savingsDisbursements = {};
+// Seeded disbursements from actual Savings Transaction Log data Jan-Apr 2026
 const SEEDED_DISBURSEMENTS = {
-  // Jan 2026: Garbage (Rumpke) $126.96→Need, Sanitation (split: main+rental) $185.64→Need
-  '2026-01': { N: 312.60, W: 0 },
-  // Feb 2026: Car Insurance payment (varies — use 0 until sync provides actual)
-  '2026-02': { N: 0, W: 0 },
-  // Mar 2026: No major disbursements in seeded data
-  '2026-03': { N: 0, W: 0 },
-  // Apr 2026: Property Tax $1276.40→Need, Garbage $126.96→Need, Sanitation $185.64→Need
-  '2026-04': { N: 1588.96, W: 0 },
+  '2026-01': { N: 651.23, W: 3035.05 },
+  '2026-02': { N: 3910.02, W: 4420.54 },
+  '2026-03': { N: 785.64, W: 2364.50 },
+  '2026-04': { N: 696.32, W: 607.64 },
 };
-// Only use seeded disbursements if sync hasn't provided real data
+// Only apply seeded disbursements if no synced data exists for that month
+// Once user syncs, sync data is authoritative (more accurate than seeded)
 Object.entries(SEEDED_DISBURSEMENTS).forEach(([m, disb]) => {
-  if (!window._savingsDisbursements[m]) {
+  if (!_hasSyncedDisbursements || !window._savingsDisbursements[m]) {
     window._savingsDisbursements[m] = disb;
   }
 });
