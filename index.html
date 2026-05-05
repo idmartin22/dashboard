@@ -3135,7 +3135,7 @@ function renderAnnualBudget() {
   if (budgetEl) budgetEl.textContent = '$' + ytdBudgetCorrect.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   if (budgetSubEl) budgetSubEl.textContent = n + '-month projected total';
 
-  document.getElementById('bk-actual-val').textContent = anyActuals ? '$' + totalActualYTD.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
+  document.getElementById('bk-actual-val').textContent = totalIncomeYTD > 0 ? '$' + totalIncomeYTD.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—';
   document.getElementById('bk-actual-val').style.color = 'var(--text)';
   const kpiActualLabel = document.getElementById('bk-actual') ? document.getElementById('bk-actual').querySelector('.kpi-label') : null;
   const kpiActualSub = document.getElementById('bk-actual-sub');
