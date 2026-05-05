@@ -4601,17 +4601,6 @@ async function handleSyncFile(event) {
     // Show raw cell data so we can see exactly what SheetJS returns
     console.log('G1 checking:', checkingBal, 'G2 cash:', cashOnHand);
 
-    // Update Net Worth liquid cash card
-    {
-      const chk = cb !== null ? Math.abs(cb) : 0;
-      const cas = co !== null ? Math.abs(co) : 0;
-      const sav = savingsBal !== null ? Math.abs(fmtBal(savingsBal)) : 0;
-      const total = chk + cas + sav;
-      const nwEl = document.getElementById('nw-liquid-cash');
-      if (nwEl && total > 0) nwEl.textContent = '$' + Math.round(total).toLocaleString();
-      try { await window.storage.set('nw_liquid_cash', String(total)); } catch(e) {}
-    }
-
     // Read J2 (Isaac CC) and L2 (Lorri CC)
     const j2Cell = wsCtl['J2'];
     const l2Cell = wsCtl['L2'];
@@ -4676,6 +4665,17 @@ async function handleSyncFile(event) {
       const el = document.getElementById('bal-savings');
       if (el) el.textContent = '$' + Math.abs(savingsBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
       try { await window.storage.set('bal_savings', String(savingsBal)); } catch(e) {}
+    }
+
+    // Update Net Worth liquid cash — all balances now known
+    {
+      const chk = cb !== null ? Math.abs(cb) : 0;
+      const cas = co !== null ? Math.abs(co) : 0;
+      const sav = savingsBal !== null ? Math.abs(savingsBal) : 0;
+      const total = chk + cas + sav;
+      const nwEl = document.getElementById('nw-liquid-cash');
+      if (nwEl && total > 0) nwEl.textContent = '$' + Math.round(total).toLocaleString();
+      try { await window.storage.set('nw_liquid_cash', String(total)); } catch(e) {}
     }
 
     // ── 3. Budget and income actuals from Monthly Breakdown ──────────────────
