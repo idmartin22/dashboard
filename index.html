@@ -3517,11 +3517,6 @@ function renderFramework(month) {
 
   gridEl.innerHTML = cats.map(cat => {
     const hasAct   = cat.actual !== null;
-    const dispAmt  = hasAct ? cat.actual  : cat.budget;
-    const dispInc  = hasAct ? displayIncome : Inc;
-    const dispPct  = pct(dispAmt, dispInc);
-    const onTarget = cat.inv ? dispAmt/dispInc >= cat.target : dispAmt/dispInc <= cat.target;
-    const varAmt   = hasAct ? (cat.inv ? cat.actual - cat.target*displayIncome : cat.target*displayIncome - cat.actual) : null;
     // Actual % uses actual income as denominator
     const actualPct = (cat.pct * 100).toFixed(1);
     const targetPct = (cat.target * 100).toFixed(1);
