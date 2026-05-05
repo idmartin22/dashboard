@@ -361,7 +361,7 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
-    <button onclick="triggerSync()" id="sync-btn"
+    <button onclick="manualSync()" id="sync-btn"
       style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
              border:1px solid var(--border2);background:var(--surface2);color:var(--text);
              font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s"
@@ -370,7 +370,6 @@
       <span id="sync-icon">⇅</span>
       <span id="sync-label">Sync</span>
     </button>
-    <input type="file" id="sync-file-input" accept=".xlsx" style="display:none" onchange="handleSyncFile(event)">
     <div class="updated" id="last-updated">Updated May 2, 2026</div>
   </div>
 </div>
@@ -1266,6 +1265,61 @@
             <div>
               <div class="action-title">Fresh SS estimate — ssa.gov</div>
               <div class="action-sub">Prior data missing 2025 income · pull annually · 5 minutes</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recurring — monthly</div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--blue)"></div>
+            <div>
+              <div class="action-title">Property values — 41377 &amp; 41403 Elmwood</div>
+              <div class="action-sub">Share with Claude · pulls Zillow/Redfin estimates · updates net worth hardcoded values · 5 minutes</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--blue)"></div>
+            <div>
+              <div class="action-title">Vehicle values — Silverado, RAV4, Corolla</div>
+              <div class="action-sub">Share current mileage for each · Claude pulls KBB estimates · updates physical assets · 5 minutes</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--blue)"></div>
+            <div>
+              <div class="action-title">Share counts → live pricing</div>
+              <div class="action-sub">Update Share Count sheet in Excel after any rebalance · dashboard auto-prices on open once Google Drive sync is live</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Recurring — annually</div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--purple)"></div>
+            <div>
+              <div class="action-title">Guard pay tables — January</div>
+              <div class="action-sub">New DFAS tables published Jan 1 · share with Claude · updates Guard retirement calculations · W-3/W-4/W-5 rates</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--purple)"></div>
+            <div>
+              <div class="action-title">Social Security estimates — January/February</div>
+              <div class="action-sub">Pull from ssa.gov after prior year income posts · update Isaac and Lorri SS figures · 5 minutes each</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--purple)"></div>
+            <div>
+              <div class="action-title">FERS High-3 recalculation</div>
+              <div class="action-sub">Update when step/grade changes · share current salary with Claude · recalculates projected pension · impacts retirement tab</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--purple)"></div>
+            <div>
+              <div class="action-title">Guard retirement points — update total</div>
+              <div class="action-sub">HRC / MyArmyBenefits · pull annually · currently 3,063 pts as of 2026 · update for pension accuracy</div>
             </div>
           </div>
         </div>
@@ -4508,367 +4562,223 @@ function showSyncError(message) {
   modal.style.display = 'flex';
 }
 
-// ── EXCEL ID → DASHBOARD ID MAPPING ─────────────────────────────────────────
-// Maps Excel col 1 (line number) to dashboard budget line IDs
-const EXCEL_TO_DASH_ID = {
-  1:'d1', 2:'d2', 3:'d3', 4:'d4', 5:'d5', 6:'d6', 7:'d7', 8:'d8',
-  9:'f9', 10:'f10', 11:'f11', 12:'f12', 13:'f13', 14:'f14', 15:'f15',
-  16:'f16', 17:'f17', 18:'f18', 19:'f19', 20:'f20', 21:'f21', 22:'f22',
-  23:'f23', 24:'f24', 25:'f25', 26:'f26',
-  27:'b27', 28:'b28', 29:'b29', 30:'b30', 31:'b31', 32:'b32', 33:'b33',
-  34:'b34', 35:'b35', 36:'b36', 37:'b37'
-};
+// ── EXCEL PARSING CONSTANTS ─────────────────────────────────────────────────
+const GDRIVE_FILE_ID  = '1ZQIpsBkntvBFfXizmg2Er4PZNtw-BUaN';
+const GDRIVE_URL      = `https://drive.google.com/uc?export=download&id=${GDRIVE_FILE_ID}`;
+const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
 // Excel column index for each month's actuals (0-indexed)
-// Pattern: col 8=Jan, 10=Feb, 12=Mar, 14=Apr, 16=May... (every 2 cols)
 const MONTH_COL = {
-  '2026-01': 8, '2026-02': 10, '2026-03': 12,
-  '2026-04': 14, '2026-05': 16, '2026-06': 18,
-  '2026-07': 20, '2026-08': 22, '2026-09': 24,
-  '2026-10': 26, '2026-11': 28, '2026-12': 30
+  '2026-01':8,'2026-02':10,'2026-03':12,'2026-04':14,
+  '2026-05':16,'2026-06':18,'2026-07':20,'2026-08':22,
+  '2026-09':24,'2026-10':26,'2026-11':28,'2026-12':30
 };
 
-// Row indices in Monthly Breakdown sheet (0-indexed after header)
-// Type D rows: lines 1-8, Type F: 9-26, Type B: 27-37, Type S: 36-37, Type I: 38-41
 function parseMonthlyBreakdown(ws) {
-  const result = { budget: {}, income: {} };
-  const data = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-
+  const result = { budget:{}, income:{} };
+  const data = window.XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
   data.forEach(row => {
     if (!row || !row[0] || !row[1]) return;
-    const type = row[0];
-    const lineNum = parseInt(row[1]);
+    const type = row[0], lineNum = parseInt(row[1]);
     if (isNaN(lineNum)) return;
-
     if (['D','F','B','S'].includes(type)) {
-      // Budget line — S lines use special mapping (36->s38, 37->s39)
       const dashId = type === 'S'
-        ? (lineNum === 36 ? 's38' : lineNum === 37 ? 's39' : null)
+        ? (lineNum===36?'s38':lineNum===37?'s39':null)
         : EXCEL_TO_DASH_ID[lineNum];
       if (!dashId) return;
-      Object.entries(MONTH_COL).forEach(([month, col]) => {
+      Object.entries(MONTH_COL).forEach(([month,col]) => {
         const val = row[col];
-        if (val !== null && val !== undefined && val !== 0 && !isNaN(val)) {
-          if (!result.budget[month]) result.budget[month] = {};
-          result.budget[month][dashId] = Math.round(Math.abs(val) * 100) / 100;
+        if (val!==null && val!==undefined && val!==0 && !isNaN(val)) {
+          if (!result.budget[month]) result.budget[month]={};
+          result.budget[month][dashId] = Math.round(Math.abs(val)*100)/100;
         }
       });
     } else if (type === 'I') {
-      // Income line — skip 0 values (means no income recorded yet)
-      const incomeId = 'i' + lineNum;
-      Object.entries(MONTH_COL).forEach(([month, col]) => {
+      const incId = 'i'+lineNum;
+      Object.entries(MONTH_COL).forEach(([month,col]) => {
         const val = row[col];
-        if (val !== null && val !== undefined && val !== 0 && !isNaN(val)) {
-          if (!result.income[month]) result.income[month] = {};
-          result.income[month][incomeId] = Math.round(Math.abs(val) * 100) / 100;
+        if (val!==null && val!==undefined && val!==0 && !isNaN(val)) {
+          if (!result.income[month]) result.income[month]={};
+          result.income[month][incId] = Math.round(Math.abs(val)*100)/100;
         }
       });
     }
   });
-
   return result;
 }
 
 function parseShareCounts(ws) {
-  const data = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-  const shares = [];
-  data.forEach((row, i) => {
-    if (i === 0) return; // skip header
-    if (!row[0] || !row[1]) return;
-    const account = row[0];
-    const fund    = row[1];
-    const count   = row[2];
-    shares.push({ account, fund, shares: count });
-  });
-  return shares;
+  const data = window.XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
+  return data.slice(1).filter(r=>r[0]&&r[1]).map(r=>({account:r[0],fund:r[1],shares:r[2]}));
 }
 
-// File selected — validate then sync
-async function handleSyncFile(event) {
-  const file = event.target.files[0];
-  event.target.value = '';
-  if (!file) return;
+function fmtBal(val) {
+  const n = typeof val==='string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
+  return isNaN(n) ? null : n;
+}
 
-  // Soft filename check
-  if (!file.name.toLowerCase().includes('budget') && !file.name.toLowerCase().includes('family')) {
-    showSyncError(
-      `<strong style="color:var(--text)">"${file.name}"</strong> doesn't look like the right file.<br><br>` +
-      `Expected <strong style="color:var(--text)">2026_Family_Budget.xlsx</strong>.`
-    );
-    return;
+function setSyncState(state) {
+  const btn=document.getElementById('sync-btn');
+  const icon=document.getElementById('sync-icon');
+  const label=document.getElementById('sync-label');
+  if (!btn) return;
+  if (!document.getElementById('spin-style')) {
+    const s=document.createElement('style');
+    s.id='spin-style';
+    s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(s);
+  }
+  if (state==='loading') {
+    icon.textContent='⟳'; icon.style.animation='spin .8s linear infinite';
+    label.textContent='Syncing…'; btn.disabled=true;
+    btn.style.borderColor='var(--border2)'; btn.style.color='var(--text)';
+  } else if (state==='success') {
+    icon.style.animation=''; icon.textContent='✓';
+    label.textContent='Synced'; btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
+    btn.disabled=false; setTimeout(()=>setSyncState('idle'),3000);
+  } else if (state==='error') {
+    icon.style.animation=''; icon.textContent='✗';
+    label.textContent='Failed'; btn.style.borderColor='var(--red)'; btn.style.color='var(--red)';
+    btn.disabled=false; setTimeout(()=>setSyncState('idle'),4000);
+  } else {
+    icon.style.animation=''; icon.textContent='⇅';
+    label.textContent='Sync'; btn.style.borderColor='var(--border2)'; btn.style.color='var(--text)';
+    btn.disabled=false;
+  }
+}
+
+async function processWorkbook(wb) {
+  // Validate required sheets
+  const missing = REQUIRED_SHEETS.filter(s=>!wb.SheetNames.includes(s));
+  if (missing.length>0) throw new Error('Missing sheets: '+missing.join(', '));
+
+  // 1. Balances from Checking Transaction Log
+  const wsCtl = wb.Sheets['Checking Transaction Log'];
+  const g1Cell=wsCtl['G1'], g2Cell=wsCtl['G2'];
+  const j2Cell=wsCtl['J2'], l2Cell=wsCtl['L2'];
+  let checkingBal = g1Cell ? fmtBal(g1Cell.v!==undefined?g1Cell.v:g1Cell.w) : null;
+  let cashOnHand  = g2Cell ? fmtBal(g2Cell.v!==undefined?g2Cell.v:g2Cell.w) : null;
+  const isaacCC   = j2Cell ? fmtBal(j2Cell.v!==undefined?j2Cell.v:j2Cell.w) : null;
+  const lorriCC   = l2Cell ? fmtBal(l2Cell.v!==undefined?l2Cell.v:l2Cell.w) : null;
+  if (checkingBal===null||isNaN(checkingBal)) {
+    const arr=window.XLSX.utils.sheet_to_json(wsCtl,{header:1,defval:null,raw:true});
+    checkingBal=arr[0]?arr[0][6]:null; cashOnHand=arr[1]?arr[1][6]:null;
+  }
+  const cb=fmtBal(checkingBal), co=fmtBal(cashOnHand);
+  function updBal(id,val,save) {
+    if (val===null) return;
+    const el=document.getElementById(id);
+    if (el) el.textContent='$'+Math.abs(val).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    try { window.storage.set(save,String(val)); } catch(e) {}
+  }
+  updBal('bal-checking',cb,'bal_checking');
+  updBal('bal-cash',co,'bal_cash');
+  updBal('bal-isaac-cc',isaacCC,'bal_isaac_cc');
+  updBal('bal-lorri-cc',lorriCC,'bal_lorri_cc');
+
+  // Most recent date in col C
+  const ctlArr=window.XLSX.utils.sheet_to_json(wsCtl,{header:1,defval:null,raw:false});
+  let latestDate=null;
+  ctlArr.forEach((row,i)=>{ if(i<4)return; const d=row[2]; if(!d)return; const p=new Date(d); if(!isNaN(p)&&(!latestDate||p>latestDate))latestDate=p; });
+  if (latestDate) {
+    const ds=latestDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const el=document.getElementById('bal-checking-date'); if(el) el.textContent='as of '+ds;
+    try { window.storage.set('bal_checking_date',ds); } catch(e) {}
   }
 
+  // 2. Savings balance
+  const wsStl=wb.Sheets['Savings Transaction Log'];
+  const a3=wsStl['A3']; const savingsBal=a3?fmtBal(a3.v!==undefined?a3.v:a3.w):null;
+  updBal('bal-savings',savingsBal,'bal_savings');
+
+  // Net worth liquid cash
+  if (cb!==null||co!==null||savingsBal!==null) {
+    const total=(Math.abs(cb||0)+Math.abs(co||0)+Math.abs(savingsBal||0));
+    const nwEl=document.getElementById('nw-liquid-cash');
+    if(nwEl&&total>0) nwEl.textContent='$'+Math.round(total).toLocaleString();
+    try { window.storage.set('nw_liquid_cash',String(total)); } catch(e) {}
+  }
+
+  // 3. Budget + income actuals
+  const wsMb=wb.Sheets['Monthly Breakdown'];
+  const {budget:newBudget,income:newIncome}=parseMonthlyBreakdown(wsMb);
+  const SEEDED=Object.keys(SEEDED_ACTUALS);
+  Object.entries(newBudget).forEach(([m,lines])=>{ if(Object.keys(lines).length>0) budgetActuals[m]=lines; });
+  Object.entries(newIncome).forEach(([m,lines])=>{ if(Object.keys(lines).length>0) incomeActuals[m]=lines; });
+  try { await window.storage.set('budget_actuals',JSON.stringify(budgetActuals)); } catch(e) {}
+  try { await window.storage.set('income_actuals',JSON.stringify(incomeActuals)); } catch(e) {}
+
+  // 4. Proposed Budget — surplus + line budgets
+  if (wb.SheetNames.includes('Proposed Budget')) {
+    const wsPb=wb.Sheets['Proposed Budget'];
+    const pbData=window.XLSX.utils.sheet_to_json(wsPb,{header:1,defval:null,raw:true});
+    const surplus=pbData[45]?pbData[45][3]:null;
+    if (surplus!==null&&!isNaN(surplus)) {
+      const s='~$'+Math.round(surplus).toLocaleString();
+      ['kpi-surplus','budget-surplus'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});
+      const ist=document.getElementById('income-surplus-today');if(ist)ist.textContent=s+'/mo';
+      try { await window.storage.set('monthly_surplus',String(surplus)); } catch(e) {}
+    }
+    const lb={};
+    pbData.forEach(row=>{ if(!row||!row[0]||!row[1]||!row[3])return; const t=row[0],n=parseInt(row[1]),b=row[3]; if(['D','F','R','S'].includes(t)&&!isNaN(n)&&!isNaN(b))lb[n]=b; });
+    window._lineBudgets=lb;
+    try { await window.storage.set('line_budgets',JSON.stringify(lb)); localStorage.setItem('mf_line_budgets',JSON.stringify(lb)); } catch(e) {}
+    refreshFrameworkBudgets();
+  }
+
+  // 5. Checking transactions for drill-down
+  mergeSyncedCheckingTx(wsCtl);
+
+  // 6. Share counts
+  if (wb.SheetNames.includes('Share Count')) {
+    const shareData=parseShareCounts(wb.Sheets['Share Count']);
+    window._shareCounts=shareData;
+    try { await window.storage.set('share_counts',JSON.stringify(shareData)); } catch(e) {}
+  }
+
+  // Re-render
+  const month=document.getElementById('budgetMonth')?.value||'2026-05';
+  renderBudget(month); renderFramework(month);
+  await saveLastUpdated();
+
+  return { cb, co, savingsBal, months:Object.keys(newBudget).filter(m=>Object.keys(newBudget[m]||{}).length>0) };
+}
+
+// ── AUTO-PULL FROM GOOGLE DRIVE ───────────────────────────────────────────────
+async function autoSync() {
   setSyncState('loading');
-
   try {
-    // Load SheetJS
+    // Load SheetJS if needed
     if (!window.XLSX) {
-      await new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
-        script.onload = resolve;
-        script.onerror = () => reject(new Error('Could not load Excel parser. Check your internet connection.'));
-        document.head.appendChild(script);
+      await new Promise((resolve,reject)=>{
+        const s=document.createElement('script');
+        s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+        s.onload=resolve; s.onerror=()=>reject(new Error('Could not load Excel parser'));
+        document.head.appendChild(s);
       });
     }
-
-    const buffer = await file.arrayBuffer();
-    const wb = window.XLSX.read(buffer, { type: 'array', cellDates: true, cellFormula: false, cellNF: false, raw: false });
-
-    // Validate required sheets
-    const missing = REQUIRED_SHEETS.filter(s => !wb.SheetNames.includes(s));
-    if (missing.length > 0) {
-      setSyncState('error');
-      showSyncError(
-        `This doesn't appear to be the Martin Family Budget workbook.<br><br>` +
-        `Missing sheets: <strong style="color:var(--red)">${missing.join(', ')}</strong>`
-      );
-      return;
-    }
-
-    // ── 1. Checking balance and cash on hand (G1, G2) ────────────────────────
-    const wsCtl = wb.Sheets['Checking Transaction Log'];
-    // Read G1/G2 — try direct cell first, fall back to array parsing
-    let checkingBal = null, cashOnHand = null;
-    const g1Cell = wsCtl['G1'];
-    const g2Cell = wsCtl['G2'];
-    // .v = cached value, .w = formatted text, .f = formula
-    checkingBal = g1Cell ? (g1Cell.v !== undefined ? g1Cell.v : parseFloat(g1Cell.w)) : null;
-    cashOnHand  = g2Cell ? (g2Cell.v !== undefined ? g2Cell.v : parseFloat(g2Cell.w)) : null;
-
-    // Fallback: parse via array if cell approach gives null
-    if (checkingBal === null || isNaN(checkingBal)) {
-      const ctlArr = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
-      checkingBal = ctlArr[0] ? ctlArr[0][6] : null;
-      cashOnHand  = ctlArr[1] ? ctlArr[1][6] : null;
-    }
-
-    // Show raw cell data so we can see exactly what SheetJS returns
-    console.log('G1 checking:', checkingBal, 'G2 cash:', cashOnHand);
-
-    // Read J2 (Isaac CC) and L2 (Lorri CC)
-    const j2Cell = wsCtl['J2'];
-    const l2Cell = wsCtl['L2'];
-    const isaacCC = j2Cell ? fmtBal(j2Cell.v !== undefined ? j2Cell.v : j2Cell.w) : null;
-    const lorriCC = l2Cell ? fmtBal(l2Cell.v !== undefined ? l2Cell.v : l2Cell.w) : null;
-
-    if (isaacCC !== null) {
-      const el = document.getElementById('bal-isaac-cc');
-      if (el) el.textContent = '$' + Math.abs(isaacCC).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      try { await window.storage.set('bal_isaac_cc', String(isaacCC)); } catch(e) {}
-    }
-    if (lorriCC !== null) {
-      const el = document.getElementById('bal-lorri-cc');
-      if (el) el.textContent = '$' + Math.abs(lorriCC).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      try { await window.storage.set('bal_lorri_cc', String(lorriCC)); } catch(e) {}
-    }
-
-    // Find most recent date in column C (index 2)
-    const ctlArr = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:false});
-    let latestDate = null;
-    ctlArr.forEach((row, i) => {
-      if (i < 4) return;
-      const d = row[2];
-      if (!d) return;
-      const parsed = new Date(d);
-      if (!isNaN(parsed) && (!latestDate || parsed > latestDate)) latestDate = parsed;
-    });
-    if (latestDate) {
-      const dateStr = latestDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-      const dateEl = document.getElementById('bal-checking-date');
-      if (dateEl) dateEl.textContent = 'as of ' + dateStr;
-      try { await window.storage.set('bal_checking_date', dateStr); } catch(e) {}
-    }
-
-
-    function fmtBal(val) {
-      const n = typeof val === 'string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
-      return isNaN(n) ? null : n;
-    }
-
-    const cb = fmtBal(checkingBal);
-    const co = fmtBal(cashOnHand);
-
-    if (cb !== null) {
-      const el = document.getElementById('bal-checking');
-      if (el) el.textContent = '$' + Math.abs(cb).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      try { await window.storage.set('bal_checking', String(cb)); } catch(e) {}
-    }
-    if (co !== null) {
-      const el = document.getElementById('bal-cash');
-      if (el) el.textContent = '$' + Math.abs(co).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      try { await window.storage.set('bal_cash', String(co)); } catch(e) {}
-    }
-
-    // ── 2. Savings balance (A3 of Savings Transaction Log) ───────────────────
-    const wsStl = wb.Sheets['Savings Transaction Log'];
-    // A3 holds the total savings balance
-    const a3Cell = wsStl['A3'];
-    const savingsBal = a3Cell ? a3Cell.v : null;
-    console.log('Savings A3:', savingsBal);
-    if (savingsBal !== null && savingsBal !== undefined) {
-      const el = document.getElementById('bal-savings');
-      if (el) el.textContent = '$' + Math.abs(savingsBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      try { await window.storage.set('bal_savings', String(savingsBal)); } catch(e) {}
-    }
-
-    // Update Net Worth liquid cash — all balances now known
-    {
-      const chk = cb !== null ? Math.abs(cb) : 0;
-      const cas = co !== null ? Math.abs(co) : 0;
-      const sav = savingsBal !== null ? Math.abs(savingsBal) : 0;
-      const total = chk + cas + sav;
-      const nwEl = document.getElementById('nw-liquid-cash');
-      if (nwEl && total > 0) nwEl.textContent = '$' + Math.round(total).toLocaleString();
-      try { await window.storage.set('nw_liquid_cash', String(total)); } catch(e) {}
-    }
-
-    // ── 3. Budget and income actuals from Monthly Breakdown ──────────────────
-    const wsMb = wb.Sheets['Monthly Breakdown'];
-    const { budget: newBudget, income: newIncome } = parseMonthlyBreakdown(wsMb);
-
-    // Full replace for ALL months from Excel — Excel is always authoritative
-    // This ensures corrections made in Excel are reflected on re-sync
-    let monthsFound = [];
-    const SEEDED_MONTHS = Object.keys(SEEDED_ACTUALS);
-    Object.entries(newBudget).forEach(([month, lines]) => {
-      if (Object.keys(lines).length > 0) {
-        budgetActuals[month] = lines; // full replace, not merge
-        monthsFound.push(month);
-      }
-    });
-    Object.entries(newIncome).forEach(([month, lines]) => {
-      if (Object.keys(lines).length > 0) {
-        incomeActuals[month] = lines; // full replace
-      }
-    });
-
-    // Persist to storage — use try/catch per call to catch individual failures
-    let storageOk = true;
-    try { await window.storage.set('budget_actuals', JSON.stringify(budgetActuals)); }
-    catch(e) { console.error('budget_actuals storage failed:', e); storageOk = false; }
-    try { await window.storage.set('income_actuals', JSON.stringify(incomeActuals)); }
-    catch(e) { console.error('income_actuals storage failed:', e); storageOk = false; }
-    try { await window.storage.set('budget_data_version', DATA_VERSION); }
-    catch(e) { console.error('version storage failed:', e); }
-    console.log('Storage save ok:', storageOk, 'Months updated:', monthsFound);
-
-    // ── 3b. Parse and merge checking transactions for drill-down ────────────
-    mergeSyncedCheckingTx(wsCtl);
-
-    // ── 3c. Read Proposed Budget for dynamic budget amounts ──────────────────
-    if (wb.SheetNames.includes('Proposed Budget')) {
-      const wsPb = wb.Sheets['Proposed Budget'];
-      const pbData = window.XLSX.utils.sheet_to_json(wsPb, {header:1, defval:null, raw:true});
-      // D46 = row index 45, col index 3
-      const surplusCell = pbData[45] ? pbData[45][3] : null;
-      if (surplusCell !== null && !isNaN(surplusCell)) {
-        try { await window.storage.set('monthly_surplus', String(surplusCell)); } catch(e) {}
-        const surplusStr = '~$' + Math.round(surplusCell).toLocaleString();
-        ['kpi-surplus','income-surplus-today','budget-surplus'].forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.textContent = id === 'income-surplus-today' ? surplusStr + '/mo' : surplusStr;
-        });
-        try { await window.storage.set('monthly_surplus', String(surplusCell)); } catch(e) {}
-      }
-
-      // Read all line budgets and store for dynamic use
-      const lineBudgets = {};
-      pbData.forEach(row => {
-        if (!row || !row[0] || !row[1] || !row[3]) return;
-        const type = row[0], lineNum = parseInt(row[1]), budget = row[3];
-        if (['D','F','R','S'].includes(type) && !isNaN(lineNum) && !isNaN(budget)) {
-          lineBudgets[lineNum] = budget;
-        }
-      });
-      try {
-        await window.storage.set('line_budgets', JSON.stringify(lineBudgets));
-        localStorage.setItem('mf_line_budgets', JSON.stringify(lineBudgets));
-      } catch(e) {}
-      window._lineBudgets = lineBudgets;
-      refreshFrameworkBudgets();
-    }
-
-    // ── 4. Share counts ──────────────────────────────────────────────────────
-    if (wb.SheetNames.includes('Share Count')) {
-      const wsShares = wb.Sheets['Share Count'];
-      const shareData = parseShareCounts(wsShares);
-      window._shareCounts = shareData;
-      try { await window.storage.set('share_counts', JSON.stringify(shareData)); } catch(e) {}
-    }
-
-    // ── 5. Re-render all tabs with fresh data ────────────────────────────────
-    const currentMonth = document.getElementById('budgetMonth')?.value || '2026-05';
-    renderBudget(currentMonth);
-    renderFramework(currentMonth);
-
-    await saveLastUpdated();
+    // Fetch from Google Drive
+    const resp = await fetch(GDRIVE_URL);
+    if (!resp.ok) throw new Error('Drive fetch failed: '+resp.status);
+    const buffer = await resp.arrayBuffer();
+    const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false});
+    const result = await processWorkbook(wb);
     setSyncState('success');
-
-    // Show sync summary
-    const monthsUpdated = Object.keys(newBudget).filter(m => Object.keys(newBudget[m]).length > 0);
-    showSyncSuccess(
-      checkingBal, cashOnHand, savingsBal, monthsUpdated
-    );
-
+    console.log('Auto-sync complete:', result.months);
   } catch(err) {
     setSyncState('error');
-    showSyncError(
-      `An error occurred while reading the file.<br><br>` +
-      `<span style="color:var(--hint);font-size:11px">${err.message}</span>`
-    );
+    console.error('Auto-sync failed:', err.message);
+    // Don't show error modal on auto-sync — silently fail and use cached data
+    document.getElementById('last-updated').textContent = 'Sync failed — using cached data';
   }
 }
 
-function showSyncSuccess(checking, cash, savings, months) {
-  const modal = document.getElementById('drillModal');
-  document.getElementById('drillContent').innerHTML = `
-    <div style="padding:8px 0">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-        <div style="font-size:24px">✓</div>
-        <div>
-          <div style="font-size:16px;font-weight:600;color:var(--green)">Sync Complete</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">${new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}</div>
-        </div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Checking</div>
-          <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">${checking !== null ? '$'+Math.abs(checking).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Cash</div>
-          <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">${cash !== null ? '$'+Math.abs(cash).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
-          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Savings</div>
-          <div style="font-size:14px;font-weight:600;color:var(--green);margin-top:2px">${savings !== null ? '$'+Math.abs(savings).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
-        </div>
-      </div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">
-        <strong style="color:var(--text)">Budget actuals updated:</strong> ${months.length > 0 ? months.join(', ') : 'No new data found'}
-      </div>
-      <div style="font-size:11px;color:var(--hint)">Share counts loaded — live pricing will activate once shares are entered in the workbook.</div>
-      <div style="margin-top:14px;text-align:center">
-        <button onclick="document.getElementById('drillModal').style.display='none'"
-          style="padding:8px 24px;border-radius:8px;border:none;background:var(--green);
-                 color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer">Done</button>
-      </div>
-    </div>`;
-  modal.style.display = 'flex';
+// ── MANUAL SYNC (button click) ────────────────────────────────────────────────
+function manualSync() {
+  autoSync();
 }
 
-loadSyncedCheckingTx();
-// Restore line budgets from storage
-(async () => {
-  try {
-    const lb = localStorage.getItem('mf_line_budgets');
-    if (lb) {
-      window._lineBudgets = JSON.parse(lb);
-      refreshFrameworkBudgets();
-    }
-  } catch(e) {}
-})();
+
 // Init timestamp and balances on load
 loadLastUpdated();
 (async () => {
@@ -4907,6 +4817,10 @@ loadLastUpdated();
     }
   } catch(e) {}
 })();
+
+// ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
+loadSyncedCheckingTx();
+setTimeout(autoSync, 800);
 
 </script>
 </body>
