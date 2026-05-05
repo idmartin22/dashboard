@@ -3456,18 +3456,19 @@ function renderFramework(month) {
         }
       });
 
-      // s39 adjusted for HM/CV overage vs monthly transfer — maintains zero-sum
-      const hmAdj  = mSavAct['b33'] !== undefined ? HM_TRANSFER - mSavAct['b33'].amount : 0;
-      const cvAdj  = mSavAct['b32'] !== undefined ? CV_TRANSFER - mSavAct['b32'].amount : 0;
+      // s39 = Our Savings (plug) — already accounts for all spending
       const s39Raw = acts['s39'] || 0;
-      const s39Adj = s39Raw + hmAdj + cvAdj;
-      if (s39Adj !== 0) aS += s39Adj;
-      // Track s39 in savings detail
-      if (s39Adj !== 0) window._frameworkDetail['S'].push({label: 'Our Savings (adjusted)', amount: s39Adj, month: m});
+      if (s39Raw !== 0) aS += s39Raw;
+      if (s39Raw !== 0) window._frameworkDetail['S'].push({label: 'Our Savings', amount: s39Raw, month: m});
     });
   }
 
   const hasActuals = monthsForActuals.length > 0 && actualIncome > 0;
+  // Force zero-sum: savings absorbs any rounding gap so N+W+S = actualIncome exactly
+  if (hasActuals && actualIncome > 0) {
+    const gap = actualIncome - aN - aW - aS;
+    if (Math.abs(gap) < 100) aS += gap; // absorb small rounding differences
+  }
   // For actual display, use real income so N+W+S = actual income exactly
   const displayIncome = hasActuals ? actualIncome : Inc;
 
@@ -3482,10 +3483,21 @@ function renderFramework(month) {
     </div>`;
   }
 
+  // Targets from proposed budget (not hardcoded 50/30/20)
+  const fixedLinesTotal = FRAMEWORK_LINES.reduce((s,l) => s+l[1], 0);
+  const baseIncome = is3Pay ? INCOME_3PAY : INCOME_STANDARD;
+  const proposedSavings = baseIncome - fixedLinesTotal;
+  const proposedN = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[2], 0);
+  const proposedW = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[3], 0);
+  const proposedS = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[4], 0) + proposedSavings;
+  const tN = proposedN / baseIncome;
+  const tW = proposedW / baseIncome;
+  const tS = proposedS / baseIncome;
+
   const cats = [
-    { label:'Needs',   emoji:'🏠', target:0.50, budget:N, actual:hasActuals?aN:null, color:'var(--blue)',   inv:false },
-    { label:'Wants',   emoji:'✨', target:0.30, budget:W, actual:hasActuals?aW:null, color:'var(--purple)', inv:false },
-    { label:'Savings', emoji:'💰', target:0.20, budget:S, actual:hasActuals?aS:null, color:'var(--green)',  inv:true  },
+    { label:'Needs',   emoji:'🏠', target:tN, budget:N, actual:hasActuals?aN:null, color:'var(--blue)',   inv:false },
+    { label:'Wants',   emoji:'✨', target:tW, budget:W, actual:hasActuals?aW:null, color:'var(--purple)', inv:false },
+    { label:'Savings', emoji:'💰', target:tS, budget:S, actual:hasActuals?aS:null, color:'var(--green)',  inv:true  },
   ];
 
   gridEl.innerHTML = cats.map(cat => {
@@ -3500,7 +3512,7 @@ function renderFramework(month) {
     const catKey = cat.label === 'Needs' ? 'N' : cat.label === 'Wants' ? 'W' : 'S';
     const clickable = hasAct ? `onclick="showFrameworkDetail('${catKey}','${cat.label}')" style="cursor:pointer"` : '';
     return `<div ${clickable} style="background:var(--surface2);border-radius:10px;padding:12px 14px;border:1px solid ${borderColor};transition:background .15s" onmouseover="${hasAct?"this.style.background='rgba(255,255,255,0.06)'":''}" onmouseout="${hasAct?"this.style.background='var(--surface2)'":""}">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${cat.emoji} ${cat.label} <span style="opacity:0.5">· target ${(cat.target*100).toFixed(0)}%</span>${hasAct?' <span style="opacity:0.4;font-size:9px">tap to view</span>':''}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${cat.emoji} ${cat.label} <span style="opacity:0.5">· target ${(cat.target*100).toFixed(1)}%</span>${hasAct?' <span style="opacity:0.4;font-size:9px">tap to view</span>':''}</div>
       <div style="font-size:20px;font-weight:600;color:${hasAct ? (onTarget ? 'var(--green)' : 'var(--red)') : cat.color}">${dispPct}%</div>
       <div style="font-size:11px;color:var(--text);margin-top:1px">$${dispAmt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
       ${bar(dispAmt, cat.target * dispInc, dispInc)}
