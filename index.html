@@ -3418,78 +3418,61 @@ function renderFramework(month) {
     : (budgetActuals[month] ? [month] : []);
 
   window._frameworkDetail = {N:[],W:[],S:[]};
+  const B_TRANSFER_MONTHLY = 2000; // sum of all sub-account monthly transfers
+
   if (monthsForActuals.length > 0) {
     monthsForActuals.forEach(m => {
       const acts = budgetActuals[m] || {};
       const inc  = incomeActuals[m] || {};
 
-      // Actual income = sum of I38+I39+I40+I41 for this month
+      // Actual income for this month
       const mIncome = Object.values(inc).reduce((s, v) => s + (v || 0), 0);
       actualIncome += mIncome;
 
-      // Use savings sub-account actuals for HM (b33) and CV (b32)
-      const mSavAct = SAVINGS_ACTUALS[m] || {};
-      // Classify each budget line's actual spend into N/W/S
+      // ── Step 1: D and F lines only → N/W ──────────────────────────────────
       FRAMEWORK_LINES.forEach(([id, budget, nPct, wPct, sPct]) => {
-        let actual;
-        let overrideN = nPct, overrideW = wPct;
-        if ((id === 'b33' || id === 'b32') && mSavAct[id] !== undefined) {
-          actual = mSavAct[id].amount;
-          // Use override split if defined (e.g. b33 is 50/50 need/want)
-          if (mSavAct[id].nPct !== undefined) overrideN = mSavAct[id].nPct;
-          if (mSavAct[id].wPct !== undefined) overrideW = mSavAct[id].wPct;
-        } else {
-          actual = acts[id];
-        }
-        if (actual === undefined) return;
-        aN += actual * overrideN;
-        aW += actual * overrideW;
-        aS += actual * sPct;
+        if (id.startsWith('b') || id === 's38' || id === 's39') return; // handled separately
+        const actual = acts[id];
+        if (actual === undefined || actual === 0) return;
+        aN += actual * nPct;
+        aW += actual * wPct;
         const line = BUDGET_LINES.find(bl => bl.id === id);
-        const lbl  = line ? line.label : id;
-        // B lines are savings transfers — add to S detail only, not N/W detail
-        // Actual N/W for these comes from disbursements (added separately below)
-        const isBLine = id.startsWith('b');
-        if (isBLine && actual > 0) {
-          window._frameworkDetail['S'].push({label: lbl + ' (transfer)', amount: actual, month: m});
-        } else {
-        // For HM/CV use sub-account detail items
-        if ((id === 'b33' || id === 'b32') && mSavAct[id]) {
-          // Split items appear in both N and W detail lists
-          mSavAct[id].items.forEach(([desc, amt]) => {
-            if (overrideN > 0) window._frameworkDetail['N'].push({label: lbl + ' — ' + desc, amount: amt * overrideN, month: m});
-            if (overrideW > 0) window._frameworkDetail['W'].push({label: lbl + ' — ' + desc, amount: amt * overrideW, month: m});
-          });
-        } else if (actual !== 0) {
-          const cat = overrideN > 0 ? 'N' : overrideW > 0 ? 'W' : 'S';
-          window._frameworkDetail[cat].push({label: lbl, amount: actual * Math.max(overrideN,overrideW,sPct), month: m});
-        }
-      } // end non-b-line processing
+        const lbl = line ? line.label : id;
+        if (nPct > 0) window._frameworkDetail['N'].push({label: lbl, amount: actual * nPct, month: m});
+        if (wPct > 0) window._frameworkDetail['W'].push({label: lbl, amount: actual * wPct, month: m});
       });
 
-      // s39 = Our Savings (plug) — already accounts for all spending
-      const s39Raw = acts['s39'] || 0;
-      if (s39Raw !== 0) aS += s39Raw;
-      if (s39Raw !== 0) window._frameworkDetail['S'].push({label: 'Our Savings', amount: s39Raw, month: m});
-
-      // Add actual savings sub-account DISBURSEMENTS as N/W (they are real expenses)
+      // ── Step 2: Actual disbursements from savings sub-accounts → N/W ──────
       const disb = (window._savingsDisbursements || {})[m] || {};
       if (disb.N) {
         aN += disb.N;
-        window._frameworkDetail['N'].push({label: 'Sub-account disbursements', amount: disb.N, month: m});
+        window._frameworkDetail['N'].push({label: 'Sub-account expenses', amount: disb.N, month: m});
       }
       if (disb.W) {
         aW += disb.W;
-        window._frameworkDetail['W'].push({label: 'Sub-account disbursements', amount: disb.W, month: m});
+        window._frameworkDetail['W'].push({label: 'Sub-account expenses', amount: disb.W, month: m});
       }
+
+      // ── Step 3: Savings = s38 + s39 + (B_TRANSFER - disbursements) ────────
+      const s38Val  = acts['s38'] || 0;
+      const s39Val  = acts['s39'] || 0;
+      const totalDisb = (disb.N || 0) + (disb.W || 0);
+      const netSubSav = B_TRANSFER_MONTHLY - totalDisb;
+
+      aS += s38Val + s39Val + netSubSav;
+
+      if (s38Val) window._frameworkDetail['S'].push({label: 'Kids Savings', amount: s38Val, month: m});
+      if (s39Val) window._frameworkDetail['S'].push({label: 'Our Savings', amount: s39Val, month: m});
+      if (netSubSav !== 0) window._frameworkDetail['S'].push({label: 'Sub-account net savings', amount: netSubSav, month: m});
     });
   }
 
-  const hasActuals = monthsForActuals.length > 0 && actualIncome > 0;
-  // Force zero-sum: savings absorbs ALL unaccounted income so N+W+S = actualIncome exactly
-  // This handles: 3-paycheck extra income, HM/CV disbursement differences, rounding
+const hasActuals = monthsForActuals.length > 0 && actualIncome > 0;
+  // Sanity check zero-sum — s39 is the plug so this should already be exact
+  // Small floating point differences absorbed here
   if (hasActuals && actualIncome > 0) {
-    aS += actualIncome - aN - aW - aS;
+    const gap = actualIncome - aN - aW - aS;
+    if (Math.abs(gap) < 1) aS += gap; // rounding only, not structural
   }
   // For actual display, use real income so N+W+S = actual income exactly
   const displayIncome = hasActuals ? actualIncome : Inc;
