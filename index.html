@@ -1673,17 +1673,17 @@
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start">
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">PNC Checking</div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$2,446.98</div>
+          <div id="bal-checking" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$2,446.98</div>
           <div style="font-size:9px;color:var(--hint);margin-top:1px">as of Apr 30, 2026</div>
         </div>
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Cash on Hand</div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$100.00</div>
+          <div id="bal-cash" style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">$100.00</div>
           <div style="font-size:9px;color:var(--hint);margin-top:1px">physical cash</div>
         </div>
         <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;min-width:120px">
           <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">PNC Savings</div>
-          <div style="font-size:15px;font-weight:600;color:var(--green);font-family:'DM Mono',monospace">$22,610.07</div>
+          <div id="bal-savings" style="font-size:15px;font-weight:600;color:var(--green);font-family:'DM Mono',monospace">$22,610.07</div>
           <div style="font-size:9px;color:var(--hint);margin-top:1px">total savings acct</div>
         </div>
 
@@ -4575,8 +4575,7 @@ async function handleSyncFile(event) {
     console.log('G2 raw cell:', g2Debug);
     console.log('G1 checking:', checkingBal, 'type:', typeof checkingBal);
     console.log('G2 cash:', cashOnHand, 'type:', typeof cashOnHand);
-    // Temporary alert so we can see on mobile too
-    alert('G1: ' + g1Debug + '\nG2: ' + g2Debug + '\nBal: ' + checkingBal + '\nCash: ' + cashOnHand);
+
 
     function fmtBal(val) {
       const n = typeof val === 'string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
