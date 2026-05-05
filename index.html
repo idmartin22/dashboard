@@ -93,8 +93,13 @@
     display: flex; gap: 4px; margin-bottom: 20px;
     background: var(--surface); border: 1px solid var(--border);
     border-radius: 10px; padding: 4px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; -ms-overflow-style: none;
+    flex-wrap: nowrap;
   }
+  .nav::-webkit-scrollbar { display: none; }
   .nav-btn {
+    flex-shrink: 0;
     padding: 7px 16px; border-radius: 7px; border: none;
     background: transparent; color: var(--muted);
     font-size: 12px; font-family: 'DM Sans', sans-serif;
@@ -460,12 +465,15 @@
           <div style="font-size:10px;color:var(--hint);margin-top:8px">Adjusts with pre-retirement growth rate slider in Retirement tab</div>
         </div>
         <div class="card">
-          <div class="card-title">Physical assets</div>
-          <div class="row"><div class="rl">Primary — 41377 Elmwood St<div class="rsub">3/2 · 1,942sqft · pole barn</div></div><div class="rv green">$315,000</div></div>
-          <div class="row"><div class="rl">Rental — 41403 Elmwood St<div class="rsub">1/1 · $800/mo gross · $280 net</div></div><div class="rv green">$92,000</div></div>
-          <div class="row"><div class="rl">2019 Silverado Custom Trail Boss<div class="rsub">5.3L V8 · 99k mi</div></div><div class="rv">$17,500</div></div>
-          <div class="row"><div class="rl">2019 Toyota RAV4 XLE AWD<div class="rsub">70k mi · $19,392 loan</div></div><div class="rv">$18,000</div></div>
-          <div class="row"><div class="rl">2013 Toyota Corolla LE<div class="rsub">100k mi</div></div><div class="rv">$5,500</div></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="card-title" style="margin:0">Physical assets</div>
+            <div style="font-size:9px;color:var(--hint)">Last valued: <span style="color:var(--muted)">May 2, 2026</span></div>
+          </div>
+          <div class="row"><div class="rl">Primary — 41377 Elmwood St<div class="rsub">3/2 · 1,942sqft · pole barn · Zillow est.</div></div><div class="rv green">$315,000</div></div>
+          <div class="row"><div class="rl">Rental — 41403 Elmwood St<div class="rsub">1/1 · $800/mo gross · Zillow est.</div></div><div class="rv green">$92,000</div></div>
+          <div class="row"><div class="rl">2019 Silverado Custom Trail Boss<div class="rsub">5.3L V8 · 99k mi · KBB est.</div></div><div class="rv">$17,500</div></div>
+          <div class="row"><div class="rl">2019 Toyota RAV4 XLE AWD<div class="rsub">70k mi · $19,392 loan · KBB est.</div></div><div class="rv">$18,000</div></div>
+          <div class="row"><div class="rl">2013 Toyota Corolla LE<div class="rsub">100k mi · KBB est.</div></div><div class="rv">$5,500</div></div>
           <div class="row"><div class="rl">2003 Toyota Corolla LE<div class="rsub">135k mi</div></div><div class="rv">$1,500</div></div>
           <div class="row"><div class="rl">2005 Gulf Stream Sun Voyager 8368<div class="rsub">Class A · 60k mi · private sale $40-50k</div></div><div class="rv">$28,000</div></div>
           <div class="row"><div class="rl">Pontoon boat + golf cart</div><div class="rv">$6,500</div></div>
@@ -858,7 +866,10 @@
     <div class="two-col">
       <div>
         <div class="card">
-          <div class="card-title">Debt master list</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="card-title" style="margin:0">Debt master list</div>
+            <div style="font-size:9px;color:var(--hint)">Last verified: <span style="color:var(--muted)">May 2, 2026</span></div>
+          </div>
           <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff 2038 · needs ~$500-600/mo extra principal</div></div><div class="rv blue">$136,517 <span class="pill pill-blue">low rate</span></div></div>
           <div class="row"><div class="rl">RAV4 — Toyota Financial<div class="rsub">&gt;5% · $530/mo · attack after Silverado done in June</div></div><div class="rv amber">$19,392 <span class="pill pill-amber">attack</span></div></div>
           <div class="row"><div class="rl">Silverado — GM Financial<div class="rsub">Final payment ~June 2026 · frees $655/mo</div></div><div class="rv green">~$655 <span class="pill pill-green">almost done</span></div></div>
@@ -1357,7 +1368,10 @@
     <div class="two-col" style="margin-bottom:10px">
       <div>
         <div class="card">
-          <div class="card-title">Guaranteed pension income</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+            <div class="card-title" style="margin:0">Guaranteed pension income</div>
+            <div style="font-size:9px;color:var(--hint)">Last analyzed: <span style="color:var(--muted)">May 4, 2026</span></div>
+          </div>
           <div class="row"><div class="rl">FERS pension (age 57)<div class="rsub">32 yrs × 1% × $107k High-3 · WS-10 Step 5</div></div><div class="rv green">~$34,000/yr</div></div>
           <div class="row"><div class="rl">Guard pension (age 58.5)<div class="rsub">CW4 · ~4,300+ pts · High-3 ~$144k</div></div><div class="rv green">~$43,000/yr</div></div>
           <div class="row"><div class="rl">Combined pension floor<div class="rsub">FERS $34K + Guard $31K (W-3 base) · today's dollars</div></div><div class="rv green">~$65,128/yr</div></div>
@@ -2933,9 +2947,10 @@ function renderBudget() {
   const actualSubEl = document.getElementById('bk-actual-sub');
   if (actualSubEl) actualSubEl.textContent = 'current month';
 
-  // KPI: Variance = actual - projected (negative = under projection = green, positive = over = red)
-  const displayVar = anyActuals ? totalActual - monthlyBudget : null;
-  // Positive variance = over projection = red, Negative = under projection = green
+  // KPI: Income variance = actual income vs projected income (monthlyBudget = projected income)
+  const projectedIncome = monthlyBudget; // projected income for the month
+  const displayVar = (hasIncome && totalIncome > 0) ? totalIncome - projectedIncome : null;
+  // Positive = earned more than projected = green, Negative = earned less = red
   const displayVarColor = displayVar === null ? 'var(--muted)' : displayVar >= 0 ? 'var(--green)' : 'var(--red)';
   const displayVarPct = (displayVar !== null && monthlyBudget > 0) ? ' (' + (Math.abs(displayVar)/monthlyBudget*100).toFixed(1) + '%)' : '';
   document.getElementById('bk-variance-val').textContent = displayVar === null ? '—'
@@ -4460,10 +4475,19 @@ async function loadLastUpdated() {
   } catch(e) {}
 }
 
-async function saveLastUpdated() {
-  const now = new Date();
-  const str = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    + ' ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+async function saveLastUpdated(lastModified) {
+  // Use the file's last-modified date if available (from GitHub response headers)
+  // This reflects when the Excel was last uploaded, not when page was refreshed
+  let str;
+  if (lastModified) {
+    const d = new Date(lastModified);
+    str = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        + ' ' + d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  } else {
+    const now = new Date();
+    str = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        + ' ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  }
   try {
     await window.storage.set('last_updated', str);
     document.getElementById('last-updated').textContent = 'Updated ' + str;
@@ -4623,7 +4647,7 @@ function setSyncState(state) {
   }
 }
 
-async function processWorkbook(wb) {
+async function processWorkbook(wb, lastModified) {
   // Validate required sheets
   const missing = REQUIRED_SHEETS.filter(s=>!wb.SheetNames.includes(s));
   if (missing.length>0) throw new Error('Missing sheets: '+missing.join(', '));
@@ -4715,7 +4739,7 @@ async function processWorkbook(wb) {
   // Re-render
   const month=document.getElementById('budgetMonth')?.value||'2026-05';
   renderBudget(month); renderFramework(month);
-  await saveLastUpdated();
+  await saveLastUpdated(lastModified);
 
   return { cb, co, savingsBal, months:Object.keys(newBudget).filter(m=>Object.keys(newBudget[m]||{}).length>0) };
 }
@@ -4738,12 +4762,13 @@ async function autoSync() {
     const resp = await fetch(GDRIVE_URL);
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
+    const lastModified = resp.headers.get('last-modified');
     const buffer = await resp.arrayBuffer();
-    console.log('Buffer size:', buffer.byteLength, 'bytes');
+    console.log('Buffer size:', buffer.byteLength, 'bytes, last-modified:', lastModified);
     if (buffer.byteLength < 1000) throw new Error('File too small ('+buffer.byteLength+' bytes) — may not be xlsx');
     const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false});
     console.log('Sheets found:', wb.SheetNames);
-    const result = await processWorkbook(wb);
+    const result = await processWorkbook(wb, lastModified);
     setSyncState('success');
     console.log('Auto-sync complete:', result.months);
   } catch(err) {
