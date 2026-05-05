@@ -2483,6 +2483,37 @@ function calcDrift() {
 calcDrift();
 calcRetire();
 initDrillModal(); // drives calcNetWorth internally with actual retireRate + draw2
+// ── STORAGE COMPATIBILITY SHIM ───────────────────────────────────────────────
+// window.storage only works inside Claude.ai
+// localStorage works everywhere (GitHub Pages, local file, etc.)
+// This shim makes window.storage work in both environments
+if (!window.storage) {
+  window.storage = {
+    get: async (key) => {
+      try {
+        const val = localStorage.getItem('mf_' + key);
+        if (val === null) throw new Error('not found');
+        return { key, value: val };
+      } catch(e) { throw e; }
+    },
+    set: async (key, value) => {
+      try {
+        localStorage.setItem('mf_' + key, value);
+        return { key, value };
+      } catch(e) { throw e; }
+    },
+    delete: async (key) => {
+      try {
+        localStorage.removeItem('mf_' + key);
+        return { key, deleted: true };
+      } catch(e) { throw e; }
+    }
+  };
+  console.log('Using localStorage fallback (GitHub Pages mode)');
+} else {
+  console.log('Using window.storage (Claude.ai mode)');
+}
+
 // ── BUDGET DATA ──────────────────────────────────────────────────────────────
 const BUDGET_LINES = [
   // category, id, label, monthly budget, flagged
