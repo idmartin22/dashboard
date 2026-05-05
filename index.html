@@ -2581,23 +2581,41 @@ async function loadBudgetActuals() {
     try { const rv = await window.storage.get('budget_data_version'); if (rv) storedVersion = rv.value; } catch(e) {}
 
     if (storedVersion !== DATA_VERSION) {
-      // Version mismatch — always start fresh from seed
+      // Version mismatch — re-seed Jan-Apr, but PRESERVE any synced months beyond seed
+      let existingStored = {};
+      let existingIncome = {};
+      try {
+        const r = await window.storage.get('budget_actuals');
+        if (r) existingStored = JSON.parse(r.value);
+        const ri = await window.storage.get('income_actuals');
+        if (ri) existingIncome = JSON.parse(ri.value);
+      } catch(e) {}
+
       budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
       incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
+
+      // Keep any synced months that are NOT in the seed
+      Object.keys(existingStored).forEach(m => {
+        if (!SEEDED_ACTUALS[m]) budgetActuals[m] = existingStored[m];
+      });
+      Object.keys(existingIncome).forEach(m => {
+        if (!SEEDED_INCOME[m]) incomeActuals[m] = existingIncome[m];
+      });
+
       await window.storage.set('budget_actuals', JSON.stringify(budgetActuals));
       await window.storage.set('income_actuals', JSON.stringify(incomeActuals));
       await window.storage.set('budget_data_version', DATA_VERSION);
       return;
     }
 
-    // Version matches — load from storage, seeded months are authoritative
+    // Version matches — seeded months authoritative, synced months preserved
     budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
     incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
 
     const r = await window.storage.get('budget_actuals');
     if (r) {
       const stored = JSON.parse(r.value);
-      // Only use stored data for months NOT in the seed (user-entered future months)
+      // Preserve all non-seeded months (synced via Excel)
       Object.keys(stored).forEach(m => {
         if (!SEEDED_ACTUALS[m]) budgetActuals[m] = stored[m];
       });
@@ -4456,26 +4474,35 @@ async function handleSyncFile(event) {
 
     // ── 1. Checking balance and cash on hand (G1, G2) ────────────────────────
     const wsCtl = wb.Sheets['Checking Transaction Log'];
-    const ctlData = window.XLSX.utils.sheet_to_json(wsCtl, { header: 1, defval: null });
-    const checkingBal = ctlData[0] ? ctlData[0][6] : null;
-    const cashOnHand  = ctlData[1] ? ctlData[1][6] : null;
+    // Use direct cell address — G1 and G2 are the live balance cells
+    const g1Cell = wsCtl['G1'];
+    const g2Cell = wsCtl['G2'];
+    const checkingBal = g1Cell ? g1Cell.v : null;
+    const cashOnHand  = g2Cell ? g2Cell.v : null;
 
-    if (checkingBal !== null) {
+    console.log('G1 checking:', checkingBal, 'G2 cash:', cashOnHand);
+
+    if (checkingBal !== null && checkingBal !== undefined) {
       const el = document.getElementById('bal-checking');
       if (el) el.textContent = '$' + Math.abs(checkingBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      try { await window.storage.set('bal_checking', String(checkingBal)); } catch(e) {}
     }
-    if (cashOnHand !== null) {
+    if (cashOnHand !== null && cashOnHand !== undefined) {
       const el = document.getElementById('bal-cash');
       if (el) el.textContent = '$' + Math.abs(cashOnHand).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      try { await window.storage.set('bal_cash', String(cashOnHand)); } catch(e) {}
     }
 
     // ── 2. Savings balance (A3 of Savings Transaction Log) ───────────────────
     const wsStl = wb.Sheets['Savings Transaction Log'];
-    const stlData = window.XLSX.utils.sheet_to_json(wsStl, { header: 1, defval: null });
-    const savingsBal = stlData[2] ? stlData[2][0] : null;
-    if (savingsBal !== null) {
+    // A3 holds the total savings balance
+    const a3Cell = wsStl['A3'];
+    const savingsBal = a3Cell ? a3Cell.v : null;
+    console.log('Savings A3:', savingsBal);
+    if (savingsBal !== null && savingsBal !== undefined) {
       const el = document.getElementById('bal-savings');
       if (el) el.textContent = '$' + Math.abs(savingsBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      try { await window.storage.set('bal_savings', String(savingsBal)); } catch(e) {}
     }
 
     // ── 3. Budget and income actuals from Monthly Breakdown ──────────────────
@@ -4571,8 +4598,27 @@ function showSyncSuccess(checking, cash, savings, months) {
   modal.style.display = 'flex';
 }
 
-// Init timestamp on load
+// Init timestamp and balances on load
 loadLastUpdated();
+(async () => {
+  try {
+    const bc = await window.storage.get('bal_checking');
+    if (bc) {
+      const el = document.getElementById('bal-checking');
+      if (el) el.textContent = '$' + Math.abs(parseFloat(bc.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    const bca = await window.storage.get('bal_cash');
+    if (bca) {
+      const el = document.getElementById('bal-cash');
+      if (el) el.textContent = '$' + Math.abs(parseFloat(bca.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    const bs = await window.storage.get('bal_savings');
+    if (bs) {
+      const el = document.getElementById('bal-savings');
+      if (el) el.textContent = '$' + Math.abs(parseFloat(bs.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+  } catch(e) {}
+})();
 
 </script>
 </body>
