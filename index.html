@@ -2589,32 +2589,31 @@ initDrillModal(); // drives calcNetWorth internally with actual retireRate + dra
 // window.storage only works inside Claude.ai
 // localStorage works everywhere (GitHub Pages, local file, etc.)
 // This shim makes window.storage work in both environments
-if (!window.storage) {
-  window.storage = {
-    get: async (key) => {
-      try {
-        const val = localStorage.getItem('mf_' + key);
-        if (val === null) throw new Error('not found');
-        return { key, value: val };
-      } catch(e) { throw e; }
-    },
-    set: async (key, value) => {
-      try {
-        localStorage.setItem('mf_' + key, value);
-        return { key, value };
-      } catch(e) { throw e; }
-    },
-    delete: async (key) => {
-      try {
-        localStorage.removeItem('mf_' + key);
-        return { key, deleted: true };
-      } catch(e) { throw e; }
-    }
-  };
-  console.log('Using localStorage fallback (GitHub Pages mode)');
-} else {
-  console.log('Using window.storage (Claude.ai mode)');
-}
+// Always use localStorage for dashboard data storage
+// window.storage (Claude.ai) has payload size limits that break large budget data
+// localStorage works everywhere: GitHub Pages, local file, Claude.ai, tablets, phones
+window.storage = {
+  get: async (key) => {
+    try {
+      const val = localStorage.getItem('mf_' + key);
+      if (val === null) throw new Error('not found');
+      return { key, value: val };
+    } catch(e) { throw e; }
+  },
+  set: async (key, value) => {
+    try {
+      localStorage.setItem('mf_' + key, String(value));
+      return { key, value };
+    } catch(e) { throw e; }
+  },
+  delete: async (key) => {
+    try {
+      localStorage.removeItem('mf_' + key);
+      return { key, deleted: true };
+    } catch(e) { throw e; }
+  }
+};
+console.log('Storage: using localStorage (works on all devices)');
 
 // ── BUDGET DATA ──────────────────────────────────────────────────────────────
 const BUDGET_LINES = [
@@ -4472,43 +4471,7 @@ async function saveLastUpdated() {
 }
 
 
-// Expected sheets that must exist for a valid workbook
-const REQUIRED_SHEETS = [
-  'Checking Transaction Log',
-  'Savings Transaction Log',
-  'Monthly Breakdown',
-  'Proposed Budget',
-];
 
-// Sync button click — show confirmation first
-function triggerSync() {
-  showSyncConfirm();
-}
-
-function showSyncConfirm() {
-  // Build confirmation modal
-  const modal = document.getElementById('drillModal');
-  document.getElementById('drillContent').innerHTML = `
-    <div style="text-align:center;padding:8px 0">
-      <div style="font-size:32px;margin-bottom:12px">⇅</div>
-      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Sync from Excel</div>
-      <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:20px">
-        This will overwrite all dashboard data with the contents of your workbook.<br>
-        Select <strong style="color:var(--text)">2026_Family_Budget.xlsx</strong> to continue.
-      </div>
-      <div style="display:flex;gap:10px;justify-content:center">
-        <button onclick="document.getElementById('drillModal').style.display='none'"
-          style="padding:8px 20px;border-radius:8px;border:1px solid var(--border2);
-                 background:transparent;color:var(--muted);font-size:13px;
-                 font-family:'DM Sans',sans-serif;cursor:pointer">Cancel</button>
-        <button onclick="document.getElementById('drillModal').style.display='none';document.getElementById('sync-file-input').click()"
-          style="padding:8px 20px;border-radius:8px;border:none;
-                 background:var(--green);color:#0d1117;font-size:13px;font-weight:600;
-                 font-family:'DM Sans',sans-serif;cursor:pointer">Select File</button>
-      </div>
-    </div>`;
-  modal.style.display = 'flex';
-}
 
 function setSyncState(state) {
   const btn   = document.getElementById('sync-btn');
@@ -4564,7 +4527,10 @@ function showSyncError(message) {
 
 // ── EXCEL PARSING CONSTANTS ─────────────────────────────────────────────────
 const GDRIVE_FILE_ID  = '1ZQIpsBkntvBFfXizmg2Er4PZNtw-BUaN';
-const GDRIVE_URL      = `https://drive.google.com/uc?export=download&id=${GDRIVE_FILE_ID}`;
+// Primary Drive URL — works for files shared as "Anyone with link can view"
+const GDRIVE_URL = `https://drive.google.com/uc?export=download&id=${GDRIVE_FILE_ID}&confirm=t`;
+// Fallback: direct export
+const GDRIVE_URL2 = `https://docs.google.com/spreadsheets/d/${GDRIVE_FILE_ID}/export?format=xlsx`;
 const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
 // Excel column index for each month's actuals (0-indexed)
@@ -4757,9 +4723,13 @@ async function autoSync() {
         document.head.appendChild(s);
       });
     }
-    // Fetch from Google Drive
-    const resp = await fetch(GDRIVE_URL);
-    if (!resp.ok) throw new Error('Drive fetch failed: '+resp.status);
+    // Fetch from Google Drive — try primary URL, fall back to secondary
+    let resp = await fetch(GDRIVE_URL);
+    if (!resp.ok || resp.url.includes('accounts.google.com')) {
+      console.log('Primary Drive URL failed, trying fallback...');
+      resp = await fetch(GDRIVE_URL2);
+    }
+    if (!resp.ok) throw new Error('Drive fetch failed: '+resp.status+'. Ensure file is shared as "Anyone with link can view".');
     const buffer = await resp.arrayBuffer();
     const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false});
     const result = await processWorkbook(wb);
