@@ -390,7 +390,7 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Monthly surplus</div>
-      <div class="kpi-val" style="color:var(--amber)">~$3,917</div>
+      <div class="kpi-val" style="color:var(--amber)" id="kpi-surplus">~$3,917</div>
       <div class="kpi-sub">deploy monthly</div>
     </div>
     <div class="kpi-card">
@@ -470,7 +470,7 @@
           <div class="row"><div class="rl">2003 Toyota Corolla LE<div class="rsub">135k mi</div></div><div class="rv">$1,500</div></div>
           <div class="row"><div class="rl">2005 Gulf Stream Sun Voyager 8368<div class="rsub">Class A · 60k mi · private sale $40-50k</div></div><div class="rv">$28,000</div></div>
           <div class="row"><div class="rl">Pontoon boat + golf cart</div><div class="rv">$6,500</div></div>
-          <div class="row"><div class="rl">Cash (checking + savings)</div><div class="rv">$25,600</div></div>
+          <div class="row"><div class="rl">Cash (checking + savings)</div><div class="rv" id="nw-liquid-cash">$25,157</div></div>
         </div>
       </div>
     </div>
@@ -885,7 +885,7 @@
         </div>
         <div class="card">
           <div class="card-title">Monthly surplus trajectory</div>
-          <div class="row"><div class="rl">Today</div><div class="rv">~$3,917/mo</div></div>
+          <div class="row"><div class="rl">Today</div><div class="rv" id="income-surplus-today">~$3,917/mo</div></div>
           <div class="row"><div class="rl">June 2026 — Silverado done</div><div class="rv green">~$4,572/mo</div></div>
           <div class="row"><div class="rl">~2028 — RAV4 + Step 5</div><div class="rv green">~$6,300/mo</div></div>
           <div class="row"><div class="rl">Late 2027 — deck + Lowes done</div><div class="rv green">~$7,100/mo</div></div>
@@ -940,7 +940,7 @@
           <div class="row"><div class="rl">Fixed (F) — stable bills</div><div class="rv">$5,200</div></div>
           <div class="row"><div class="rl">Reserved (R) — deferred bills</div><div class="rv">$2,000</div></div>
           <div class="row"><div class="rl">Kids savings</div><div class="rv">$50</div></div>
-          <div class="total-row"><span>Monthly surplus (Our Savings)</span><span class="rv green">~$3,917</span></div>
+          <div class="total-row"><span>Monthly surplus (Our Savings)</span><span class="rv green" id="budget-surplus">~$3,917</span></div>
         </div>
         <div class="alert-box alert-green">Total effective wealth building: ~$9,200/mo (~$110,000/yr) before any investment growth on the existing $1.17M portfolio.</div>
       </div>
@@ -3198,7 +3198,8 @@ function renderYTD(catTotals) {
 // [budget_line_id, monthly_budget, need_pct, want_pct, savings_pct]
 // IDs match BUDGET_LINES exactly — avoids label mismatch bugs
 // All three pcts sum to 1.0 — every cent accounted for
-const FRAMEWORK_LINES = [
+// Budgets are overridden by _lineBudgets when synced from Proposed Budget
+let FRAMEWORK_LINES = [
   ['d1',   1200,    1.0,  0.0,  0.0],  // Groceries/Household — NEED
   ['d2',   1200,    0.0,  1.0,  0.0],  // Dining Out — WANT
   ['d3',    150,    0.5,  0.5,  0.0],  // Misc Food — SPLIT 50/50
@@ -3243,6 +3244,24 @@ const FRAMEWORK_LINES = [
 const THREE_PAY_MONTHS = ['2026-04', '2026-09'];
 const INCOME_STANDARD  = 16606.55;
 const INCOME_3PAY      = 19370.34;
+
+function refreshFrameworkBudgets() {
+  if (!window._lineBudgets) return;
+  FRAMEWORK_LINES = FRAMEWORK_LINES.map(line => {
+    const [id, budget, nPct, wPct, sPct] = line;
+    // Map dashboard ID to Proposed Budget line number
+    const numStr = id.replace(/[a-z]/g,'');
+    const lineNum = parseInt(numStr);
+    if (isNaN(lineNum)) return line;
+    // Handle special cases: f25->42, f26->43 in proposed budget
+    const pbNum = id === 'f25' ? 42 : id === 'f26' ? 43 : lineNum;
+    const newBudget = window._lineBudgets[pbNum];
+    return newBudget !== undefined ? [id, newBudget, nPct, wPct, sPct] : line;
+  });
+  // Also update HM and CV transfer amounts
+  if (window._lineBudgets[31]) window.HM_TRANSFER = window._lineBudgets[31];
+  if (window._lineBudgets[30]) window.CV_TRANSFER = window._lineBudgets[30];
+}
 
 function renderFramework(month) {
   const gridEl   = document.getElementById('framework-grid');
@@ -3445,8 +3464,8 @@ const SAVINGS_ACTUALS = {
 };
 
 // Budget line transfers for HM and CV (used to compute s39 adjustment)
-const HM_TRANSFER = 375;
-const CV_TRANSFER = 400;
+let HM_TRANSFER = 375;
+let CV_TRANSFER = 400;
 
 // ── SAVINGS TAB ──────────────────────────────────────────────────────────────
 const SAVINGS_TX = [
@@ -4582,6 +4601,17 @@ async function handleSyncFile(event) {
     // Show raw cell data so we can see exactly what SheetJS returns
     console.log('G1 checking:', checkingBal, 'G2 cash:', cashOnHand);
 
+    // Update Net Worth liquid cash card
+    {
+      const chk = cb !== null ? Math.abs(cb) : 0;
+      const cas = co !== null ? Math.abs(co) : 0;
+      const sav = savingsBal !== null ? Math.abs(fmtBal(savingsBal)) : 0;
+      const total = chk + cas + sav;
+      const nwEl = document.getElementById('nw-liquid-cash');
+      if (nwEl && total > 0) nwEl.textContent = '$' + Math.round(total).toLocaleString();
+      try { await window.storage.set('nw_liquid_cash', String(total)); } catch(e) {}
+    }
+
     // Read J2 (Isaac CC) and L2 (Lorri CC)
     const j2Cell = wsCtl['J2'];
     const l2Cell = wsCtl['L2'];
@@ -4652,21 +4682,19 @@ async function handleSyncFile(event) {
     const wsMb = wb.Sheets['Monthly Breakdown'];
     const { budget: newBudget, income: newIncome } = parseMonthlyBreakdown(wsMb);
 
-    // Merge synced data into global actuals (in memory)
+    // Full replace for ALL months from Excel — Excel is always authoritative
+    // This ensures corrections made in Excel are reflected on re-sync
     let monthsFound = [];
+    const SEEDED_MONTHS = Object.keys(SEEDED_ACTUALS);
     Object.entries(newBudget).forEach(([month, lines]) => {
       if (Object.keys(lines).length > 0) {
-        // For seeded months (Jan-Apr): merge line by line, Excel wins
-        // For future months (May+): replace entirely
-        if (!budgetActuals[month]) budgetActuals[month] = {};
-        Object.assign(budgetActuals[month], lines);
+        budgetActuals[month] = lines; // full replace, not merge
         monthsFound.push(month);
       }
     });
     Object.entries(newIncome).forEach(([month, lines]) => {
       if (Object.keys(lines).length > 0) {
-        if (!incomeActuals[month]) incomeActuals[month] = {};
-        Object.assign(incomeActuals[month], lines);
+        incomeActuals[month] = lines; // full replace
       }
     });
 
@@ -4682,6 +4710,39 @@ async function handleSyncFile(event) {
 
     // ── 3b. Parse and merge checking transactions for drill-down ────────────
     mergeSyncedCheckingTx(wsCtl);
+
+    // ── 3c. Read Proposed Budget for dynamic budget amounts ──────────────────
+    if (wb.SheetNames.includes('Proposed Budget')) {
+      const wsPb = wb.Sheets['Proposed Budget'];
+      const pbData = window.XLSX.utils.sheet_to_json(wsPb, {header:1, defval:null, raw:true});
+      // D46 = row index 45, col index 3
+      const surplusCell = pbData[45] ? pbData[45][3] : null;
+      if (surplusCell !== null && !isNaN(surplusCell)) {
+        try { await window.storage.set('monthly_surplus', String(surplusCell)); } catch(e) {}
+        const surplusStr = '~$' + Math.round(surplusCell).toLocaleString();
+        ['kpi-surplus','income-surplus-today','budget-surplus'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = id === 'income-surplus-today' ? surplusStr + '/mo' : surplusStr;
+        });
+        try { await window.storage.set('monthly_surplus', String(surplusCell)); } catch(e) {}
+      }
+
+      // Read all line budgets and store for dynamic use
+      const lineBudgets = {};
+      pbData.forEach(row => {
+        if (!row || !row[0] || !row[1] || !row[3]) return;
+        const type = row[0], lineNum = parseInt(row[1]), budget = row[3];
+        if (['D','F','R','S'].includes(type) && !isNaN(lineNum) && !isNaN(budget)) {
+          lineBudgets[lineNum] = budget;
+        }
+      });
+      try {
+        await window.storage.set('line_budgets', JSON.stringify(lineBudgets));
+        localStorage.setItem('mf_line_budgets', JSON.stringify(lineBudgets));
+      } catch(e) {}
+      window._lineBudgets = lineBudgets;
+      refreshFrameworkBudgets();
+    }
 
     // ── 4. Share counts ──────────────────────────────────────────────────────
     if (wb.SheetNames.includes('Share Count')) {
@@ -4753,11 +4814,30 @@ function showSyncSuccess(checking, cash, savings, months) {
 }
 
 loadSyncedCheckingTx();
+// Restore line budgets from storage
+(async () => {
+  try {
+    const lb = localStorage.getItem('mf_line_budgets');
+    if (lb) {
+      window._lineBudgets = JSON.parse(lb);
+      refreshFrameworkBudgets();
+    }
+  } catch(e) {}
+})();
 // Init timestamp and balances on load
 loadLastUpdated();
 (async () => {
   try {
     // Load CC balances
+    const ms = await window.storage.get('monthly_surplus');
+    if (ms) {
+      const surplusStr = '~$' + Math.round(parseFloat(ms.value)).toLocaleString();
+      ['kpi-surplus','budget-surplus'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = surplusStr; });
+      const ist = document.getElementById('income-surplus-today');
+      if (ist) ist.textContent = surplusStr + '/mo';
+    }
+    const nlc = await window.storage.get('nw_liquid_cash');
+    if (nlc) { const el = document.getElementById('nw-liquid-cash'); if (el) el.textContent = '$' + Math.round(parseFloat(nlc.value)).toLocaleString(); }
     const bic = await window.storage.get('bal_isaac_cc');
     if (bic) { const el = document.getElementById('bal-isaac-cc'); if (el) el.textContent = '$' + Math.abs(parseFloat(bic.value)).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); }
     const blc = await window.storage.get('bal_lorri_cc');
