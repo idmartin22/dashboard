@@ -3487,21 +3487,32 @@ function renderFramework(month) {
     </div>`;
   }
 
-  // Targets from proposed budget (not hardcoded 50/30/20)
-  const fixedLinesTotal = FRAMEWORK_LINES.reduce((s,l) => s+l[1], 0);
-  const baseIncome = is3Pay ? INCOME_3PAY : INCOME_STANDARD;
-  const proposedSavings = baseIncome - fixedLinesTotal;
-  const proposedN = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[2], 0);
-  const proposedW = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[3], 0);
-  const proposedS = FRAMEWORK_LINES.reduce((s,l) => s+l[1]*l[4], 0) + proposedSavings;
-  const tN = proposedN / baseIncome;
-  const tW = proposedW / baseIncome;
-  const tS = proposedS / baseIncome;
+    // Fixed targets from proposed budget against annual average income
+  // Annual income = (10 × $16,606.55) + (2 × $19,370.34) = $204,806.18 ÷ 12 = $17,067.18/mo avg
+  const ANNUAL_AVG_INCOME = 17067.18;
+  const PROPOSED_NEEDS    = 7355.00;   // fixed N dollar amount from proposed budget
+  const PROPOSED_WANTS    = 5645.00;   // fixed W dollar amount from proposed budget
+  const PROPOSED_SAVINGS  = ANNUAL_AVG_INCOME - PROPOSED_NEEDS - PROPOSED_WANTS; // 4067.18
+  const tN = PROPOSED_NEEDS   / ANNUAL_AVG_INCOME;  // 43.09% — fixed regardless of month
+  const tW = PROPOSED_WANTS   / ANNUAL_AVG_INCOME;  // 33.08% — fixed regardless of month
+  const tS = PROPOSED_SAVINGS / ANNUAL_AVG_INCOME;  // 23.83% — fixed regardless of month
+
+  // Actual percentages use actual income as denominator
+  const actualIncomeDenom = hasActuals && actualIncome > 0 ? actualIncome : Inc;
+  const aNpct = hasActuals ? aN / actualIncomeDenom : N / Inc;
+  const aWpct = hasActuals ? aW / actualIncomeDenom : W / Inc;
+  const aSpct = hasActuals ? aS / actualIncomeDenom : S / Inc;
+
+  // Savings health indicator
+  const savingsHealth = !hasActuals ? 'none'
+    : aSpct >= 0.20 ? 'green'
+    : aSpct >= 0.15 ? 'amber'
+    : 'red';
 
   const cats = [
-    { label:'Needs',   emoji:'🏠', target:tN, budget:N, actual:hasActuals?aN:null, color:'var(--blue)',   inv:false },
-    { label:'Wants',   emoji:'✨', target:tW, budget:W, actual:hasActuals?aW:null, color:'var(--purple)', inv:false },
-    { label:'Savings', emoji:'💰', target:tS, budget:S, actual:hasActuals?aS:null, color:'var(--green)',  inv:true  },
+    { label:'Needs',   emoji:'🏠', target:tN, pct:aNpct, budget:N, actual:hasActuals?aN:null, color:'var(--blue)',   inv:false },
+    { label:'Wants',   emoji:'✨', target:tW, pct:aWpct, budget:W, actual:hasActuals?aW:null, color:'var(--purple)', inv:false },
+    { label:'Savings', emoji:'💰', target:tS, pct:aSpct, budget:S, actual:hasActuals?aS:null, color:'var(--green)',  inv:true, health:savingsHealth },
   ];
 
   gridEl.innerHTML = cats.map(cat => {
@@ -3511,19 +3522,51 @@ function renderFramework(month) {
     const dispPct  = pct(dispAmt, dispInc);
     const onTarget = cat.inv ? dispAmt/dispInc >= cat.target : dispAmt/dispInc <= cat.target;
     const varAmt   = hasAct ? (cat.inv ? cat.actual - cat.target*displayIncome : cat.target*displayIncome - cat.actual) : null;
-    const borderColor = hasAct ? (onTarget ? 'rgba(52,211,153,0.25)' : 'rgba(252,129,129,0.25)') : 'var(--border)';
+    // Actual % uses actual income as denominator
+    const actualPct = (cat.pct * 100).toFixed(1);
+    const targetPct = (cat.target * 100).toFixed(1);
+    const onTarget  = cat.inv ? cat.pct >= cat.target : cat.pct <= cat.target;
+    const varPct    = hasAct ? ((cat.pct - cat.target) * 100).toFixed(1) : null;
+    const dispAmt   = hasAct ? (cat.actual || 0) : cat.budget;
 
-    const catKey = cat.label === 'Needs' ? 'N' : cat.label === 'Wants' ? 'W' : 'S';
+    // Savings uses health indicator color, N/W use on/off target
+    const dispColor = !hasAct ? cat.color
+      : cat.label === 'Savings'
+        ? (cat.health === 'green' ? 'var(--green)' : cat.health === 'amber' ? 'var(--amber)' : 'var(--red)')
+        : (onTarget ? 'var(--green)' : 'var(--red)');
+    const borderColor = !hasAct ? 'var(--border)'
+      : cat.label === 'Savings'
+        ? (cat.health === 'green' ? 'rgba(52,211,153,0.25)' : cat.health === 'amber' ? 'rgba(251,191,36,0.25)' : 'rgba(252,129,129,0.25)')
+        : (onTarget ? 'rgba(52,211,153,0.2)' : 'rgba(252,129,129,0.2)');
+
+    // Health dot on savings card
+    const healthDot = cat.label === 'Savings' && hasAct
+      ? `<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dispColor};margin-left:4px;vertical-align:middle"></span>`
+      : '';
+
+    const catKey   = cat.label === 'Needs' ? 'N' : cat.label === 'Wants' ? 'W' : 'S';
     const clickable = hasAct ? `onclick="showFrameworkDetail('${catKey}','${cat.label}')" style="cursor:pointer"` : '';
-    return `<div ${clickable} style="background:var(--surface2);border-radius:10px;padding:12px 14px;border:1px solid ${borderColor};transition:background .15s" onmouseover="${hasAct?"this.style.background='rgba(255,255,255,0.06)'":''}" onmouseout="${hasAct?"this.style.background='var(--surface2)'":""}">
-      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">${cat.emoji} ${cat.label} <span style="opacity:0.5">· target ${(cat.target*100).toFixed(1)}%</span>${hasAct?' <span style="opacity:0.4;font-size:9px">tap to view</span>':''}</div>
-      <div style="font-size:20px;font-weight:600;color:${hasAct ? (onTarget ? 'var(--green)' : 'var(--red)') : cat.color}">${dispPct}%</div>
+
+    return `<div ${clickable} style="background:var(--surface2);border-radius:10px;padding:12px 14px;border:1px solid ${borderColor};transition:background .15s"
+      onmouseover="${hasAct?"this.style.background='rgba(255,255,255,0.06)'":''}"
+      onmouseout="${hasAct?"this.style.background='var(--surface2)'":''}">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">
+        ${cat.emoji} ${cat.label}${healthDot} <span style="opacity:0.5">· target ${targetPct}%</span>${hasAct?' <span style="opacity:0.4;font-size:9px">tap to view</span>':''}
+      </div>
+      <div style="font-size:20px;font-weight:600;color:${dispColor}">${hasAct ? actualPct : targetPct}%</div>
       <div style="font-size:11px;color:var(--text);margin-top:1px">$${dispAmt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</div>
-      ${bar(dispAmt, cat.target * dispInc, dispInc)}
-      <div style="font-size:10px;margin-top:5px;color:${hasAct ? (onTarget ? 'var(--green)' : 'var(--red)') : 'var(--hint)'}">
-        ${varAmt !== null
-          ? (varAmt >= 0 ? '▲ +$' : '▼ -$') + Math.abs(varAmt).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) + ' vs target'
-          : 'No actuals entered yet'}
+      <div style="position:relative;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;margin:6px 0">
+        <div style="position:absolute;left:0;top:0;height:100%;width:${Math.min((hasAct?cat.pct:cat.target)*100,100)}%;background:${dispColor};border-radius:3px;opacity:0.85"></div>
+        <div style="position:absolute;left:${cat.target*100}%;top:-3px;height:12px;width:2px;background:rgba(255,255,255,0.4)"></div>
+      </div>
+      <div style="font-size:10px;margin-top:5px;color:${hasAct?(onTarget?'var(--green)':'var(--red)'):'var(--hint)'}">
+        ${varPct !== null
+          ? (() => {
+              const v = parseFloat(varPct);
+              const good = cat.inv ? v >= 0 : v <= 0;
+              return (good ? '▲ ' : '▼ ') + (v > 0 ? '+' : '') + varPct + '% vs target';
+            })()
+          : 'No actuals yet'}
       </div>
     </div>`;
   }).join('');
