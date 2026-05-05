@@ -4568,8 +4568,15 @@ async function handleSyncFile(event) {
       cashOnHand  = ctlArr[1] ? ctlArr[1][6] : null;
     }
 
+    // Show raw cell data so we can see exactly what SheetJS returns
+    const g1Debug = g1Cell ? JSON.stringify({v:g1Cell.v, w:g1Cell.w, t:g1Cell.t, f:g1Cell.f}) : 'null';
+    const g2Debug = g2Cell ? JSON.stringify({v:g2Cell.v, w:g2Cell.w, t:g2Cell.t, f:g2Cell.f}) : 'null';
+    console.log('G1 raw cell:', g1Debug);
+    console.log('G2 raw cell:', g2Debug);
     console.log('G1 checking:', checkingBal, 'type:', typeof checkingBal);
     console.log('G2 cash:', cashOnHand, 'type:', typeof cashOnHand);
+    // Temporary alert so we can see on mobile too
+    alert('G1: ' + g1Debug + '\nG2: ' + g2Debug + '\nBal: ' + checkingBal + '\nCash: ' + cashOnHand);
 
     function fmtBal(val) {
       const n = typeof val === 'string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
