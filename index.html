@@ -4527,10 +4527,10 @@ function showSyncError(message) {
 
 // ── EXCEL PARSING CONSTANTS ─────────────────────────────────────────────────
 const GDRIVE_FILE_ID  = '1ZQIpsBkntvBFfXizmg2Er4PZNtw-BUaN';
-// Primary Drive URL — works for files shared as "Anyone with link can view"
-const GDRIVE_URL = `https://drive.google.com/uc?export=download&id=${GDRIVE_FILE_ID}&confirm=t`;
-// Fallback: direct export
-const GDRIVE_URL2 = `https://docs.google.com/spreadsheets/d/${GDRIVE_FILE_ID}/export?format=xlsx`;
+// GitHub raw content URL — CORS-friendly, works from any browser
+// Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
+const GDRIVE_URL  = 'https://raw.githubusercontent.com/idmartin22/dashboard/main/2026_Family_Budget.xlsx';
+const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
 const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
 // Excel column index for each month's actuals (0-indexed)
@@ -4724,14 +4724,15 @@ async function autoSync() {
       });
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
-    let resp = await fetch(GDRIVE_URL);
-    if (!resp.ok || resp.url.includes('accounts.google.com')) {
-      console.log('Primary Drive URL failed, trying fallback...');
-      resp = await fetch(GDRIVE_URL2);
-    }
-    if (!resp.ok) throw new Error('Drive fetch failed: '+resp.status+'. Ensure file is shared as "Anyone with link can view".');
+    console.log('Fetching:', GDRIVE_URL);
+    const resp = await fetch(GDRIVE_URL);
+    console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
+    if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     const buffer = await resp.arrayBuffer();
+    console.log('Buffer size:', buffer.byteLength, 'bytes');
+    if (buffer.byteLength < 1000) throw new Error('File too small ('+buffer.byteLength+' bytes) — may not be xlsx');
     const wb = window.XLSX.read(buffer,{type:'array',cellDates:true,cellFormula:false,cellNF:false,raw:false});
+    console.log('Sheets found:', wb.SheetNames);
     const result = await processWorkbook(wb);
     setSyncState('success');
     console.log('Auto-sync complete:', result.months);
@@ -4739,7 +4740,7 @@ async function autoSync() {
     setSyncState('error');
     console.error('Auto-sync failed:', err.message);
     // Don't show error modal on auto-sync — silently fail and use cached data
-    document.getElementById('last-updated').textContent = 'Sync failed — using cached data';
+    document.getElementById('last-updated').textContent = 'Sync failed: ' + err.message.substring(0,50);
   }
 }
 
