@@ -4336,18 +4336,92 @@ function showSyncError(message) {
   modal.style.display = 'flex';
 }
 
+// ── EXCEL ID → DASHBOARD ID MAPPING ─────────────────────────────────────────
+// Maps Excel col 1 (line number) to dashboard budget line IDs
+const EXCEL_TO_DASH_ID = {
+  1:'d1', 2:'d2', 3:'d3', 4:'d4', 5:'d5', 6:'d6', 7:'d7', 8:'d8',
+  9:'f9', 10:'f10', 11:'f11', 12:'f12', 13:'f13', 14:'f14', 15:'f15',
+  16:'f16', 17:'f17', 18:'f18', 19:'f19', 20:'f20', 21:'f21', 22:'f22',
+  23:'f23', 24:'f24', 25:'f25', 26:'f26',
+  27:'b27', 28:'b28', 29:'b29', 30:'b30', 31:'b31', 32:'b32', 33:'b33',
+  34:'b34', 35:'b35', 36:'b36', 37:'b37'
+};
+
+// Excel column index for each month's actuals (0-indexed)
+// Pattern: col 8=Jan, 10=Feb, 12=Mar, 14=Apr, 16=May... (every 2 cols)
+const MONTH_COL = {
+  '2026-01': 8, '2026-02': 10, '2026-03': 12,
+  '2026-04': 14, '2026-05': 16, '2026-06': 18,
+  '2026-07': 20, '2026-08': 22, '2026-09': 24,
+  '2026-10': 26, '2026-11': 28, '2026-12': 30
+};
+
+// Row indices in Monthly Breakdown sheet (0-indexed after header)
+// Type D rows: lines 1-8, Type F: 9-26, Type B: 27-37, Type S: 36-37, Type I: 38-41
+function parseMonthlyBreakdown(ws) {
+  const result = { budget: {}, income: {} };
+  const data = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+  data.forEach(row => {
+    if (!row || !row[0] || !row[1]) return;
+    const type = row[0];
+    const lineNum = parseInt(row[1]);
+    if (isNaN(lineNum)) return;
+
+    if (['D','F','B','S'].includes(type)) {
+      // Budget line — S lines use special mapping (36->s38, 37->s39)
+      const dashId = type === 'S'
+        ? (lineNum === 36 ? 's38' : lineNum === 37 ? 's39' : null)
+        : EXCEL_TO_DASH_ID[lineNum];
+      if (!dashId) return;
+      Object.entries(MONTH_COL).forEach(([month, col]) => {
+        const val = row[col];
+        if (val !== null && val !== undefined && val !== 0) {
+          if (!result.budget[month]) result.budget[month] = {};
+          result.budget[month][dashId] = Math.round(Math.abs(val) * 100) / 100;
+        }
+      });
+    } else if (type === 'I') {
+      // Income line
+      const incomeId = 'i' + lineNum;
+      Object.entries(MONTH_COL).forEach(([month, col]) => {
+        const val = row[col];
+        if (val !== null && val !== undefined && val !== 0) {
+          if (!result.income[month]) result.income[month] = {};
+          result.income[month][incomeId] = Math.round(Math.abs(val) * 100) / 100;
+        }
+      });
+    }
+  });
+
+  return result;
+}
+
+function parseShareCounts(ws) {
+  const data = window.XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+  const shares = [];
+  data.forEach((row, i) => {
+    if (i === 0) return; // skip header
+    if (!row[0] || !row[1]) return;
+    const account = row[0];
+    const fund    = row[1];
+    const count   = row[2];
+    shares.push({ account, fund, shares: count });
+  });
+  return shares;
+}
+
 // File selected — validate then sync
 async function handleSyncFile(event) {
   const file = event.target.files[0];
-  event.target.value = ''; // reset so same file can be reselected
+  event.target.value = '';
   if (!file) return;
 
-  // Validate filename as a soft check
+  // Soft filename check
   if (!file.name.toLowerCase().includes('budget') && !file.name.toLowerCase().includes('family')) {
     showSyncError(
       `<strong style="color:var(--text)">"${file.name}"</strong> doesn't look like the right file.<br><br>` +
-      `Expected <strong style="color:var(--text)">2026_Family_Budget.xlsx</strong>.<br>` +
-      `Please select the correct workbook and try again.`
+      `Expected <strong style="color:var(--text)">2026_Family_Budget.xlsx</strong>.`
     );
     return;
   }
@@ -4355,7 +4429,7 @@ async function handleSyncFile(event) {
   setSyncState('loading');
 
   try {
-    // Load SheetJS for Excel parsing
+    // Load SheetJS
     if (!window.XLSX) {
       await new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -4366,27 +4440,89 @@ async function handleSyncFile(event) {
       });
     }
 
-    // Read the file
     const buffer = await file.arrayBuffer();
     const wb = window.XLSX.read(buffer, { type: 'array', cellDates: true });
 
-    // Validate required sheets exist
+    // Validate required sheets
     const missing = REQUIRED_SHEETS.filter(s => !wb.SheetNames.includes(s));
     if (missing.length > 0) {
       setSyncState('error');
       showSyncError(
         `This doesn't appear to be the Martin Family Budget workbook.<br><br>` +
-        `Missing sheets: <strong style="color:var(--red)">${missing.join(', ')}</strong><br><br>` +
-        `Please select <strong style="color:var(--text)">2026_Family_Budget.xlsx</strong> and try again.`
+        `Missing sheets: <strong style="color:var(--red)">${missing.join(', ')}</strong>`
       );
       return;
     }
 
-    // ── Full sync logic will be built this week ──
-    // Sheets validated — placeholder until full parsing is added
-    // For now: update timestamp to confirm the mechanism works
+    // ── 1. Checking balance and cash on hand (G1, G2) ────────────────────────
+    const wsCtl = wb.Sheets['Checking Transaction Log'];
+    const ctlData = window.XLSX.utils.sheet_to_json(wsCtl, { header: 1, defval: null });
+    const checkingBal = ctlData[0] ? ctlData[0][6] : null;
+    const cashOnHand  = ctlData[1] ? ctlData[1][6] : null;
+
+    if (checkingBal !== null) {
+      const el = document.getElementById('bal-checking');
+      if (el) el.textContent = '$' + Math.abs(checkingBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+    if (cashOnHand !== null) {
+      const el = document.getElementById('bal-cash');
+      if (el) el.textContent = '$' + Math.abs(cashOnHand).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    // ── 2. Savings balance (A3 of Savings Transaction Log) ───────────────────
+    const wsStl = wb.Sheets['Savings Transaction Log'];
+    const stlData = window.XLSX.utils.sheet_to_json(wsStl, { header: 1, defval: null });
+    const savingsBal = stlData[2] ? stlData[2][0] : null;
+    if (savingsBal !== null) {
+      const el = document.getElementById('bal-savings');
+      if (el) el.textContent = '$' + Math.abs(savingsBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    }
+
+    // ── 3. Budget and income actuals from Monthly Breakdown ──────────────────
+    const wsMb = wb.Sheets['Monthly Breakdown'];
+    const { budget: newBudget, income: newIncome } = parseMonthlyBreakdown(wsMb);
+
+    // Merge into existing budgetActuals and incomeActuals
+    // Only update months that have data — don't overwrite future empty months
+    Object.entries(newBudget).forEach(([month, lines]) => {
+      if (Object.keys(lines).length > 0) {
+        budgetActuals[month] = lines;
+      }
+    });
+    Object.entries(newIncome).forEach(([month, lines]) => {
+      if (Object.keys(lines).length > 0) {
+        incomeActuals[month] = lines;
+      }
+    });
+
+    // Save to storage
+    try {
+      await window.storage.set('budget_actuals', JSON.stringify(budgetActuals));
+      await window.storage.set('income_actuals', JSON.stringify(incomeActuals));
+      await window.storage.set('budget_data_version', DATA_VERSION);
+    } catch(e) {}
+
+    // ── 4. Share counts ──────────────────────────────────────────────────────
+    if (wb.SheetNames.includes('Share Count')) {
+      const wsShares = wb.Sheets['Share Count'];
+      const shareData = parseShareCounts(wsShares);
+      window._shareCounts = shareData;
+      try { await window.storage.set('share_counts', JSON.stringify(shareData)); } catch(e) {}
+    }
+
+    // ── 5. Re-render all tabs with fresh data ────────────────────────────────
+    const currentMonth = document.getElementById('budgetMonth')?.value || '2026-05';
+    renderBudget(currentMonth);
+    renderFramework(currentMonth);
+
     await saveLastUpdated();
     setSyncState('success');
+
+    // Show sync summary
+    const monthsUpdated = Object.keys(newBudget).filter(m => Object.keys(newBudget[m]).length > 0);
+    showSyncSuccess(
+      checkingBal, cashOnHand, savingsBal, monthsUpdated
+    );
 
   } catch(err) {
     setSyncState('error');
@@ -4395,6 +4531,44 @@ async function handleSyncFile(event) {
       `<span style="color:var(--hint);font-size:11px">${err.message}</span>`
     );
   }
+}
+
+function showSyncSuccess(checking, cash, savings, months) {
+  const modal = document.getElementById('drillModal');
+  document.getElementById('drillContent').innerHTML = `
+    <div style="padding:8px 0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="font-size:24px">✓</div>
+        <div>
+          <div style="font-size:16px;font-weight:600;color:var(--green)">Sync Complete</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${new Date().toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
+        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Checking</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">${checking !== null ? '$'+Math.abs(checking).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Cash</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-top:2px">${cash !== null ? '$'+Math.abs(cash).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px">
+          <div style="font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Savings</div>
+          <div style="font-size:14px;font-weight:600;color:var(--green);margin-top:2px">${savings !== null ? '$'+Math.abs(savings).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—'}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px">
+        <strong style="color:var(--text)">Budget actuals updated:</strong> ${months.length > 0 ? months.join(', ') : 'No new data found'}
+      </div>
+      <div style="font-size:11px;color:var(--hint)">Share counts loaded — live pricing will activate once shares are entered in the workbook.</div>
+      <div style="margin-top:14px;text-align:center">
+        <button onclick="document.getElementById('drillModal').style.display='none'"
+          style="padding:8px 24px;border-radius:8px;border:none;background:var(--green);
+                 color:#0d1117;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer">Done</button>
+      </div>
+    </div>`;
+  modal.style.display = 'flex';
 }
 
 // Init timestamp on load
