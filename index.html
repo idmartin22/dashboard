@@ -2702,8 +2702,6 @@ const INCOME_LINES = [
   { id:'i41', label:'Rental Income' },
 ];
 
-let incomeActuals = {};
-
 // budgetActuals — populated by sync
 let budgetActuals = {};
 
@@ -3908,8 +3906,8 @@ function showDrillDown(lineId, label, budgetAmt) {
   const isAnnual = month === '2026-annual';
 
   // Some BUDGET_LINES IDs don't match checking log line numbers — remap here
-  const LINE_ID_REMAP = { 25: 42, 26: 43 }; // f25=Water Main->42, f26=Water Rental->43
-  const checkingLineId = LINE_ID_REMAP[lineId] || lineId;
+  const DRILL_LINE_REMAP = { 25: 42, 26: 43 }; // f25=Water Main->42, f26=Water Rental->43
+  const checkingLineId = DRILL_LINE_REMAP[lineId] || lineId;
 
   // Filter transactions
   let txs = CHECKING_TX.filter(tx => tx.line === checkingLineId);
@@ -4718,37 +4716,7 @@ function parseShareCounts(ws) {
 function fmtBal(val) {
   const n = typeof val==='string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
   return isNaN(n) ? null : n;
-}
-
-function setSyncState(state) {
-  const btn=document.getElementById('sync-btn');
-  const icon=document.getElementById('sync-icon');
-  const label=document.getElementById('sync-label');
-  if (!btn) return;
-  if (!document.getElementById('spin-style')) {
-    const s=document.createElement('style');
-    s.id='spin-style';
-    s.textContent='@keyframes spin{to{transform:rotate(360deg)}}';
-    document.head.appendChild(s);
-  }
-  if (state==='loading') {
-    icon.textContent='⟳'; icon.style.animation='spin .8s linear infinite';
-    label.textContent='Syncing…'; btn.disabled=true;
-    btn.style.borderColor='var(--border2)'; btn.style.color='var(--text)';
-  } else if (state==='success') {
-    icon.style.animation=''; icon.textContent='✓';
-    label.textContent='Synced'; btn.style.borderColor='var(--green)'; btn.style.color='var(--green)';
-    btn.disabled=false; setTimeout(()=>setSyncState('idle'),3000);
-  } else if (state==='error') {
-    icon.style.animation=''; icon.textContent='✗';
-    label.textContent='Failed'; btn.style.borderColor='var(--red)'; btn.style.color='var(--red)';
-    btn.disabled=false; setTimeout(()=>setSyncState('idle'),4000);
-  } else {
-    icon.style.animation=''; icon.textContent='⇅';
-    label.textContent='Sync'; btn.style.borderColor='var(--border2)'; btn.style.color='var(--text)';
-    btn.disabled=false;
-  }
-}
+}}
 
 // ── SAVINGS SUB-ACCOUNT DISBURSEMENT PARSING ──────────────────────────────────
 // Column indices (0-based) for each sub-account's DEBIT column in Savings Transaction Log
@@ -4827,7 +4795,7 @@ async function fetchTSPPrices() {
     const html = await res.text();
     const prices = {};
     // Parse table: "C Fund | $115.6318"
-    const matches = html.matchAll(/([CGFSI] Fund)[^$]*\$([\d.]+)/g);
+    const matches = html.matchAll(/([CGFSI] Fund)[^$]*[$]([0-9.]+)/g);
     for (const m of matches) {
       const fund = m[1].replace(' Fund','').trim();
       prices[fund] = parseFloat(m[2]);
