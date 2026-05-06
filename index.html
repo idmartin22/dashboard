@@ -428,10 +428,10 @@
         </div>
         <div class="card">
           <div class="card-title">Net worth summary</div>
-          <div class="net-worth-big">$1.50M</div>
+          <div class="net-worth-big" id="nw-big-val">$1.50M</div>
           <div class="nw-sub">Isaac &amp; Lorri Martin · Elyria, OH 44035</div>
           <div style="margin-top:16px">
-            <div class="row"><div class="rl">Total gross assets</div><div class="rv green">$1,681,318</div></div>
+            <div class="row"><div class="rl">Total gross assets</div><div class="rv green" id="nw-gross-assets">$1,681,318</div></div>
             <div class="row"><div class="rl">Total liabilities<div class="rsub">click to expand</div></div><div class="rv red" id="liab-toggle" onclick="document.getElementById('liab-detail').style.display=document.getElementById('liab-detail').style.display==='none'?'block':'none';this.querySelector('.rsub-inline').textContent=document.getElementById('liab-detail').style.display==='none'?'▸':'▾'" style="cursor:pointer">−$185,424 <span class="rsub-inline" style="font-size:10px;opacity:0.6">▸</span></div></div>
             <div id="liab-detail" style="display:none;margin:4px 0 8px 0;padding:0 0 0 8px;border-left:2px solid var(--border2)">
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Rocket Mortgage<div class="rsub">2.625% · payoff 2038</div></div><div class="rv red" style="font-size:11px">−$136,517</div></div>
@@ -441,7 +441,7 @@
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Lowes (...2659)<div class="rsub">deferred interest · clear Aug 2026</div></div><div class="rv red" style="font-size:11px">−$6,200</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Chevy Silverado<div class="rsub">final payment ~Jun 2026</div></div><div class="rv red" style="font-size:11px">−$655</div></div>
             </div>
-            <div class="total-row"><span>Net worth</span><span class="rv green">$1,495,894</span></div>
+            <div class="total-row"><span>Net worth</span><span class="rv green" id="nw-total-val">$1,495,894</span></div>
           </div>
           <div style="margin-top:12px">
             <div class="row"><div class="rl">Debt-to-asset ratio</div><div class="rv">11.0%</div></div>
@@ -450,12 +450,12 @@
         </div>
         <div class="card">
           <div class="card-title">Asset allocation</div>
-          <div class="alloc-row"><span class="alloc-label">Retirement accounts</span><div class="alloc-track"><div class="alloc-fill" style="width:63%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">63%</span><span class="alloc-val">$1,063,117</span></div>
-          <div class="alloc-row"><span class="alloc-label">Real estate</span><div class="alloc-track"><div class="alloc-fill" style="width:24%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">24%</span><span class="alloc-val">$407,000</span></div>
-          <div class="alloc-row"><span class="alloc-label">M1 Finance</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)">5%</span><span class="alloc-val">$89,587</span></div>
+          <div class="alloc-row"><span class="alloc-label">Retirement accounts</span><div class="alloc-track"><div class="alloc-fill" style="width:63%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">63%</span><span class="alloc-val" id="nw-alloc-retire">$1,063,117</span></div>
+          <div class="alloc-row"><span class="alloc-label">Real estate</span><div class="alloc-track"><div class="alloc-fill" style="width:24%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">24%</span><span class="alloc-val" id="nw-alloc-realestate">$407,000</span></div>
+          <div class="alloc-row"><span class="alloc-label">M1 Finance</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)" id="nw-alloc-m1-pct">5%</span><span class="alloc-val" id="nw-alloc-m1">$89,587</span></div>
           <div class="alloc-row"><span class="alloc-label">Vehicles + recreation</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#6b7280"></div></div><span class="alloc-pct" style="color:var(--muted)">5%</span><span class="alloc-val">$77,000</span></div>
-          <div class="alloc-row"><span class="alloc-label">Crypto</span><div class="alloc-track"><div class="alloc-fill" style="width:1%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">1%</span><span class="alloc-val">$19,014</span></div>
-          <div class="alloc-row"><span class="alloc-label">Cash</span><div class="alloc-track"><div class="alloc-fill" style="width:2%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)">2%</span><span class="alloc-val">$25,600</span></div>
+          <div class="alloc-row"><span class="alloc-label">Crypto</span><div class="alloc-track"><div class="alloc-fill" style="width:1%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">1%</span><span class="alloc-val" id="nw-alloc-crypto">$19,014</span></div>
+          <div class="alloc-row"><span class="alloc-label">Cash</span><div class="alloc-track"><div class="alloc-fill" style="width:2%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)">2%</span><span class="alloc-val" id="nw-alloc-cash">$25,600</span></div>
         </div>
       </div>
       <div>
@@ -547,228 +547,13 @@
               <th style="text-align:left;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Account</th>
               <th style="text-align:left;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Asset class</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Value</th>
+              <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Units / Price</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Acct %</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Portfolio %</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">ER</th>
             </tr>
           </thead>
-          <tbody>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Civilian — <span id="val-tsp-civ">$416,706</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">C Fund</td>
-              <td style="padding:6px 10px;color:var(--muted)">TSP Civilian</td>
-              <td style="padding:6px 10px;color:var(--muted)">US large cap</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$229,188</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">55%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">19.9%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">S Fund</td>
-              <td style="padding:6px 10px;color:var(--muted)">TSP Civilian</td>
-              <td style="padding:6px 10px;color:var(--muted)">US small/mid cap</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$104,177</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">25%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">9.0%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">I Fund</td>
-              <td style="padding:6px 10px;color:var(--muted)">TSP Civilian</td>
-              <td style="padding:6px 10px;color:var(--muted)">International</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$83,341</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">20%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">7.2%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Uniformed — <span id="val-tsp-uni">$133,805</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">C Fund</td>
-              <td style="padding:6px 10px;color:var(--muted)">TSP Uniformed</td>
-              <td style="padding:6px 10px;color:var(--muted)">US large cap</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$53,522</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">40%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">4.6%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">S Fund</td>
-              <td style="padding:6px 10px;color:var(--muted)">TSP Uniformed</td>
-              <td style="padding:6px 10px;color:var(--muted)">US small/mid cap</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$80,283</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">60%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">7.0%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(251,146,60,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 403b — <span id="val-fid-403b">$392,470</span> · Plan 52685</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">VIIIX</td>
-              <td style="padding:6px 10px;color:var(--muted)">Fidelity 403b</td>
-              <td style="padding:6px 10px;color:var(--muted)">US large cap inst.</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$117,741</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--coral)">30%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">10.2%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.020%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">VTPSX</td>
-              <td style="padding:6px 10px;color:var(--muted)">Fidelity 403b</td>
-              <td style="padding:6px 10px;color:var(--muted)">International broad</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$215,859</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--coral)">55%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">18.7%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.070%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">VEMPX</td>
-              <td style="padding:6px 10px;color:var(--muted)">Fidelity 403b</td>
-              <td style="padding:6px 10px;color:var(--muted)">US extended mkt</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$58,871</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--coral)">15%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">5.1%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.060%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(251,146,60,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 401a — <span id="val-fid-401a">$120,136</span> · Plan 84669</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">VTPSX</td>
-              <td style="padding:6px 10px;color:var(--muted)">Fidelity 401a</td>
-              <td style="padding:6px 10px;color:var(--muted)">International broad</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$120,136</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--coral)">100%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">10.4%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.070%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(34,197,94,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:.06em">M1 Finance — <span id="val-m1">$89,587</span></td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">VTI</td>
-              <td style="padding:6px 10px;color:var(--muted)">M1 Finance</td>
-              <td style="padding:6px 10px;color:var(--muted)">US total market</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$17,917</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">20%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">1.6%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.030%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">QQQM</td>
-              <td style="padding:6px 10px;color:var(--muted)">M1 Finance</td>
-              <td style="padding:6px 10px;color:var(--muted)">Nasdaq 100</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$8,959</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">10%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.8%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.150%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">AVUV</td>
-              <td style="padding:6px 10px;color:var(--muted)">M1 Finance</td>
-              <td style="padding:6px 10px;color:var(--muted)">US small cap value</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$26,876</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">30%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">2.3%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.250%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">AVDV</td>
-              <td style="padding:6px 10px;color:var(--muted)">M1 Finance</td>
-              <td style="padding:6px 10px;color:var(--muted)">Intl small cap value</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$22,397</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">25%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">1.9%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.360%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">AVES</td>
-              <td style="padding:6px 10px;color:var(--muted)">M1 Finance</td>
-              <td style="padding:6px 10px;color:var(--muted)">EM value</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$13,438</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--green)">15%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">1.2%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.360%</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border);background:rgba(167,139,250,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--purple);text-transform:uppercase;letter-spacing:.06em">Kraken Crypto — $19,014</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">BTC</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">Macro anchor</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$8,568</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">45%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.74%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">ETH</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">Infrastructure</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$3,808</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">20%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.33%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">SOL</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">Consumer L1</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$1,903</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">10%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.16%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">TAO</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">AI/blockchain</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$1,517</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">8%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.13%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">HYPE</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">DEX revenue</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$1,333</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">7%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.12%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">LINK</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">Oracle/RWA</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$1,334</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">7%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.12%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--border)">
-              <td style="padding:6px 10px;color:var(--text);font-weight:500">XRP</td>
-              <td style="padding:6px 10px;color:var(--muted)">Kraken</td>
-              <td style="padding:6px 10px;color:var(--muted)">Payments</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">$509</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--purple)">3%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.04%</td>
-              <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">—</td>
-            </tr>
-            <tr style="border-top:1px solid var(--border2);background:rgba(34,197,94,0.06)">
-              <td style="padding:8px 10px;font-weight:500;color:var(--text)">Total</td>
-              <td style="padding:8px 10px;color:var(--muted)">6 accounts</td>
-              <td style="padding:8px 10px;color:var(--muted)">Blended ER ~0.08%</td>
-              <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:var(--green)">$1,152,704</td>
-              <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)"></td>
-              <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:var(--green)">100%</td>
-              <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">~$922/yr</td>
-            </tr>
+          <tbody id="fund-table-body">
           </tbody>
         </table>
       </div>
@@ -1962,8 +1747,8 @@
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
       <div class="kpi-card">
         <div class="kpi-label">Account balance</div>
-        <div class="kpi-val" style="font-size:20px;color:var(--purple)">$12,181</div>
-        <div class="kpi-sub">as of May 2, 2026</div>
+        <div class="kpi-val" style="font-size:20px;color:var(--purple)" id="val-regan-kpi">$12,181</div>
+        <div class="kpi-sub" id="regan-asof">as of May 2, 2026</div>
       </div>
       <div class="kpi-card">
         <div class="kpi-label">Monthly contributions</div>
@@ -1986,12 +1771,12 @@
       <div>
         <div class="card">
           <div class="card-title">Portfolio allocation — M1 Finance</div>
-          <div class="row"><div class="rl">VTI<div class="rsub">Vanguard Total US Market · broad, cheap, complete</div></div><div class="rv" style="color:var(--blue)">25% · $3,045</div></div>
-          <div class="row"><div class="rl">AVUV<div class="rsub">Avantis US Small Cap Value · highest conviction factor</div></div><div class="rv" style="color:var(--green)">25% · $3,045</div></div>
-          <div class="row"><div class="rl">VXUS<div class="rsub">Vanguard Total International · developed + EM in one</div></div><div class="rv" style="color:var(--blue)">20% · $2,436</div></div>
-          <div class="row"><div class="rl">AVDV<div class="rsub">Avantis Intl Small Cap Value · factor tilt</div></div><div class="rv" style="color:var(--green)">20% · $2,436</div></div>
-          <div class="row"><div class="rl">AVES<div class="rsub">Avantis EM Value · factor tilt</div></div><div class="rv" style="color:var(--amber)">10% · $1,218</div></div>
-          <div class="total-row"><span>Total</span><span class="rv" style="color:var(--purple)">$12,181</span></div>
+          <div class="row"><div class="rl">VTI<div class="rsub">Vanguard Total US Market · broad, cheap, complete</div></div><div class="rv" style="color:var(--blue)">25% · <span id="reg-vti">$3,045</span></div></div>
+          <div class="row"><div class="rl">AVUV<div class="rsub">Avantis US Small Cap Value · highest conviction factor</div></div><div class="rv" style="color:var(--green)">25% · <span id="reg-avuv">$3,045</span></div></div>
+          <div class="row"><div class="rl">VXUS<div class="rsub">Vanguard Total International · developed + EM in one</div></div><div class="rv" style="color:var(--blue)">20% · <span id="reg-vxus">$2,436</span></div></div>
+          <div class="row"><div class="rl">AVDV<div class="rsub">Avantis Intl Small Cap Value · factor tilt</div></div><div class="rv" style="color:var(--green)">20% · <span id="reg-avdv">$2,436</span></div></div>
+          <div class="row"><div class="rl">AVES<div class="rsub">Avantis EM Value · factor tilt</div></div><div class="rv" style="color:var(--amber)">10% · <span id="reg-aves">$1,218</span></div></div>
+          <div class="total-row"><span>Total</span><span class="rv" style="color:var(--purple)" id="reg-total">$12,181</span></div>
         </div>
         <div class="card">
           <div class="card-title">Allocation rationale</div>
@@ -3438,7 +3223,7 @@ function renderFramework(month) {
     });
   }
 
-const hasActuals = monthsForActuals.length > 0 && actualIncome > 0;
+const hasActuals = monthsForActuals.length > 0; // show actuals even if income not yet posted
   // Sanity check zero-sum — s39 is the plug so this should already be exact
   // Small floating point differences absorbed here
   if (hasActuals && actualIncome > 0) {
@@ -4768,8 +4553,10 @@ function parseSavingsDisbursements(wsStl) {
     // Check each sub-account debit column
     Object.entries(SAVINGS_SUB_COLS).forEach(([col, [label, nPct, wPct]]) => {
       const val = row[parseInt(col)];
-      if (val !== null && val !== undefined && val !== 0 && !isNaN(parseFloat(val))) {
-        const amt = Math.abs(parseFloat(val));
+      const numVal = parseFloat(val);
+      if (val !== null && val !== undefined && val !== 0 && !isNaN(numVal) && numVal > 0) {
+        // Only count positive debits (actual outflows); negative = refunds, skip
+        const amt = numVal;
         result[month].N += amt * nPct;
         result[month].W += amt * wPct;
       }
@@ -4988,7 +4775,160 @@ function updateInvestmentDOM(vals) {
 
   // Cache for offline
   try { localStorage.setItem('mf_live_portfolio', JSON.stringify({vals, ts: Date.now()})); } catch(e) {}
+  // ── Issue 1: Update NW summary card ──────────────────────────────────────
+  const nwLiquidVal2 = nwLiq; // nwLiq already computed above
+  const nwRealestate = 407000;
+  const nwVehicles   = 77000;
+  const nwDebtTotal  = 185424;
+  const totalGross   = nwLiquidVal2 + nwRealestate + nwVehicles + vals.total + vals.regan;
+  const nwFull       = totalGross - nwDebtTotal;
+  if (!isNaN(nwFull)) {
+    set('nw-big-val',      '$' + (nwFull/1000000).toFixed(2) + 'M');
+    set('nw-total-val',    fmt(nwFull));
+    set('nw-gross-assets', fmt(totalGross));
+    if (kpiNW) kpiNW.textContent = '$' + (nwFull/1000000).toFixed(2) + 'M';
+    const retireTotal = vals.tspCiv + vals.tspUni + vals.fid403b + vals.fid401a;
+    set('nw-alloc-retire', fmt(retireTotal));
+    set('nw-alloc-m1',     fmt(vals.m1));
+    set('nw-alloc-crypto', fmt(vals.crypto));
+    set('nw-alloc-cash',   fmt(nwLiquidVal2));
+    const pctEl = document.getElementById('nw-alloc-m1-pct');
+    if (pctEl) pctEl.textContent = Math.round(vals.m1/totalGross*100) + '%';
+    const nwLcEl = document.getElementById('nw-liquid-cash');
+    if (nwLcEl) nwLcEl.textContent = fmt(nwLiquidVal2);
+  }
+
+  // ── Issues 3 & 4: Consolidated table and Regan tab ─────────────────────────
+  updateConsolidatedTable(vals);
+  updateReganTab(vals);
+
   console.log('Live pricing updated:', new Date().toLocaleTimeString());
+}
+
+// ── Rebuild consolidated fund breakdown from live data ─────────────────────
+function updateConsolidatedTable(vals) {
+  const tbody = document.getElementById('fund-table-body');
+  if (!tbody || !_shareCounts || !_shareCounts.length) return;
+  const sc = _shareCounts;
+  const get = (acc, fund) => { const r=sc.find(r=>r.account===acc&&r.fund===fund); return r?.shares||0; };
+  const p = _livePrices;
+  const total = vals.total;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const fmtSh = n => n ? n.toLocaleString(undefined,{maximumFractionDigits:3}) : '—';
+  const fmtP = n => n ? '$'+n.toFixed(2) : '';
+
+  const hdr = (label, val, color='var(--blue)') =>
+    `<tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
+      <td colspan="8" style="padding:5px 10px;font-size:10px;font-weight:500;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${fmt(val)}</td>
+    </tr>`;
+
+  const row = (fund, acct, cls, val, acctTotal, er, shares, price) => {
+    const acctPct = acctTotal ? (val/acctTotal*100).toFixed(1)+'%' : '—';
+    const portPct = total     ? (val/total*100).toFixed(1)+'%'     : '—';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 10px;color:var(--text);font-weight:500">${fund}</td>
+      <td style="padding:6px 10px;color:var(--muted)">${acct}</td>
+      <td style="padding:6px 10px;color:var(--muted)">${cls}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(val)}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px">${fmtSh(shares)}<br><span style="color:var(--hint)">${fmtP(price)}</span></td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">${acctPct}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${portPct}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${er}</td>
+    </tr>`;
+  };
+
+  const tspC=p.tspC||115.63, tspS=p.tspS||109.12, tspI=p.tspI||61.38;
+  const vtiP=p.VTI||357.47, qqqmP=p.QQQM||277.81, avuvP=p.AVUV||121.00, avdvP=p.AVDV||105.61, avesP=p.AVES||66.32;
+  const vxusP=p.VXUS||82.44;
+  const fidViiixV=p.VIIIX||p.VOO||571.59, fidVtpsxV=p.VTPSX||p.VXUS||175.15, fidVempxV=p.VEMPX||p.VXF||385.26;
+  const cp = p;
+
+  const cCiv=get('TSP Civilian','C Fund'), sCiv=get('TSP Civilian','S Fund'), iCiv=get('TSP Civilian','I Fund');
+  const cUni=get('TSP Uniformed','C Fund'), sUni=get('TSP Uniformed','S Fund');
+  const viiix=get('Fidelity 403b','VIIIX'), vtpsx=get('Fidelity 403b','VTPSX'), vempx=get('Fidelity 403b','VEMPX');
+  const v401=get('Fidelity 401a','VTPSX');
+  const vtiSh=get('M1 Finance','VTI'), qqqmSh=get('M1 Finance','QQQM');
+  const avuvSh=get('M1 Finance','AVUV'), avdvSh=get('M1 Finance','AVDV'), avesSh=get('M1 Finance','AVES');
+  const btcSh=get('Kraken','BTC'), ethSh=get('Kraken','ETH'), solSh=get('Kraken','SOL');
+  const taoSh=get('Kraken','TAO'), hypeSh=get('Kraken','HYPE'), linkSh=get('Kraken','LINK'), xrpSh=get('Kraken','XRP');
+
+  let html = '';
+  html += hdr('TSP Civilian', vals.tspCiv);
+  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, vals.tspCiv,'0.054%', cCiv,  tspC);
+  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, vals.tspCiv,'0.054%', sCiv,  tspS);
+  html += row('I Fund','TSP Civ','International',  iCiv*tspI, vals.tspCiv,'0.054%', iCiv,  tspI);
+  html += hdr('TSP Uniformed', vals.tspUni);
+  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, vals.tspUni,'0.054%', cUni,  tspC);
+  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, vals.tspUni,'0.054%', sUni,  tspS);
+  html += hdr('Fidelity 403b', vals.fid403b, 'var(--coral)');
+  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, vals.fid403b,'0.02%', viiix, fidViiixV);
+  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, vals.fid403b,'0.07%', vtpsx, fidVtpsxV);
+  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, vals.fid403b,'0.04%', vempx, fidVempxV);
+  html += hdr('Fidelity 401a', vals.fid401a, 'var(--coral)');
+  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, vals.fid401a,'0.07%', v401, fidVtpsxV);
+  html += hdr('M1 Finance', vals.m1, 'var(--green)');
+  html += row('VTI','M1','US total market',  vtiSh*vtiP,   vals.m1,'0.03%', vtiSh,  vtiP);
+  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, vals.m1,'0.15%', qqqmSh, qqqmP);
+  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, vals.m1,'0.25%', avuvSh, avuvP);
+  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, vals.m1,'0.36%', avdvSh, avdvP);
+  html += row('AVES','M1','EM value',        avesSh*avesP, vals.m1,'0.36%', avesSh, avesP);
+  html += hdr('Crypto (Kraken)', vals.crypto, 'var(--purple)');
+  html += row('BTC','Kraken','Crypto',  btcSh*(cp.BTC||80861),  vals.crypto,'—', btcSh,  cp.BTC||80861);
+  html += row('ETH','Kraken','Crypto',  ethSh*(cp.ETH||2381),   vals.crypto,'—', ethSh,  cp.ETH||2381);
+  html += row('SOL','Kraken','Crypto',  solSh*(cp.SOL||84.79),  vals.crypto,'—', solSh,  cp.SOL||84.79);
+  html += row('TAO','Kraken','Crypto',  taoSh*(cp.TAO||283.53), vals.crypto,'—', taoSh,  cp.TAO||283.53);
+  html += row('HYPE','Kraken','Crypto', hypeSh*(cp.HYPE||40.97),vals.crypto,'—', hypeSh, cp.HYPE||40.97);
+  html += row('LINK','Kraken','Crypto', linkSh*(cp.LINK||9.59), vals.crypto,'—', linkSh, cp.LINK||9.59);
+  html += row('XRP','Kraken','Crypto',  xrpSh*(cp.XRP||1.40),  vals.crypto,'—', xrpSh,  cp.XRP||1.40);
+  html += `<tr style="border-top:2px solid var(--border2);font-weight:600">
+    <td colspan="3" style="padding:8px 10px">Total Portfolio</td>
+    <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(total)}</td>
+    <td colspan="4"></td>
+  </tr>`;
+
+  // Also add a "Units Owned" column header if it doesn't exist
+  const thead = tbody.closest('table').querySelector('thead tr');
+  if (thead && thead.children.length === 7) {
+    const th = document.createElement('th');
+    th.style.cssText = 'text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap';
+    th.textContent = 'Units / Price';
+    thead.insertBefore(th, thead.children[3]);
+  }
+
+  tbody.innerHTML = html;
+}
+
+// ── Update Regan/Kids tab with live prices ─────────────────────────────────
+function updateReganTab(vals) {
+  if (!_shareCounts || !_shareCounts.length) return;
+  const sc = _shareCounts;
+  const get = (acc, fund) => { const r=sc.find(r=>r.account===acc&&r.fund===fund); return r?.shares||0; };
+  const p = _livePrices;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const set = (id, v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+
+  const vtiP=p.VTI||357.47, avuvP=p.AVUV||121.00, vxusP=p.VXUS||82.44;
+  const avdvP=p.AVDV||105.61, avesP=p.AVES||66.32;
+
+  const regVTI  = get('Regan Investment','VTI')  * vtiP;
+  const regAVUV = get('Regan Investment','AVUV') * avuvP;
+  const regVXUS = get('Regan Investment','VXUS') * vxusP;
+  const regAVDV = get('Regan Investment','AVDV') * avdvP;
+  const regAVES = get('Regan Investment','AVES') * avesP;
+  const regTotal = regVTI + regAVUV + regVXUS + regAVDV + regAVES;
+
+  if (!isNaN(regTotal) && regTotal > 0) {
+    set('reg-vti',  fmt(regVTI));
+    set('reg-avuv', fmt(regAVUV));
+    set('reg-vxus', fmt(regVXUS));
+    set('reg-avdv', fmt(regAVDV));
+    set('reg-aves', fmt(regAVES));
+    set('reg-total',    fmt(regTotal));
+    set('val-regan-kpi',fmt(regTotal));
+    set('val-regan',    fmt(regTotal));
+    const d = new Date();
+    set('regan-asof', 'live · ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));
+  }
 }
 
 // ── 7. Update allocation bar dollar amounts ──────────────────────────────────
@@ -5193,8 +5133,11 @@ async function processWorkbook(wb, lastModified) {
     Object.entries(SUB_COL_NAMES).forEach(([col, name]) => {
       const c = parseInt(col);      // debit column
       const cc = c + 1;             // credit column (debit+1)
-      const debit  = row[c]  !== null && row[c]  !== undefined ? Math.abs(parseFloat(row[c]))  : 0;
-      const credit = row[cc] !== null && row[cc] !== undefined ? Math.abs(parseFloat(row[cc])) : 0;
+      const rawDebitVal = row[c]  !== null && row[c]  !== undefined ? parseFloat(row[c])  : 0;
+      const rawCreditVal = row[cc] !== null && row[cc] !== undefined ? parseFloat(row[cc]) : 0;
+      // Negative debit = refund → treat as credit
+      const debit  = rawDebitVal  > 0 ? rawDebitVal  : 0;
+      const credit = rawCreditVal > 0 ? rawCreditVal : (rawDebitVal < 0 ? Math.abs(rawDebitVal) : 0);
       if (debit > 0 || credit > 0) {
         rawTx.push({ date: dateStr, desc: desc || name, col: c, debit, credit });
       }
