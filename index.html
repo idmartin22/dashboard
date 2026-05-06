@@ -3867,7 +3867,7 @@ renderSavingsTx();
 // ── CHECKING TRANSACTION DATA ─────────────────────────────────────────────────
 let CHECKING_TX = []; // populated by sync from Checking Transaction Log
 
-const // RENTAL_UTIL_TX removed — rental utility data comes from sync
+// RENTAL_UTIL_TX removed — rental utility data comes from sync
 const RENTAL_UTIL_PAID = 613.00;
 const RENTAL_UTIL_OWED = 453.02;
 
@@ -4716,7 +4716,7 @@ function parseShareCounts(ws) {
 function fmtBal(val) {
   const n = typeof val==='string' ? parseFloat(val.replace(/[$,]/g,'')) : val;
   return isNaN(n) ? null : n;
-}}
+}
 
 // ── SAVINGS SUB-ACCOUNT DISBURSEMENT PARSING ──────────────────────────────────
 // Column indices (0-based) for each sub-account's DEBIT column in Savings Transaction Log
