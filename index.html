@@ -384,12 +384,12 @@
   <div class="kpi-grid">
     <div class="kpi-card highlight">
       <div class="kpi-label">Net worth</div>
-      <div class="kpi-val" style="color:var(--green)">$1,495,894</div>
+      <div class="kpi-val" style="color:var(--green)" id="kpi-net-worth">$1.50M</div>
       <div class="kpi-sub">May 2, 2026</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Total investable</div>
-      <div class="kpi-val" style="color:var(--blue)">$1,171,318</div>
+      <div class="kpi-val" style="color:var(--blue)" id="kpi-total-investable">$1,171,318</div>
       <div class="kpi-sub">6 accounts</div>
     </div>
     <div class="kpi-card">
@@ -488,20 +488,20 @@
     <div class="two-col">
       <div>
         <div class="card">
-          <div class="card-title">TSP Civilian — $416,706</div>
+          <div class="card-title">TSP Civilian — <span id="val-tsp-civ">$416,706</span></div>
           <div class="alloc-row"><span class="alloc-label">C Fund (S&P 500)</span><div class="alloc-track"><div class="alloc-fill" style="width:55%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">55%</span><span class="alloc-val">$229,188</span></div>
           <div class="alloc-row"><span class="alloc-label">S Fund (small/mid)</span><div class="alloc-track"><div class="alloc-fill" style="width:25%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">25%</span><span class="alloc-val">$104,177</span></div>
           <div class="alloc-row"><span class="alloc-label">I Fund (international)</span><div class="alloc-track"><div class="alloc-fill" style="width:20%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)">20%</span><span class="alloc-val">$83,341</span></div>
           <div class="acct-note">5% contribution + 5% match · tsp.gov · 0.054% ER · 7.20% YTD</div>
         </div>
         <div class="card">
-          <div class="card-title">TSP Uniformed — $133,805</div>
+          <div class="card-title">TSP Uniformed — <span id="val-tsp-uni">$133,805</span></div>
           <div class="alloc-row"><span class="alloc-label">C Fund (S&P 500)</span><div class="alloc-track"><div class="alloc-fill" style="width:40%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">40%</span><span class="alloc-val">$53,522</span></div>
           <div class="alloc-row"><span class="alloc-label">S Fund (small/mid)</span><div class="alloc-track"><div class="alloc-fill" style="width:60%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">60%</span><span class="alloc-val">$80,283</span></div>
           <div class="acct-note">10% Guard contribution · aggressive small/mid tilt · 0.054% ER · 7.19% YTD</div>
         </div>
         <div class="card">
-          <div class="card-title">Fidelity 403b — $392,470 · Plan 52685</div>
+          <div class="card-title">Fidelity 403b — <span id="val-fid-403b">$392,470</span> · Plan 52685</div>
           <div class="alloc-row"><span class="alloc-label">VIIIX (S&P 500 inst.)</span><div class="alloc-track"><div class="alloc-fill" style="width:30%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">30%</span><span class="alloc-val">$117,741</span></div>
           <div class="alloc-row"><span class="alloc-label">VTPSX (total intl)</span><div class="alloc-track"><div class="alloc-fill" style="width:55%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)">55%</span><span class="alloc-val">$215,859</span></div>
           <div class="alloc-row"><span class="alloc-label">VEMPX (extended mkt)</span><div class="alloc-track"><div class="alloc-fill" style="width:15%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">15%</span><span class="alloc-val">$58,871</span></div>
@@ -510,12 +510,12 @@
       </div>
       <div>
         <div class="card">
-          <div class="card-title">Fidelity 401a — $120,136 · Plan 84669</div>
+          <div class="card-title">Fidelity 401a — <span id="val-fid-401a">$120,136</span> · Plan 84669</div>
           <div class="alloc-row"><span class="alloc-label">VTPSX (total intl)</span><div class="alloc-track"><div class="alloc-fill" style="width:100%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)">100%</span><span class="alloc-val">$120,136</span></div>
           <div class="acct-note">Lorri · employer funded only · $358.86/check · pure international · 0.07% ER</div>
         </div>
         <div class="card">
-          <div class="card-title">M1 Finance — $89,587</div>
+          <div class="card-title">M1 Finance — <span id="val-m1">$89,587</span></div>
           <div class="alloc-row"><span class="alloc-label">VTI (US total market)</span><div class="alloc-track"><div class="alloc-fill" style="width:20%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">20%</span><span class="alloc-val">$17,917</span></div>
           <div class="alloc-row"><span class="alloc-label">QQQM (Nasdaq 100)</span><div class="alloc-track"><div class="alloc-fill" style="width:10%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">10%</span><span class="alloc-val">$8,959</span></div>
           <div class="alloc-row"><span class="alloc-label">AVUV (US SCV)</span><div class="alloc-track"><div class="alloc-fill" style="width:30%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">30%</span><span class="alloc-val">$26,876</span></div>
@@ -524,7 +524,7 @@
           <div class="acct-note">Factor tilt sleeve · taxable · ~0.20% ER · rebalanced May 2, 2026</div>
         </div>
         <div class="card">
-          <div class="card-title">Kraken crypto — $19,014 · 1.27% of NW</div>
+          <div class="card-title">Kraken crypto — <span id="val-crypto">$19,329</span> · <span id="val-crypto-pct">1.27%</span> of NW</div>
           <div class="alloc-row"><span class="alloc-label">BTC (macro anchor)</span><div class="alloc-track"><div class="alloc-fill" style="width:45%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)">45%</span><span class="alloc-val">$8,568</span></div>
           <div class="alloc-row"><span class="alloc-label">ETH (infrastructure)</span><div class="alloc-track"><div class="alloc-fill" style="width:20%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">20%</span><span class="alloc-val">$3,808</span></div>
           <div class="alloc-row"><span class="alloc-label">SOL (consumer L1)</span><div class="alloc-track"><div class="alloc-fill" style="width:10%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">10%</span><span class="alloc-val">$1,903</span></div>
@@ -554,7 +554,7 @@
           </thead>
           <tbody>
             <tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Civilian — $416,706</td>
+              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Civilian — <span id="val-tsp-civ">$416,706</span></td>
             </tr>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:6px 10px;color:var(--text);font-weight:500">C Fund</td>
@@ -584,7 +584,7 @@
               <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Uniformed — $133,805</td>
+              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.06em">TSP Uniformed — <span id="val-tsp-uni">$133,805</span></td>
             </tr>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:6px 10px;color:var(--text);font-weight:500">C Fund</td>
@@ -605,7 +605,7 @@
               <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.054%</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border);background:rgba(251,146,60,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 403b — $392,470 · Plan 52685</td>
+              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 403b — <span id="val-fid-403b">$392,470</span> · Plan 52685</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:6px 10px;color:var(--text);font-weight:500">VIIIX</td>
@@ -635,7 +635,7 @@
               <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.060%</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border);background:rgba(251,146,60,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 401a — $120,136 · Plan 84669</td>
+              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--coral);text-transform:uppercase;letter-spacing:.06em">Fidelity 401a — <span id="val-fid-401a">$120,136</span> · Plan 84669</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:6px 10px;color:var(--text);font-weight:500">VTPSX</td>
@@ -647,7 +647,7 @@
               <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">0.070%</td>
             </tr>
             <tr style="border-bottom:1px solid var(--border);background:rgba(34,197,94,0.04)">
-              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:.06em">M1 Finance — $89,587</td>
+              <td colspan="7" style="padding:5px 10px;font-size:10px;font-weight:500;color:var(--green);text-transform:uppercase;letter-spacing:.06em">M1 Finance — <span id="val-m1">$89,587</span></td>
             </tr>
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:6px 10px;color:var(--text);font-weight:500">VTI</td>
@@ -1619,16 +1619,16 @@
         <div class="row"><div class="rl">Savings<div class="rsub">unallocated true savings</div></div><div class="rv green">$17,298.82</div></div>
         <div class="row"><div class="rl">CC Rewards — Xmas<div class="rsub">Isaac + Lorri rewards + interest</div></div><div class="rv" style="color:var(--purple)">$983.19</div></div>
         <div style="margin:8px 0 4px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Periodic bill sub-accounts</div>
-        <div class="row" onclick="showSavingsSubDrillDown('Vehicle Maintenance',7)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Vehicle Maintenance</div><div class="rv">$3,092.35</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Car Insurance',9)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Car Insurance</div><div class="rv">$2,280.00</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Vehicle Maintenance',7)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Vehicle Maintenance</div><div class="rv" id="sv-veh">$3,092.35</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Car Insurance',9)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Car Insurance</div><div class="rv" id="sv-ins">$2,280.00</div></div>
         <div class="row" onclick="showSavingsSubDrillDown('Rental Garbage',11)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Garbage</div><div class="rv">$38.04</div></div>
         <div class="row" onclick="showSavingsSubDrillDown('Garbage',13)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Garbage</div><div class="rv">$38.04</div></div>
         <div class="row" onclick="showSavingsSubDrillDown('Sanitation — Main',15)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Sanitation — Main</div><div class="rv">$94.36</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Camping / Vacation',17)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Camping / Vacation<div class="rsub">Nashville, Puerto Rico spent</div></div><div class="rv red">−$224.78</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Home Maintenance',19)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Home Maintenance<div class="rsub">Kitchen remodel + deck labor</div></div><div class="rv red">−$3,667.91</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Rental Repairs',21)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Repairs</div><div class="rv">$900.00</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Rental Insurance',23)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Insurance</div><div class="rv">$540.00</div></div>
-        <div class="row" onclick="showSavingsSubDrillDown('Rental Property Taxes',25)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Property Tax</div><div class="rv">$1,143.60</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Camping / Vacation',17)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Camping / Vacation<div class="rsub">Nashville, Puerto Rico spent</div></div><div class="rv red" id="sv-camp">−$224.78</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Home Maintenance',19)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Home Maintenance<div class="rsub">Kitchen remodel + deck labor</div></div><div class="rv red" id="sv-hm">−$3,667.91</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Rental Repairs',21)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Repairs</div><div class="rv" id="sv-rentrep">$900.00</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Rental Insurance',23)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Insurance</div><div class="rv" id="sv-rentins">$540.00</div></div>
+        <div class="row" onclick="showSavingsSubDrillDown('Rental Property Taxes',25)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Property Tax</div><div class="rv" id="sv-proptax">$1,143.60</div></div>
         <div class="row" onclick="showSavingsSubDrillDown('Rental Sanitation',27)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Rental Sanitation</div><div class="rv">$94.36</div></div>
         <div class="total-row"><span>Total</span><span class="rv green">$22,610.07</span></div>
       </div>
@@ -2692,12 +2692,8 @@ function getMonthlyBudget(month) {
 }
 
 // actuals stored as { "2026-05": { "d1": 1150, "d2": 980, ... }, ... }
-const SEEDED_INCOME = {
-  "2026-01": {"i38":8731.32,"i39":6108.04,"i40":0,"i41":800.00},
-  "2026-02": {"i38":8556.31,"i39":5527.56,"i40":2531.75,"i41":0},
-  "2026-03": {"i38":9005.06,"i39":5527.56,"i40":838.67,"i41":1600.00},
-  "2026-04": {"i38":9195.64,"i39":8291.34,"i40":838.69,"i41":550.00}
-};
+// SEEDED_INCOME removed — sync is source of truth
+let incomeActuals = {};
 
 const INCOME_LINES = [
   { id:'i38', label:'Lorri Income (Cleveland Clinic)' },
@@ -2708,13 +2704,7 @@ const INCOME_LINES = [
 
 let incomeActuals = {};
 
-const SEEDED_ACTUALS = {
-  "2026-01": {"d1":1067.56,"d2":1061.45,"d3":144.51,"d4":561.41,"d5":717.10,"d6":714.12,"d7":626.04,"d8":683.49,"f9":1281.53,"f10":17.90,"f11":267.96,"f12":204.83,"f13":167.42,"f14":135.41,"f15":132.40,"f16":0,"f17":281.25,"f18":400.00,"f19":200.00,"f20":0,"f21":100.79,"f22":218.27,"f23":1180.34,"f24":83.42,"f25":80.99,"f26":66.53,"b27":350.00,"b28":320.00,"b29":25.00,"b30":25.00,"b31":45.00,"b32":400.00,"b33":375.00,"b34":100.00,"b35":85.00,"b36":230.00,"b37":45.00,"s38":50.00,"s39":3194.64},
-  "2026-02": {"d1":1033.90,"d2":911.68,"d3":90.76,"d4":710.78,"d5":780.14,"d6":693.08,"d7":670.18,"d8":979.71,"f9":1281.53,"f10":17.90,"f11":480.91,"f12":204.47,"f13":159.35,"f14":135.41,"f15":188.16,"f16":0,"f17":183.19,"f18":400.00,"f19":200.00,"f20":0,"f21":108.35,"f22":67.05,"f23":1180.34,"f24":168.41,"f25":88.44,"f26":66.97,"b27":350.00,"b28":320.00,"b29":25.00,"b30":25.00,"b31":45.00,"b32":400.00,"b33":375.00,"b34":100.00,"b35":85.00,"b36":230.00,"b37":45.00,"s38":50.00,"s39":3764.91},
-  "2026-03": {"d1":1318.18,"d2":1233.46,"d3":173.53,"d4":537.41,"d5":516.79,"d6":525.38,"d7":221.65,"d8":640.42,"f9":1281.53,"f10":17.90,"f11":267.91,"f12":204.47,"f13":134.93,"f14":135.41,"f15":175.09,"f16":820.06,"f17":183.09,"f18":400.00,"f19":200.00,"f20":0,"f21":116.32,"f22":79.82,"f23":1180.34,"f24":86.58,"f25":96.25,"f26":65.19,"b27":350.00,"b28":320.00,"b29":25.00,"b30":25.00,"b31":45.00,"b32":400.00,"b33":375.00,"b34":100.00,"b35":85.00,"b36":230.00,"b37":45.00,"s38":50.00,"s39":4309.58},
-  "2026-04": {"d1":1284.83,"d2":984.18,"d3":91.66,"d4":592.33,"d5":1673.98,"d6":1146.79,"d7":269.88,"d8":654.01,"f9":1281.53,"f10":17.90,"f11":267.91,"f12":214.74,"f13":104.98,"f14":136.92,"f15":131.23,"f16":15.00,"f17":141.65,"f18":400.00,"f19":200.00,"f20":0,"f21":75.60,"f22":76.62,"f23":1180.34,"f24":105.33,"f25":88.17,"f26":73.27,"b27":350.00,"b28":320.00,"b29":25.00,"b30":25.00,"b31":45.00,"b32":400.00,"b33":375.00,"b34":100.00,"b35":85.00,"b36":230.00,"b37":45.00,"s38":50.00,"s39":5616.82}
-};
-
+// budgetActuals — populated by sync
 let budgetActuals = {};
 
 // Version key — bump this whenever seeded data is corrected to force cache reset
@@ -2722,38 +2712,18 @@ const DATA_VERSION = 'v6';
 
 async function loadBudgetActuals() {
   try {
-    // Always start with seeded data (Jan-Apr locked actuals)
-    budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
-    incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
-
-    // Load whatever is in storage
+    // Sync is source of truth — load from storage (populated by autoSync)
+    budgetActuals = {};
+    incomeActuals = {};
     const r = await window.storage.get('budget_actuals');
-    if (r) {
-      const stored = JSON.parse(r.value);
-      // Seeded months: seed wins (correct known data)
-      // Non-seeded months (May+): storage wins (synced from Excel)
-      Object.keys(stored).forEach(m => {
-        if (!SEEDED_ACTUALS[m]) {
-          budgetActuals[m] = stored[m];
-        }
-      });
-    }
-
+    if (r) budgetActuals = JSON.parse(r.value);
     const ri = await window.storage.get('income_actuals');
-    if (ri) {
-      const storedIncome = JSON.parse(ri.value);
-      Object.keys(storedIncome).forEach(m => {
-        if (!SEEDED_INCOME[m]) {
-          incomeActuals[m] = storedIncome[m];
-        }
-      });
-    }
-
+    if (ri) incomeActuals = JSON.parse(ri.value);
     console.log('Loaded months:', Object.keys(budgetActuals));
   } catch(e) {
     console.error('loadBudgetActuals error:', e);
-    budgetActuals = JSON.parse(JSON.stringify(SEEDED_ACTUALS));
-    incomeActuals = JSON.parse(JSON.stringify(SEEDED_INCOME));
+    budgetActuals = {};
+    incomeActuals = {};
   }
 }
 
@@ -3371,8 +3341,6 @@ function refreshFrameworkBudgets() {
     return newBudget !== undefined ? [id, newBudget, nPct, wPct, sPct] : line;
   });
   // Also update HM and CV transfer amounts
-  if (window._lineBudgets[31]) window.HM_TRANSFER = window._lineBudgets[31];
-  if (window._lineBudgets[30]) window.CV_TRANSFER = window._lineBudgets[30];
 }
 
 function renderFramework(month) {
@@ -3609,28 +3577,9 @@ loadBudgetActuals().then(() => {
 // Actual sub-account disbursements for Home Maintenance and Camping/Vacation
 // These replace the monthly transfer amounts in the framework
 // s39 is adjusted accordingly to maintain zero-sum
-const SAVINGS_ACTUALS = {
-  '2026-01': {
-    'b33': { amount: 622.10,  nPct: 0.5, wPct: 0.5, items: [['Kitchen Remodel', 622.10]] },
-    'b32': { amount: 2724.00, items: [['Nashville', 2724.00]] },
-  },
-  '2026-02': {
-    'b33': { amount: 5267.24, nPct: 0.5, wPct: 0.5, items: [['Kitchen Remodel', 1920.00],['Kitchen Remodel', 243.80],['Kitchen Remodel', 2203.44],['Drew Bachtell - Labor', 900.00]] },
-    'b32': { amount: 1786.92, items: [['Puerto Rico House/Car', 955.00],['Puerto Rico Airfare', 831.92]] },
-  },
-  '2026-03': {
-    'b33': { amount: 1200.00, nPct: 0.5, wPct: 0.5, items: [['Drew Bachtell - Labor', 1200.00]] },
-    'b32': { amount: -1004.50,items: [['Puerto Rico - Excursion', 380.00],['Nashville - Julie (refund)', -1384.50]] },
-  },
-  '2026-04': {
-    'b33': { amount: 578.57,  nPct: 0.5, wPct: 0.5, items: [['84 Lumber - Deck', 578.57]] },
-    'b32': { amount: 318.36,  items: [['Lorri - Columbus', 318.36]] },
-  },
-};
+// SAVINGS_ACTUALS removed — sync is source of truth
 
 // Budget line transfers for HM and CV (used to compute s39 adjustment)
-let HM_TRANSFER = 375;
-let CV_TRANSFER = 400;
 
 // ── SAVINGS TAB ──────────────────────────────────────────────────────────────
 const SAVINGS_TX = [
@@ -3751,7 +3700,6 @@ const ACCT_COLOR = {
 function mergeSyncedCheckingTx(wsCtl) {
   try {
     const data = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
-    const SEEDED_MONTHS = ['2026-01','2026-02','2026-03','2026-04'];
     const newTx = [];
 
     data.forEach((row, i) => {
@@ -3780,9 +3728,6 @@ function mergeSyncedCheckingTx(wsCtl) {
         monthKey = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2,'0');
       } else return;
 
-      // Only add non-seeded months
-      if (SEEDED_MONTHS.includes(monthKey)) return;
-
       const lineNum = parseInt(lineId);
       if (isNaN(lineNum)) return;
 
@@ -3796,10 +3741,8 @@ function mergeSyncedCheckingTx(wsCtl) {
       });
     });
 
-    // Remove any previously synced non-seeded transactions
-    CHECKING_TX = CHECKING_TX.filter(tx => SEEDED_MONTHS.includes(tx.month));
-    // Add new synced ones
-    CHECKING_TX = CHECKING_TX.concat(newTx);
+    // Replace all checking transactions with fresh sync data
+    CHECKING_TX = newTx;
     console.log('Merged checking tx — total:', CHECKING_TX.length, 'new:', newTx.length);
 
     // Persist synced tx to localStorage
@@ -3818,9 +3761,7 @@ function loadSyncedCheckingTx() {
     const raw = localStorage.getItem('mf_synced_checking_tx');
     if (raw) {
       const synced = JSON.parse(raw);
-      const SEEDED_MONTHS = ['2026-01','2026-02','2026-03','2026-04'];
-      CHECKING_TX = CHECKING_TX.filter(tx => SEEDED_MONTHS.includes(tx.month));
-      CHECKING_TX = CHECKING_TX.concat(synced);
+      CHECKING_TX = synced; // all transactions come from sync
       console.log('Restored synced checking tx:', synced.length);
     }
   } catch(e) {}
@@ -3926,17 +3867,13 @@ function renderSavingsTx() {
 renderSavingsTx();
 
 // ── CHECKING TRANSACTION DATA ─────────────────────────────────────────────────
-let CHECKING_TX = [{"date": "04/30/2026", "month": "2026-04", "desc": "Transfer to Venmo - Nurses Week Breakfast", "line": 6, "debit": 30, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Water Bill - Main", "line": 42, "debit": 50.92, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Water Bill - Rental", "line": 43, "debit": 50.92, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "BP Global", "line": 4, "debit": 35.8, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "EH Roberts", "line": 10, "debit": 17.9, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 8.72, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Puerto Rico - Cash", "line": 2, "debit": 100, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Puerto Rico - Cash", "line": 5, "debit": 100, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Puerto Rico - Cash", "line": 6, "debit": 100, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Puerto Rico - Cash", "line": 8, "debit": 100, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 42.44, "credit": 0}, {"date": "04/30/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 24.05, "credit": 0}, {"date": "04/29/2026", "month": "2026-04", "desc": "Chipotle", "line": 2, "debit": 31.8, "credit": 0}, {"date": "04/29/2026", "month": "2026-04", "desc": "Transfer to Regan", "line": 6, "debit": 100, "credit": 0}, {"date": "04/29/2026", "month": "2026-04", "desc": "Transfer to Julie", "line": 6, "debit": 75, "credit": 0}, {"date": "04/29/2026", "month": "2026-04", "desc": "Heinens Grocery Store", "line": 1, "debit": 52.5, "credit": 0}, {"date": "04/29/2026", "month": "2026-04", "desc": "Julie State Tax Return", "line": 6, "debit": -256, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Amazon", "line": 6, "debit": 20.38, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 15.41, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Friendship", "line": 4, "debit": 33.84, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 5.3, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Lorri Golf Outing", "line": 5, "debit": 500, "credit": 0}, {"date": "04/28/2026", "month": "2026-04", "desc": "Coopershawk", "line": 8, "debit": 47.99, "credit": 0}, {"date": "04/27/2026", "month": "2026-04", "desc": "Biggby Coffee", "line": 3, "debit": 13.11, "credit": 0}, {"date": "04/27/2026", "month": "2026-04", "desc": "Speedway", "line": 4, "debit": 30.54, "credit": 0}, {"date": "04/27/2026", "month": "2026-04", "desc": "ALDI", "line": 1, "debit": 163.01, "credit": 0}, {"date": "04/27/2026", "month": "2026-04", "desc": "Uber", "line": 6, "debit": 54.97, "credit": 0}, {"date": "04/27/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 51.28, "credit": 0}, {"date": "04/26/2026", "month": "2026-04", "desc": "Uber", "line": 6, "debit": 38.98, "credit": 0}, {"date": "04/26/2026", "month": "2026-04", "desc": "MCO LGC", "line": 2, "debit": 39.83, "credit": 0}, {"date": "04/26/2026", "month": "2026-04", "desc": "MCO LGC", "line": 8, "debit": 51.24, "credit": 0}, {"date": "04/25/2026", "month": "2026-04", "desc": "Spectrum", "line": 12, "debit": 214.74, "credit": 0}, {"date": "04/23/2026", "month": "2026-04", "desc": "CashApp - Yasmary", "line": 8, "debit": 65, "credit": 0}, {"date": "04/22/2026", "month": "2026-04", "desc": "Orlando Market", "line": 2, "debit": 17.03, "credit": 0}, {"date": "04/22/2026", "month": "2026-04", "desc": "Uber", "line": 6, "debit": 51.94, "credit": 0}, {"date": "04/22/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 226.7, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "Paninis", "line": 2, "debit": 70, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 14.26, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "Target", "line": 1, "debit": 8.51, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "Transfer to Venmo - Raffle Tickets", "line": 5, "debit": 20, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "GM Financial", "line": 23, "debit": 650.88, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "MyClevelandClinic Org", "line": 6, "debit": 15, "credit": 0}, {"date": "04/21/2026", "month": "2026-04", "desc": "MyClevelandClinic Org", "line": 5, "debit": 250, "credit": 0}, {"date": "04/20/2026", "month": "2026-04", "desc": "Spotify", "line": 22, "debit": 20.22, "credit": 0}, {"date": "04/20/2026", "month": "2026-04", "desc": "Regan Cash", "line": 6, "debit": 44, "credit": 0}, {"date": "04/20/2026", "month": "2026-04", "desc": "Aramark Cleveland", "line": 2, "debit": 12.01, "credit": 0}, {"date": "04/20/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 12.21, "credit": 0}, {"date": "04/20/2026", "month": "2026-04", "desc": "Barrio", "line": 2, "debit": 46.4, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Mr. Hero", "line": 2, "debit": 31.7, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "ARCO", "line": 8, "debit": 11.11, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 79.16, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Disney+", "line": 22, "debit": 7.46, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 13.83, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 30, "credit": 0}, {"date": "04/19/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 15.17, "credit": 0}, {"date": "04/18/2026", "month": "2026-04", "desc": "Sams Club", "line": 1, "debit": 75.55, "credit": 0}, {"date": "04/18/2026", "month": "2026-04", "desc": "Crepes in the City", "line": 2, "debit": 26, "credit": 0}, {"date": "04/18/2026", "month": "2026-04", "desc": "ALDI", "line": 1, "debit": 25.28, "credit": 0}, {"date": "04/18/2026", "month": "2026-04", "desc": "Friendship", "line": 3, "debit": 7.76, "credit": 0}, {"date": "04/18/2026", "month": "2026-04", "desc": "AppleTV", "line": 22, "debit": 13.84, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Aramark Cleveland", "line": 2, "debit": 12.84, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Olive Garden", "line": 2, "debit": 59.71, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Massage Envy", "line": 21, "debit": 75.6, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "City of Lorain", "line": 43, "debit": 22.35, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "City of Lorain", "line": 42, "debit": 37.25, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 35.12, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Friendship", "line": 3, "debit": 8.72, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Sheetz", "line": 2, "debit": 13.21, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Planet Fitness", "line": 17, "debit": 42.65, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Columbia Gas", "line": 15, "debit": 131.23, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Lorri - Hair", "line": 6, "debit": 210, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Lormet", "line": 23, "debit": 529.46, "credit": 0}, {"date": "04/17/2026", "month": "2026-04", "desc": "Shein", "line": 7, "debit": 32.78, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Speedway", "line": 4, "debit": 44.41, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Vecchio - Lorri Dentist", "line": 16, "debit": 15, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Chipotle", "line": 2, "debit": 41.95, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Claude", "line": 5, "debit": 21.3, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Friendship", "line": 4, "debit": 70.03, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 11.48, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Harbor Freight", "line": 6, "debit": 26.61, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Julie Tax Filing", "line": 6, "debit": 42.59, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 20.58, "credit": 0}, {"date": "04/16/2026", "month": "2026-04", "desc": "Verizon Wireless", "line": 11, "debit": 267.91, "credit": 0}, {"date": "04/15/2026", "month": "2026-04", "desc": "Shop Funds", "line": 6, "debit": 27, "credit": 0}, {"date": "04/15/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 14.67, "credit": 0}, {"date": "04/15/2026", "month": "2026-04", "desc": "Uber Eats", "line": 2, "debit": 102.2, "credit": 0}, {"date": "04/14/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 15.53, "credit": 0}, {"date": "04/14/2026", "month": "2026-04", "desc": "Ohio Turnpike", "line": 24, "debit": 105.33, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Raising Canes", "line": 2, "debit": 11.64, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 50.71, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Sheetz", "line": 2, "debit": 11.06, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "BP Global", "line": 4, "debit": 35.98, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Circle K", "line": 8, "debit": 7.83, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Dunkin Donuts", "line": 3, "debit": 4.19, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Laporte Inn", "line": 8, "debit": 39.25, "credit": 0}, {"date": "04/13/2026", "month": "2026-04", "desc": "Wells Fargo - Pool", "line": 19, "debit": 200, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Heinens Grocery Store", "line": 1, "debit": 136.05, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Dunkin Donuts", "line": 3, "debit": 13.09, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 24.47, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 14.29, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Amazon", "line": 22, "debit": 9.57, "credit": 0}, {"date": "04/12/2026", "month": "2026-04", "desc": "Pulp", "line": 3, "debit": 25, "credit": 0}, {"date": "04/11/2026", "month": "2026-04", "desc": "Netflix", "line": 22, "debit": 19.16, "credit": 0}, {"date": "04/11/2026", "month": "2026-04", "desc": "Chipotle", "line": 2, "debit": 20.91, "credit": 0}, {"date": "04/11/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 12.44, "credit": 0}, {"date": "04/11/2026", "month": "2026-04", "desc": "Marcos Pizza", "line": 2, "debit": 41.34, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Interest Income", "line": 6, "debit": -0.04, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Bowling Fees", "line": 5, "debit": 372, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Gulf Oil", "line": 2, "debit": 15.22, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Friendship", "line": 3, "debit": 9.55, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Mahd House", "line": 8, "debit": 52.65, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "ALDI", "line": 1, "debit": 68.99, "credit": 0}, {"date": "04/10/2026", "month": "2026-04", "desc": "Aramark Cleveland", "line": 2, "debit": 17.37, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 64.42, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "Digital Media Subscription", "line": 5, "debit": 10.68, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "SP Med Threads", "line": 7, "debit": 68.01, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "Speedway", "line": 4, "debit": 40.85, "credit": 0}, {"date": "04/09/2026", "month": "2026-04", "desc": "Community West Foundation", "line": 6, "debit": 25, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "Lowes Rewards - Kitchen", "line": 18, "debit": 400, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "First Energy", "line": 13, "debit": 104.98, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 13.8, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "BP Global", "line": 4, "debit": 37.92, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 56.68, "credit": 0}, {"date": "04/08/2026", "month": "2026-04", "desc": "Fairview Convienient", "line": 6, "debit": 29.26, "credit": 0}, {"date": "04/07/2026", "month": "2026-04", "desc": "Rocket Mortgage", "line": 9, "debit": 1281.53, "credit": 0}, {"date": "04/07/2026", "month": "2026-04", "desc": "Sunoco", "line": 4, "debit": 25.84, "credit": 0}, {"date": "04/07/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 12.05, "credit": 0}, {"date": "04/07/2026", "month": "2026-04", "desc": "Sheetz", "line": 4, "debit": 82.04, "credit": 0}, {"date": "04/07/2026", "month": "2026-04", "desc": "Bob Evans", "line": 2, "debit": 22.92, "credit": 0}, {"date": "04/06/2026", "month": "2026-04", "desc": "Golf Outing", "line": 5, "debit": 400, "credit": 0}, {"date": "04/06/2026", "month": "2026-04", "desc": "LOC Citizens", "line": 14, "debit": 66.67, "credit": 0}, {"date": "04/06/2026", "month": "2026-04", "desc": "Vivint", "line": 14, "debit": 70.25, "credit": 0}, {"date": "04/05/2026", "month": "2026-04", "desc": "Apples", "line": 1, "debit": 25.6, "credit": 0}, {"date": "04/05/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 8.56, "credit": 0}, {"date": "04/05/2026", "month": "2026-04", "desc": "Home Depot", "line": 6, "debit": 301.67, "credit": 0}, {"date": "04/04/2026", "month": "2026-04", "desc": "Walmart", "line": 1, "debit": 176.85, "credit": 0}, {"date": "04/04/2026", "month": "2026-04", "desc": "ALDI", "line": 1, "debit": 139.34, "credit": 0}, {"date": "04/04/2026", "month": "2026-04", "desc": "Orange Theory", "line": 17, "debit": 99, "credit": 0}, {"date": "04/04/2026", "month": "2026-04", "desc": "Taco Bell", "line": 2, "debit": 34, "credit": 0}, {"date": "04/04/2026", "month": "2026-04", "desc": "Dunkin Donuts", "line": 3, "debit": 10.24, "credit": 0}, {"date": "04/03/2026", "month": "2026-04", "desc": "Regan Clothes", "line": 7, "debit": 100, "credit": 0}, {"date": "04/03/2026", "month": "2026-04", "desc": "Amazon Marketplace", "line": 6, "debit": 7.68, "credit": 0}, {"date": "04/03/2026", "month": "2026-04", "desc": "Friendship", "line": 2, "debit": 8.72, "credit": 0}, {"date": "04/02/2026", "month": "2026-04", "desc": "My Corner Bar", "line": 8, "debit": 81.74, "credit": 0}, {"date": "04/02/2026", "month": "2026-04", "desc": "Pandora", "line": 22, "debit": 6.37, "credit": 0}, {"date": "04/02/2026", "month": "2026-04", "desc": "Mr. Hero", "line": 2, "debit": 55.22, "credit": 0}, {"date": "04/02/2026", "month": "2026-04", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 8.5, "credit": 0}, {"date": "04/02/2026", "month": "2026-04", "desc": "Sheetz", "line": 4, "debit": 38.99, "credit": 0}, {"date": "04/01/2026", "month": "2026-04", "desc": "Friendship", "line": 4, "debit": 36.09, "credit": 0}, {"date": "04/01/2026", "month": "2026-04", "desc": "Speedway", "line": 4, "debit": 80, "credit": 0}, {"date": "04/01/2026", "month": "2026-04", "desc": "Target", "line": 7, "debit": 47.84, "credit": 0}, {"date": "04/01/2026", "month": "2026-04", "desc": "Target", "line": 7, "debit": 21.25, "credit": 0}, {"date": "04/01/2026", "month": "2026-04", "desc": "Hunan King", "line": 2, "debit": 42.9, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "Transfer to Venmo - Kim Conners; ParTee Golf", "line": 6, "debit": 40, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "Water Bill - Main", "line": 42, "debit": 59, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "Water Bill - Rental", "line": 43, "debit": 42.84, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "Amazon Marketplace", "line": 6, "debit": 57.21, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "Friendship", "line": 8, "debit": 11.18, "credit": 0}, {"date": "03/31/2026", "month": "2026-03", "desc": "EH Roberts", "line": 10, "debit": 17.9, "credit": 0}, {"date": "03/30/2026", "month": "2026-03", "desc": "Sheetz", "line": 2, "debit": 23.83, "credit": 0}, {"date": "03/30/2026", "month": "2026-03", "desc": "Pulp", "line": 3, "debit": 30, "credit": 0}, {"date": "03/30/2026", "month": "2026-03", "desc": "Amazon Marketplace", "line": 6, "debit": 15.96, "credit": 0}, {"date": "03/30/2026", "month": "2026-03", "desc": "Crumbl", "line": 3, "debit": 18.96, "credit": 0}, {"date": "03/29/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 144.22, "credit": 0}, {"date": "03/29/2026", "month": "2026-03", "desc": "Dicks Sporting Goods", "line": 7, "debit": 181.04, "credit": 0}, {"date": "03/29/2026", "month": "2026-03", "desc": "Sweeties Candy", "line": 6, "debit": 196.9, "credit": 0}, {"date": "03/29/2026", "month": "2026-03", "desc": "Sweeties Soda Shoppe", "line": 3, "debit": 7.5, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 11.7, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Coopershawk", "line": 2, "debit": 210.76, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Speedway", "line": 4, "debit": 46.9, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Sams Club", "line": 1, "debit": 179.1, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Coopershawk", "line": 8, "debit": 31.97, "credit": 0}, {"date": "03/28/2026", "month": "2026-03", "desc": "Coopershawk", "line": 8, "debit": 12.19, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": 19.5, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 11.48, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Sheetz", "line": 8, "debit": 11.46, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Sheetz", "line": 4, "debit": 38.21, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Wingstop", "line": 2, "debit": 69.95, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 10.78, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "Amazon Marketplace", "line": 6, "debit": 15.84, "credit": 0}, {"date": "03/27/2026", "month": "2026-03", "desc": "McJames Sports Pub", "line": 8, "debit": 22.48, "credit": 0}, {"date": "03/26/2026", "month": "2026-03", "desc": "McDonalds", "line": 2, "debit": 11.17, "credit": 0}, {"date": "03/26/2026", "month": "2026-03", "desc": "Burger King", "line": 2, "debit": 14.38, "credit": 0}, {"date": "03/26/2026", "month": "2026-03", "desc": "West Park", "line": 8, "debit": 45, "credit": 0}, {"date": "03/26/2026", "month": "2026-03", "desc": "Aramark Cleveland", "line": 2, "debit": 9.03, "credit": 0}, {"date": "03/26/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": 30, "credit": 0}, {"date": "03/25/2026", "month": "2026-03", "desc": "CCF Parking Services", "line": 6, "debit": 12, "credit": 0}, {"date": "03/25/2026", "month": "2026-03", "desc": "Transfer to Venmo", "line": 6, "debit": 20, "credit": 0}, {"date": "03/25/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 21.05, "credit": 0}, {"date": "03/25/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 38.58, "credit": 0}, {"date": "03/25/2026", "month": "2026-03", "desc": "Spectrum", "line": 12, "debit": 204.47, "credit": 0}, {"date": "03/24/2026", "month": "2026-03", "desc": "Ohio Turnpike", "line": 24, "debit": 86.58, "credit": 0}, {"date": "03/24/2026", "month": "2026-03", "desc": "Transfer to Venmo", "line": 6, "debit": 20, "credit": 0}, {"date": "03/24/2026", "month": "2026-03", "desc": "Arbys", "line": 2, "debit": 15.29, "credit": 0}, {"date": "03/24/2026", "month": "2026-03", "desc": "Coopershawk", "line": 8, "debit": 47.99, "credit": 0}, {"date": "03/23/2026", "month": "2026-03", "desc": "GM Financial", "line": 23, "debit": 650.88, "credit": 0}, {"date": "03/23/2026", "month": "2026-03", "desc": "Cash App - Joe Spencer", "line": 2, "debit": 46, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "First Watch", "line": 2, "debit": 24.81, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 28.77, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Friendship", "line": 8, "debit": 11.9, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Amazon", "line": 1, "debit": 42.59, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Amazon", "line": 6, "debit": 17.58, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Amazon", "line": 6, "debit": 11.99, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 81.31, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Trader Joes", "line": 1, "debit": 38.44, "credit": 0}, {"date": "03/22/2026", "month": "2026-03", "desc": "Mochinut", "line": 2, "debit": 35.7, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Amazon", "line": 6, "debit": 10.64, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Amazon", "line": 6, "debit": 28.69, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 11.59, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Night at Races", "line": 5, "debit": 170, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Bowling Fees", "line": 5, "debit": 70, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Pull Tabs", "line": 5, "debit": 40, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 25, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Heinens Grocery Store", "line": 1, "debit": 65.19, "credit": 0}, {"date": "03/21/2026", "month": "2026-03", "desc": "Speedway", "line": 4, "debit": 37.45, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Mahd House", "line": 8, "debit": 65.1, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Spotify", "line": 22, "debit": 20.22, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Julie - Can Insruance", "line": 6, "debit": -73, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Amazon Marketplace", "line": 6, "debit": 34.68, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Lowes", "line": 6, "debit": 10.63, "credit": 0}, {"date": "03/20/2026", "month": "2026-03", "desc": "Action Network", "line": 5, "debit": 106.49, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 16.74, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Northfield Park", "line": 8, "debit": 108.54, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Amazon Digital Services", "line": 22, "debit": 12.77, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Sheetz", "line": 8, "debit": 28.33, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "McDonalds", "line": 2, "debit": 17.45, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Disney Plus", "line": 22, "debit": 7.46, "credit": 0}, {"date": "03/19/2026", "month": "2026-03", "desc": "Columbia Gas", "line": 15, "debit": 175.09, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "Don Tequila", "line": 2, "debit": 47.46, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "Don Tequila", "line": 8, "debit": 15.01, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 14.67, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 40.22, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "BP Global", "line": 8, "debit": 3.49, "credit": 0}, {"date": "03/18/2026", "month": "2026-03", "desc": "Apple TV", "line": 22, "debit": 13.84, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "Planet Fitness", "line": 17, "debit": 42.65, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "Lormet", "line": 23, "debit": 529.46, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "City of Lorain", "line": 43, "debit": 22.35, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "City of Lorain", "line": 42, "debit": 37.25, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 3.99, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 24.47, "credit": 0}, {"date": "03/17/2026", "month": "2026-03", "desc": "Massage Envy", "line": 21, "debit": 75.6, "credit": 0}, {"date": "03/16/2026", "month": "2026-03", "desc": "Claude", "line": 5, "debit": 21.3, "credit": 0}, {"date": "03/16/2026", "month": "2026-03", "desc": "Verizon Wireless", "line": 11, "debit": 267.91, "credit": 0}, {"date": "03/16/2026", "month": "2026-03", "desc": "Speedway", "line": 4, "debit": 42.47, "credit": 0}, {"date": "03/16/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 11.18, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "Applebees", "line": 2, "debit": 38.67, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 7.11, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "Heinens Grocery Store", "line": 1, "debit": 126.64, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 125.2, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "Walmart", "line": 1, "debit": 37.16, "credit": 0}, {"date": "03/15/2026", "month": "2026-03", "desc": "Cleveland Clinic - Family Medical", "line": 16, "debit": 713.06, "credit": 0}, {"date": "03/14/2026", "month": "2026-03", "desc": "Dart Connect", "line": 5, "debit": 24, "credit": 0}, {"date": "03/14/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 14.58, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 17.71, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 31.56, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 34.79, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "Chick-fil-A", "line": 2, "debit": 23.9, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 7.26, "credit": 0}, {"date": "03/13/2026", "month": "2026-03", "desc": "Bowling Fees", "line": 5, "debit": 85, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Cleveland Maennerchor", "line": 8, "debit": 51.22, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Kintaro", "line": 2, "debit": 57.43, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "McDonalds", "line": 2, "debit": 17.45, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 7.92, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Burger King", "line": 2, "debit": 15, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Table Capture", "line": 6, "debit": 12, "credit": 0}, {"date": "03/12/2026", "month": "2026-03", "desc": "Wells Fargo - Pool", "line": 19, "debit": 200, "credit": 0}, {"date": "03/11/2026", "month": "2026-03", "desc": "ATM Fee Reimbursement", "line": 6, "debit": -10.05, "credit": 0}, {"date": "03/11/2026", "month": "2026-03", "desc": "Transfer to Venmo - Patti Akins; Retirement Gift", "line": 6, "debit": 25, "credit": 0}, {"date": "03/11/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": -9, "credit": 0}, {"date": "03/11/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 16.17, "credit": 0}, {"date": "03/11/2026", "month": "2026-03", "desc": "Netflix", "line": 22, "debit": 19.16, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "First Energy", "line": 13, "debit": 134.93, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "BP Global", "line": 8, "debit": 7.44, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "BP Global", "line": 4, "debit": 29.53, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "Speedway", "line": 4, "debit": 34.12, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "Five Guys", "line": 2, "debit": 18.57, "credit": 0}, {"date": "03/10/2026", "month": "2026-03", "desc": "Cleveland Clinic - Lorri Labs", "line": 16, "debit": 107, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Lowes Rewards - Kitchen", "line": 18, "debit": 400, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 24.69, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Payment to Chase", "line": 3, "debit": 4.59, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Rocket Mortgage", "line": 9, "debit": 1281.53, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Shein", "line": 7, "debit": 40.61, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Wendys", "line": 2, "debit": 15, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Burger King", "line": 2, "debit": 15, "credit": 0}, {"date": "03/09/2026", "month": "2026-03", "desc": "Amazon Marketplace", "line": 6, "debit": 70.66, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 109.77, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "Walmart", "line": 6, "debit": 9.38, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "G&J Pepsi", "line": 3, "debit": 3.85, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "Applebees", "line": 2, "debit": 88.54, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "McDonalds", "line": 2, "debit": 8.38, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": 39.55, "credit": 0}, {"date": "03/08/2026", "month": "2026-03", "desc": "7-Eleven", "line": 4, "debit": 31.68, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Coopershawk", "line": 8, "debit": 24.65, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Raising Canes", "line": 2, "debit": 11.04, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 11.5, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Friendship", "line": 8, "debit": 12.44, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 23.62, "credit": 0}, {"date": "03/07/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": 36.05, "credit": 0}, {"date": "03/06/2026", "month": "2026-03", "desc": "LOC Citizens", "line": 14, "debit": 66.67, "credit": 0}, {"date": "03/06/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 17.85, "credit": 0}, {"date": "03/06/2026", "month": "2026-03", "desc": "Heinens Grocery Store", "line": 1, "debit": 112.13, "credit": 0}, {"date": "03/06/2026", "month": "2026-03", "desc": "Aramark Cleveland", "line": 3, "debit": 7.31, "credit": 0}, {"date": "03/05/2026", "month": "2026-03", "desc": "BP Global", "line": 4, "debit": 31.52, "credit": 0}, {"date": "03/05/2026", "month": "2026-03", "desc": "McDonalds", "line": 2, "debit": 14.86, "credit": 0}, {"date": "03/05/2026", "month": "2026-03", "desc": "Cleveland Maennerchor", "line": 8, "debit": 44.99, "credit": 0}, {"date": "03/04/2026", "month": "2026-03", "desc": "Cash App - Gabbi", "line": 2, "debit": 15, "credit": 0}, {"date": "03/04/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 10.84, "credit": 0}, {"date": "03/04/2026", "month": "2026-03", "desc": "Vivint", "line": 14, "debit": 68.74, "credit": 0}, {"date": "03/04/2026", "month": "2026-03", "desc": "Speedway", "line": 4, "debit": 30.67, "credit": 0}, {"date": "03/04/2026", "month": "2026-03", "desc": "Orange Theory", "line": 17, "debit": 99, "credit": 0}, {"date": "03/03/2026", "month": "2026-03", "desc": "Massage Envy", "line": 21, "debit": 40.72, "credit": 0}, {"date": "03/03/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 14.67, "credit": 0}, {"date": "03/03/2026", "month": "2026-03", "desc": "Friendship", "line": 4, "debit": 27.42, "credit": 0}, {"date": "03/03/2026", "month": "2026-03", "desc": "Tom - Plate Registration", "line": 6, "debit": 106.27, "credit": 0}, {"date": "03/03/2026", "month": "2026-03", "desc": "Tom - Plate Registration", "line": 6, "debit": -107, "credit": 0}, {"date": "03/02/2026", "month": "2026-03", "desc": "Chipotle", "line": 2, "debit": 20, "credit": 0}, {"date": "03/02/2026", "month": "2026-03", "desc": "DoorDash", "line": 2, "debit": 70.12, "credit": 0}, {"date": "03/02/2026", "month": "2026-03", "desc": "Planet Fitness", "line": 17, "debit": 41.44, "credit": 0}, {"date": "03/02/2026", "month": "2026-03", "desc": "Friendship", "line": 8, "debit": 8.72, "credit": 0}, {"date": "03/01/2026", "month": "2026-03", "desc": "Pandora", "line": 22, "debit": 6.37, "credit": 0}, {"date": "03/01/2026", "month": "2026-03", "desc": "Friendship", "line": 2, "debit": 9.87, "credit": 0}, {"date": "03/01/2026", "month": "2026-03", "desc": "ALDI", "line": 1, "debit": 119.55, "credit": 0}, {"date": "03/01/2026", "month": "2026-03", "desc": "Dunkin Donuts", "line": 3, "debit": 25, "credit": 0}, {"date": "03/01/2026", "month": "2026-03", "desc": "Heinens Grocery Store", "line": 1, "debit": 119.17, "credit": 0}, {"date": "02/28/2026", "month": "2026-02", "desc": "Water Bill - Main", "line": 42, "debit": 51.19, "credit": 0}, {"date": "02/28/2026", "month": "2026-02", "desc": "Water Bill - Rental", "line": 43, "debit": 37.17, "credit": 0}, {"date": "02/28/2026", "month": "2026-02", "desc": "EH Roberts", "line": 10, "debit": 17.9, "credit": 0}, {"date": "02/27/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 11.17, "credit": 0}, {"date": "02/27/2026", "month": "2026-02", "desc": "Transfer to Venmo - Sarah Ridenour; Dinner", "line": 2, "debit": 25, "credit": 0}, {"date": "02/27/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 22.84, "credit": 0}, {"date": "02/27/2026", "month": "2026-02", "desc": "Transfer from Venmo", "line": 6, "debit": -88, "credit": 0}, {"date": "02/27/2026", "month": "2026-02", "desc": "Discount Drug Mart", "line": 6, "debit": 25.93, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "Speedway", "line": 4, "debit": 29.84, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "ATM Withdrawal", "line": 5, "debit": 103.25, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 26.02, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "EZ Pass", "line": 24, "debit": 84.83, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 17.87, "credit": 0}, {"date": "02/26/2026", "month": "2026-02", "desc": "X-Golf", "line": 5, "debit": 123.64, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 18.5, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 50.96, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Friendship", "line": 8, "debit": 11.28, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Spectrum", "line": 12, "debit": 204.47, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Coopershawk", "line": 8, "debit": 47.99, "credit": 0}, {"date": "02/25/2026", "month": "2026-02", "desc": "Heinens Grocery Store", "line": 1, "debit": 19.09, "credit": 0}, {"date": "02/23/2026", "month": "2026-02", "desc": "GM Financial", "line": 23, "debit": 650.88, "credit": 0}, {"date": "02/23/2026", "month": "2026-02", "desc": "Pulp", "line": 6, "debit": 35, "credit": 0}, {"date": "02/23/2026", "month": "2026-02", "desc": "Walmart", "line": 1, "debit": 128.98, "credit": 0}, {"date": "02/23/2026", "month": "2026-02", "desc": "Target", "line": 1, "debit": 52.55, "credit": 0}, {"date": "02/22/2026", "month": "2026-02", "desc": "Dunkin Donuts", "line": 3, "debit": 13.76, "credit": 0}, {"date": "02/22/2026", "month": "2026-02", "desc": "ALDI", "line": 1, "debit": 187.64, "credit": 0}, {"date": "02/21/2026", "month": "2026-02", "desc": "Trader Joes", "line": 1, "debit": 75.78, "credit": 0}, {"date": "02/21/2026", "month": "2026-02", "desc": "First Watch", "line": 2, "debit": 27.41, "credit": 0}, {"date": "02/21/2026", "month": "2026-02", "desc": "GetGo", "line": 4, "debit": 32.05, "credit": 0}, {"date": "02/21/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 14.47, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Gulf Oil", "line": 3, "debit": 11.97, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Gulf Oil", "line": 4, "debit": 59.88, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Wendys", "line": 2, "debit": 19.57, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Spotify", "line": 22, "debit": 20.22, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 5.3, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Aramark Cleveland", "line": 3, "debit": 8.13, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Speedway", "line": 4, "debit": 32.43, "credit": 0}, {"date": "02/20/2026", "month": "2026-02", "desc": "Luckys Bar and Grill", "line": 8, "debit": 98.65, "credit": 0}, {"date": "02/19/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 30.87, "credit": 0}, {"date": "02/19/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 15.96, "credit": 0}, {"date": "02/19/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 17.36, "credit": 0}, {"date": "02/19/2026", "month": "2026-02", "desc": "Disney Plus", "line": 22, "debit": 7.46, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Columbia Gas", "line": 15, "debit": 188.16, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Julie - Car Insurance", "line": 6, "debit": -146, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Austin Food", "line": 2, "debit": -13, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 43.63, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 10.64, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Friendship", "line": 8, "debit": 14.87, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "BP Global", "line": 2, "debit": 12.99, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "BP Global", "line": 4, "debit": 29.47, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Apple TV", "line": 22, "debit": 13.84, "credit": 0}, {"date": "02/18/2026", "month": "2026-02", "desc": "Red Lantern", "line": 2, "debit": 64.57, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Massage Envy", "line": 21, "debit": 81, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Wingstop", "line": 2, "debit": 81.41, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 113.74, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "City of Lorain", "line": 43, "debit": 29.8, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "City of Lorain", "line": 42, "debit": 37.25, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "DoorDash", "line": 2, "debit": 7.97, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Planet Fitness", "line": 17, "debit": 42.65, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Transfer to Venmo - Julie", "line": 6, "debit": 40, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Verizon Wireless", "line": 11, "debit": 480.91, "credit": 0}, {"date": "02/17/2026", "month": "2026-02", "desc": "Lormet", "line": 23, "debit": 529.46, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Aramark Cleveland", "line": 2, "debit": 16.08, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 21.17, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 17.03, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 18.31, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Chipotle", "line": 2, "debit": 19.3, "credit": 0}, {"date": "02/16/2026", "month": "2026-02", "desc": "Lowes", "line": 6, "debit": 24.67, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Hotel Cleveland", "line": 6, "debit": 233.83, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Mr. Hero", "line": 2, "debit": 50.87, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Food Court", "line": 2, "debit": 16, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Marcos Pizza", "line": 2, "debit": 30, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Walmart", "line": 6, "debit": 76, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Dunkin Donuts", "line": 3, "debit": 3.59, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Cash App - Julie", "line": 6, "debit": 70, "credit": 0}, {"date": "02/15/2026", "month": "2026-02", "desc": "Casino/SFTH Drinks", "line": 8, "debit": 175, "credit": 0}, {"date": "02/14/2026", "month": "2026-02", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 13.09, "credit": 0}, {"date": "02/14/2026", "month": "2026-02", "desc": "Friendship", "line": 3, "debit": 7.56, "credit": 0}, {"date": "02/14/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 32.41, "credit": 0}, {"date": "02/14/2026", "month": "2026-02", "desc": "Community West Foundation - Raffle Tickets", "line": 5, "debit": 400, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 41.51, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 21.55, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 12.45, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "ALDI", "line": 1, "debit": 16.48, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "Discount Drug Mart", "line": 1, "debit": 12.76, "credit": 0}, {"date": "02/13/2026", "month": "2026-02", "desc": "Sams Club", "line": 4, "debit": 37.9, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 111.36, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "North Ridge Laser Wash", "line": 6, "debit": 16, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 29.81, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Wells Fargo - Pool", "line": 19, "debit": 200, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 7.56, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 65.78, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Friendship", "line": 3, "debit": 3.93, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Mens Wearhouse", "line": 7, "debit": 564.83, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Kohls", "line": 7, "debit": 70.18, "credit": 0}, {"date": "02/12/2026", "month": "2026-02", "desc": "Marcs", "line": 6, "debit": 2.66, "credit": 0}, {"date": "02/11/2026", "month": "2026-02", "desc": "ATM Withdrawal", "line": 5, "debit": 103.25, "credit": 0}, {"date": "02/11/2026", "month": "2026-02", "desc": "Sunoco", "line": 4, "debit": 30.39, "credit": 0}, {"date": "02/11/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 9.92, "credit": 0}, {"date": "02/11/2026", "month": "2026-02", "desc": "BP Global", "line": 3, "debit": 3.49, "credit": 0}, {"date": "02/11/2026", "month": "2026-02", "desc": "Netflix", "line": 22, "debit": 19.16, "credit": 0}, {"date": "02/10/2026", "month": "2026-02", "desc": "ATM Fee Reimbursement", "line": 6, "debit": -8, "credit": 0}, {"date": "02/10/2026", "month": "2026-02", "desc": "Checking Interest", "line": 6, "debit": -0.04, "credit": 0}, {"date": "02/10/2026", "month": "2026-02", "desc": "First Energy - Main", "line": 13, "debit": 159.35, "credit": 0}, {"date": "02/10/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 16.29, "credit": 0}, {"date": "02/10/2026", "month": "2026-02", "desc": "ALDI", "line": 1, "debit": 19.33, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Smoothie King", "line": 3, "debit": 8.61, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 13.41, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Lowes Rewards - Kitchen", "line": 18, "debit": 400, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Rocket Mortgage", "line": 9, "debit": 1281.53, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Venmo - Football Squares", "line": 5, "debit": 50, "credit": 0}, {"date": "02/09/2026", "month": "2026-02", "desc": "Qdoba", "line": 2, "debit": 12.1, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "Walmart", "line": 1, "debit": 72.1, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 30.25, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "Friendship", "line": 3, "debit": 3.72, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 41.6, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "Vending Machine", "line": 3, "debit": 1, "credit": 0}, {"date": "02/08/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 10.17, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Speedway", "line": 4, "debit": 32.36, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Drug Mart", "line": 6, "debit": 41.39, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Marcs", "line": 1, "debit": 35.77, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Dunkin Donuts", "line": 3, "debit": 25, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Friendship", "line": 8, "debit": 6.69, "credit": 0}, {"date": "02/07/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 47.85, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Chipotle", "line": 2, "debit": 20, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "LOC Citizens", "line": 14, "debit": 66.67, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 9.35, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Friendship", "line": 4, "debit": 45.81, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Marcos Pizza", "line": 2, "debit": 22.98, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Chipotle", "line": 2, "debit": 46.5, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 10.17, "credit": 0}, {"date": "02/06/2026", "month": "2026-02", "desc": "Red Lantern", "line": 8, "debit": 81.2, "credit": 0}, {"date": "02/05/2026", "month": "2026-02", "desc": "Chipotle", "line": 2, "debit": 21, "credit": 0}, {"date": "02/05/2026", "month": "2026-02", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 95.35, "credit": 0}, {"date": "02/05/2026", "month": "2026-02", "desc": "Marcos Pizza", "line": 2, "debit": 14.99, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Shop Funds", "line": 6, "debit": 50, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Walmart", "line": 1, "debit": 62.03, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 14.91, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Speedway", "line": 4, "debit": 63.38, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Vivint", "line": 14, "debit": 68.74, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": -42.58, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Taco Bell", "line": 1, "debit": 31.36, "credit": 0}, {"date": "02/04/2026", "month": "2026-02", "desc": "Orange Theory", "line": 17, "debit": 99, "credit": 0}, {"date": "02/03/2026", "month": "2026-02", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 7.92, "credit": 0}, {"date": "02/03/2026", "month": "2026-02", "desc": "EZ Pass", "line": 24, "debit": 83.58, "credit": 0}, {"date": "02/03/2026", "month": "2026-02", "desc": "Shell", "line": 4, "debit": 28.64, "credit": 0}, {"date": "02/03/2026", "month": "2026-02", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "02/02/2026", "month": "2026-02", "desc": "Venmo - Work Party", "line": 6, "debit": 20, "credit": 0}, {"date": "02/02/2026", "month": "2026-02", "desc": "Planet Fitness", "line": 17, "debit": 41.54, "credit": 0}, {"date": "02/02/2026", "month": "2026-02", "desc": "Friendship", "line": 2, "debit": 9.92, "credit": 0}, {"date": "02/02/2026", "month": "2026-02", "desc": "Meijer", "line": 8, "debit": 155.38, "credit": 0}, {"date": "02/02/2026", "month": "2026-02", "desc": "Massage Envy", "line": 21, "debit": 27.35, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Amazon Marketplace", "line": 6, "debit": 59.37, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Pandora", "line": 22, "debit": 6.37, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Longhorn Steakhouse", "line": 8, "debit": 44.65, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Shein", "line": 7, "debit": 35.17, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Speedway", "line": 4, "debit": 28.48, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "ALDI", "line": 1, "debit": 125.07, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Longhorn Steakhouse", "line": 2, "debit": 100, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Sams Club", "line": 1, "debit": 194.96, "credit": 0}, {"date": "02/01/2026", "month": "2026-02", "desc": "Kintaro", "line": 2, "debit": 75.53, "credit": 0}, {"date": "01/31/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 31.03, "credit": 0}, {"date": "01/31/2026", "month": "2026-01", "desc": "EH Roberts", "line": 10, "debit": 17.9, "credit": 0}, {"date": "01/31/2026", "month": "2026-01", "desc": "Dunkin Donuts", "line": 3, "debit": 18.84, "credit": 0}, {"date": "01/31/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 25.54, "credit": 0}, {"date": "01/31/2026", "month": "2026-01", "desc": "Coopershawk", "line": 8, "debit": 52.59, "credit": 0}, {"date": "01/30/2026", "month": "2026-01", "desc": "CashApp - Superbowl Squares", "line": 5, "debit": 200, "credit": 0}, {"date": "01/30/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 8.52, "credit": 0}, {"date": "01/30/2026", "month": "2026-01", "desc": "Community West Foundation - Raffle Tickets", "line": 5, "debit": 200, "credit": 0}, {"date": "01/30/2026", "month": "2026-01", "desc": "Aramark Cleveland", "line": 2, "debit": 11.04, "credit": 0}, {"date": "01/29/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 18.28, "credit": 0}, {"date": "01/29/2026", "month": "2026-01", "desc": "BP Global", "line": 4, "debit": 57.06, "credit": 0}, {"date": "01/29/2026", "month": "2026-01", "desc": "Shotz Bar", "line": 8, "debit": 59, "credit": 0}, {"date": "01/29/2026", "month": "2026-01", "desc": "Taco Bell", "line": 2, "debit": 19.9, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "Marcos Pizza", "line": 2, "debit": 14.99, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "Transfer to Venmo - Kathleen Chambers;Challenge", "line": 6, "debit": 25, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "CashApp - Starbucks", "line": 3, "debit": 6, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "CashApp - McDonalds", "line": 2, "debit": 15, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 12.71, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 28.52, "credit": 0}, {"date": "01/28/2026", "month": "2026-01", "desc": "Sorrento", "line": 2, "debit": 66.94, "credit": 0}, {"date": "01/27/2026", "month": "2026-01", "desc": "Coopershawk", "line": 8, "debit": 47.99, "credit": 0}, {"date": "01/26/2026", "month": "2026-01", "desc": "Garretts Mill Diner", "line": 2, "debit": 20.12, "credit": 0}, {"date": "01/26/2026", "month": "2026-01", "desc": "Accelerated Fitness", "line": 17, "debit": 42.68, "credit": 0}, {"date": "01/26/2026", "month": "2026-01", "desc": "Lowes", "line": 6, "debit": 47.9, "credit": 0}, {"date": "01/25/2026", "month": "2026-01", "desc": "Meijer", "line": 1, "debit": 105.79, "credit": 0}, {"date": "01/25/2026", "month": "2026-01", "desc": "Spectrum", "line": 12, "debit": 204.83, "credit": 0}, {"date": "01/25/2026", "month": "2026-01", "desc": "Dunkin Donuts", "line": 3, "debit": 8.51, "credit": 0}, {"date": "01/24/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 92.96, "credit": 0}, {"date": "01/24/2026", "month": "2026-01", "desc": "Sheetz", "line": 4, "debit": 30.77, "credit": 0}, {"date": "01/24/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "01/24/2026", "month": "2026-01", "desc": "Lowes", "line": 6, "debit": 53.59, "credit": 0}, {"date": "01/24/2026", "month": "2026-01", "desc": "ALDI", "line": 1, "debit": 61.64, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Heinens Grocery Store", "line": 1, "debit": 23.17, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 62.77, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Guard Hotel", "line": 6, "debit": 105.51, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Sheetz", "line": 3, "debit": 9.95, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 10.17, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Chipotle", "line": 2, "debit": 32.2, "credit": 0}, {"date": "01/23/2026", "month": "2026-01", "desc": "Prime Video", "line": 22, "debit": 5.31, "credit": 0}, {"date": "01/22/2026", "month": "2026-01", "desc": "Red Lantern", "line": 8, "debit": 73.95, "credit": 0}, {"date": "01/22/2026", "month": "2026-01", "desc": "Fairview Tavern", "line": 2, "debit": 28.68, "credit": 0}, {"date": "01/22/2026", "month": "2026-01", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 57.38, "credit": 0}, {"date": "01/22/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "01/22/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 7.18, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "PJ McIntyres", "line": 8, "debit": 17, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "Sams Club", "line": 1, "debit": 24.75, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "GM Financial", "line": 23, "debit": 650.88, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "Chipotle", "line": 2, "debit": 20, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "BP Global", "line": 8, "debit": 6.38, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "BP Global", "line": 2, "debit": 17.29, "credit": 0}, {"date": "01/21/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 14.86, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Taco Bell", "line": 2, "debit": 13.4, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Taco Bell", "line": 2, "debit": 5.97, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Spotify", "line": 22, "debit": 18.09, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Planet Fitness", "line": 17, "debit": 42.65, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Columbia Gas", "line": 15, "debit": 132.4, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Lormet", "line": 23, "debit": 529.46, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Amazon Marketplace", "line": 6, "debit": 51.63, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 11.17, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 57.37, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Disney+", "line": 22, "debit": 7.46, "credit": 0}, {"date": "01/20/2026", "month": "2026-01", "desc": "Speedway", "line": 4, "debit": 28.91, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Amazon Marketplace", "line": 6, "debit": 31.35, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Winking Lizard", "line": 8, "debit": 124.75, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Target", "line": 3, "debit": 11.3, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Apple TV", "line": 22, "debit": 13.84, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Walmart", "line": 1, "debit": 92.06, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Shein", "line": 7, "debit": 78.47, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "Trader Joes", "line": 1, "debit": 28.22, "credit": 0}, {"date": "01/18/2026", "month": "2026-01", "desc": "First Watch", "line": 2, "debit": 32.73, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "City of Lorain", "line": 42, "debit": 29.8, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "City of Lorain", "line": 43, "debit": 22.35, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 36.92, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "ALDI", "line": 1, "debit": 117.89, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "Sams Club", "line": 1, "debit": 196.36, "credit": 0}, {"date": "01/17/2026", "month": "2026-01", "desc": "Massage Envy", "line": 21, "debit": 70.2, "credit": 0}, {"date": "01/16/2026", "month": "2026-01", "desc": "Aramark Cleveland", "line": 2, "debit": 13.14, "credit": 0}, {"date": "01/16/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 18.49, "credit": 0}, {"date": "01/16/2026", "month": "2026-01", "desc": "Lowes Rewards - Kitchen", "line": 18, "debit": 400, "credit": 0}, {"date": "01/16/2026", "month": "2026-01", "desc": "Wells Fargo - Pool", "line": 19, "debit": 200, "credit": 0}, {"date": "01/16/2026", "month": "2026-01", "desc": "Verizon Wireless", "line": 11, "debit": 267.96, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Hotshots Bar & Grill", "line": 8, "debit": 59.95, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Hotshots Bar & Grill", "line": 2, "debit": 59.96, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 12.43, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 11.07, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 52.3, "credit": 0}, {"date": "01/15/2026", "month": "2026-01", "desc": "Transfer to Venmo - Julie", "line": 6, "debit": 50, "credit": 0}, {"date": "01/14/2026", "month": "2026-01", "desc": "BP Global", "line": 4, "debit": 30.91, "credit": 0}, {"date": "01/14/2026", "month": "2026-01", "desc": "Dunkin Donuts", "line": 3, "debit": 8.67, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "Pulp", "line": 3, "debit": 25.01, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "ATM Fee Reimbursement", "line": 6, "debit": -5.9, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "Checking Interest", "line": 6, "debit": -0.03, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "Water Bill - Rental", "line": 43, "debit": 44.18, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "Water Bill - Main", "line": 42, "debit": 51.19, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "BP Global", "line": 4, "debit": 28.15, "credit": 0}, {"date": "01/13/2026", "month": "2026-01", "desc": "Friendship", "line": 3, "debit": 20.85, "credit": 0}, {"date": "01/12/2026", "month": "2026-01", "desc": "Walmart", "line": 1, "debit": 145.81, "credit": 0}, {"date": "01/12/2026", "month": "2026-01", "desc": "DoorDash", "line": 2, "debit": 25.22, "credit": 0}, {"date": "01/11/2026", "month": "2026-01", "desc": "Mr. Hero", "line": 2, "debit": 49.38, "credit": 0}, {"date": "01/11/2026", "month": "2026-01", "desc": "Netflix", "line": 22, "debit": 19.16, "credit": 0}, {"date": "01/11/2026", "month": "2026-01", "desc": "Uber", "line": 6, "debit": 39.86, "credit": 0}, {"date": "01/11/2026", "month": "2026-01", "desc": "Kohls", "line": 7, "debit": 165.05, "credit": 0}, {"date": "01/10/2026", "month": "2026-01", "desc": "EZ Pass", "line": 24, "debit": 83.42, "credit": 0}, {"date": "01/10/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 30.4, "credit": 0}, {"date": "01/10/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 13.83, "credit": 0}, {"date": "01/10/2026", "month": "2026-01", "desc": "Winking Lizard", "line": 2, "debit": 100, "credit": 0}, {"date": "01/10/2026", "month": "2026-01", "desc": "Heinens", "line": 1, "debit": 55.68, "credit": 0}, {"date": "01/09/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "01/09/2026", "month": "2026-01", "desc": "Ohio Lottery", "line": 5, "debit": 50, "credit": 0}, {"date": "01/08/2026", "month": "2026-01", "desc": "Maple Grove", "line": 8, "debit": 32.62, "credit": 0}, {"date": "01/08/2026", "month": "2026-01", "desc": "Friendship", "line": 2, "debit": 6.37, "credit": 0}, {"date": "01/08/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 32.12, "credit": 0}, {"date": "01/08/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "01/08/2026", "month": "2026-01", "desc": "Burger King", "line": 2, "debit": 21.18, "credit": 0}, {"date": "01/07/2026", "month": "2026-01", "desc": "First Energy", "line": 13, "debit": 167.42, "credit": 0}, {"date": "01/07/2026", "month": "2026-01", "desc": "Friendship", "line": 4, "debit": 30.81, "credit": 0}, {"date": "01/07/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 9.47, "credit": 0}, {"date": "01/07/2026", "month": "2026-01", "desc": "Amazon Prime Membership", "line": 22, "debit": 148.04, "credit": 0}, {"date": "01/06/2026", "month": "2026-01", "desc": "LOC Citizens", "line": 14, "debit": 66.67, "credit": 0}, {"date": "01/06/2026", "month": "2026-01", "desc": "Friendship", "line": 3, "debit": 5.7, "credit": 0}, {"date": "01/06/2026", "month": "2026-01", "desc": "Massage Envy", "line": 21, "debit": 30.59, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Orange Theory", "line": 17, "debit": 133.92, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Orange Theory", "line": 17, "debit": 62, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Amazon Marketplace", "line": 6, "debit": 10.64, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Lorain Smokes and Beverage", "line": 8, "debit": 17.44, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Walmart", "line": 1, "debit": 216.19, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Buffalo Wild Wings", "line": 2, "debit": 70, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 14.05, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Vivint", "line": 14, "debit": 68.74, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Regan Grades", "line": 6, "debit": 120, "credit": 0}, {"date": "01/05/2026", "month": "2026-01", "desc": "Rocket Mortgage", "line": 9, "debit": 1281.53, "credit": 0}, {"date": "01/04/2026", "month": "2026-01", "desc": "Shein", "line": 7, "debit": 18.26, "credit": 0}, {"date": "01/04/2026", "month": "2026-01", "desc": "AMF Bowling", "line": 5, "debit": 42.43, "credit": 0}, {"date": "01/04/2026", "month": "2026-01", "desc": "Amazon Marketplace", "line": 7, "debit": 42.59, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Dunkin Donuts", "line": 3, "debit": 14.57, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Fat Heads Brewery", "line": 2, "debit": 41.05, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Speedway", "line": 4, "debit": 26.88, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Coopershawk", "line": 2, "debit": 130.08, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Dillards", "line": 7, "debit": 222.49, "credit": 0}, {"date": "01/03/2026", "month": "2026-01", "desc": "Dillards", "line": 7, "debit": 99.18, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Movie Tickets", "line": 5, "debit": 35, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Friendship", "line": 3, "debit": 15.11, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Regal Cinemas", "line": 5, "debit": 29.67, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Taco Bell", "line": 2, "debit": 11.9, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Chick-fil-A", "line": 2, "debit": 23.9, "credit": 0}, {"date": "01/02/2026", "month": "2026-01", "desc": "Cash to Regan", "line": 5, "debit": 160, "credit": 0}, {"date": "01/01/2026", "month": "2026-01", "desc": "Uber", "line": 6, "debit": 8, "credit": 0}, {"date": "01/01/2026", "month": "2026-01", "desc": "Taco Bell", "line": 2, "debit": 13.06, "credit": 0}, {"date": "01/01/2026", "month": "2026-01", "desc": "Pandora", "line": 22, "debit": 6.37, "credit": 0}, {"date": "01/01/2026", "month": "2026-01", "desc": "McDonalds", "line": 2, "debit": 10.27, "credit": 0}, {"date": "01/01/2026", "month": "2026-01", "desc": "Comfort Inn", "line": 6, "debit": 176.57, "credit": 0}];
+let CHECKING_TX = []; // populated by sync from Checking Transaction Log
 
-const RENTAL_UTIL_TX = [{"date": "04/17/2026", "desc": "Columbia Gas - Rental", "debit": 130.31, "credit": 0}, {"date": "04/08/2026", "desc": "First Energy", "debit": 44.96, "credit": 0}, {"date": "03/19/2026", "desc": "Columbia Gas", "debit": 172.29, "credit": 0}, {"date": "03/10/2026", "desc": "First Energy", "debit": 47.28, "credit": 0}, {"date": "02/18/2026", "desc": "Columbia Gas - Rental", "debit": 182.55, "credit": 0}, {"date": "02/18/2026", "desc": "Transfer from Cash App", "debit": 0, "credit": 191}, {"date": "02/10/2026", "desc": "First Energy - Rental", "debit": 65.78, "credit": 0}, {"date": "01/30/2026", "desc": "Rental Utilities", "debit": 0, "credit": 422}, {"date": "01/20/2026", "desc": "Columbia Gas - Rental", "debit": 130.51, "credit": 0}, {"date": "01/07/2026", "desc": "First Energy - Rental", "debit": 52.66, "credit": 0}, {"date": "01/01/2026", "desc": "Rental Utilities", "debit": 239.68, "credit": 0}];
+const // RENTAL_UTIL_TX removed — rental utility data comes from sync
 const RENTAL_UTIL_PAID = 613.00;
 const RENTAL_UTIL_OWED = 453.02;
 
-const RENT_TX = [{"date": "04/30/2026", "desc": "April Rent", "amount": 250}, {"date": "04/16/2026", "desc": "April Rent", "amount": 300}, {"date": "03/27/2026", "desc": "March Rent", "amount": 400}, {"date": "03/21/2026", "desc": "March Rent", "amount": 400}, {"date": "03/13/2026", "desc": "February Rent", "amount": 300}, {"date": "03/11/2026", "desc": "February Rent", "amount": 500}, {"date": "01/16/2026", "desc": "January Rent", "amount": 800}];
-const RENT_EXPECTED_PER_MONTH = 800;
-const RENT_MONTHS_ELAPSED = 4;
-const RENT_RECEIVED = 2950.00;
-const RENT_SHORTFALL = 250.00;
+// Rental P&L data comes from sync (Savings Transaction Log)
 
 // Budget line ID → label mapping
 const LINE_LABELS = {
@@ -4775,7 +4712,7 @@ function parseMonthlyBreakdown(ws) {
 
 function parseShareCounts(ws) {
   const data = window.XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
-  return data.slice(1).filter(r=>r[0]&&r[1]).map(r=>({account:r[0],fund:r[1],shares:r[2]}));
+  return data.slice(1).filter(r=>r[0]&&r[1]).map(r=>({account:r[0],fund:r[1],shares:parseFloat(r[2])||0}));
 }
 
 function fmtBal(val) {
@@ -4861,6 +4798,274 @@ function parseSavingsDisbursements(wsStl) {
   return result;
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LIVE PRICING ENGINE
+// Sources: TSPDataCenter.com (TSP), Yahoo Finance (ETFs), CoinGecko (Crypto)
+// Fidelity mutual funds proxied via equivalent ETFs (same index)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Verified baseline NAVs (May 4-5, 2026) for Fidelity proxy bootstrapping
+const FIDELITY_BASELINE = {
+  VIIIX: { nav: 407.68, proxyTicker: 'VOO',  proxyBaseline: null }, // S&P 500
+  VTPSX: { nav: 175.15, proxyTicker: 'VXUS', proxyBaseline: null }, // Total Intl
+  VEMPX: { nav: 385.26, proxyTicker: 'VXF',  proxyBaseline: null }, // S&P Completion
+};
+
+// Share counts — populated from Excel sync
+let _shareCounts = {};
+
+// Last fetched prices cache
+let _livePrices = {};
+
+// ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
+async function fetchTSPPrices() {
+  try {
+    const res = await fetch('https://www.tspdatacenter.com/daily-share-prices/', {
+      headers: { 'User-Agent': 'Mozilla/5.0' }
+    });
+    const html = await res.text();
+    const prices = {};
+    // Parse table: "C Fund | $115.6318"
+    const matches = html.matchAll(/([CGFSI] Fund)[^$]*\$([\d.]+)/g);
+    for (const m of matches) {
+      const fund = m[1].replace(' Fund','').trim();
+      prices[fund] = parseFloat(m[2]);
+    }
+    return prices;
+  } catch(e) {
+    console.warn('TSP fetch failed:', e.message);
+    return null;
+  }
+}
+
+// ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
+async function fetchYahooPrices(tickers) {
+  const results = {};
+  // Yahoo Finance v8 chart API — works for ETFs
+  await Promise.all(tickers.map(async ticker => {
+    try {
+      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (price) results[ticker] = price;
+    } catch(e) {
+      console.warn(`Yahoo fetch failed for ${ticker}:`, e.message);
+    }
+  }));
+  return results;
+}
+
+// ── 3. Fetch crypto prices from CoinGecko ────────────────────────────────────
+async function fetchCryptoPrices() {
+  try {
+    const ids = 'bitcoin,ethereum,solana,bittensor,hyperliquid,chainlink,ripple';
+    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
+    const res = await fetch(url);
+    const data = await res.json();
+    return {
+      BTC:  data.bitcoin?.usd,
+      ETH:  data.ethereum?.usd,
+      SOL:  data.solana?.usd,
+      TAO:  data.bittensor?.usd,
+      HYPE: data.hyperliquid?.usd,
+      LINK: data.chainlink?.usd,
+      XRP:  data.ripple?.usd,
+    };
+  } catch(e) {
+    console.warn('CoinGecko fetch failed:', e.message);
+    return null;
+  }
+}
+
+// ── 4. Calculate implied Fidelity NAVs via ETF proxy ─────────────────────────
+function calcFidelityNAVs(etfPrices) {
+  const navs = {};
+  const stored = JSON.parse(localStorage.getItem('mf_fidelity_proxy') || '{}');
+
+  Object.entries(FIDELITY_BASELINE).forEach(([fund, cfg]) => {
+    const etfPrice = etfPrices[cfg.proxyTicker];
+    if (!etfPrice) {
+      // Fall back to stored NAV if available
+      navs[fund] = stored[fund]?.nav || cfg.nav;
+      return;
+    }
+    // Use stored proxy baseline or use current as baseline (first run)
+    const proxyBase = stored[fund]?.proxyPrice || etfPrice;
+    const storedNav = stored[fund]?.nav || cfg.nav;
+    // NAV scales proportionally with ETF price change
+    navs[fund] = storedNav * (etfPrice / proxyBase);
+  });
+
+  return navs;
+}
+
+// ── 5. Calculate all account values from share counts × prices ───────────────
+function calcPortfolioValues(tspPrices, etfPrices, cryptoPrices, fidNavs) {
+  const sc = _shareCounts;
+  if (!sc || Object.keys(sc).length === 0) return null;
+
+  const get = (account, fund) => {
+    const row = sc.find(r => r.account === account && r.fund === fund);
+    return row?.shares || 0;
+  };
+
+  // TSP
+  const tspC = tspPrices?.C || _livePrices.tspC;
+  const tspS = tspPrices?.S || _livePrices.tspS;
+  const tspI = tspPrices?.I || _livePrices.tspI;
+  const tspCiv = get('TSP Civilian','C Fund')*tspC + get('TSP Civilian','S Fund')*tspS + get('TSP Civilian','I Fund')*tspI;
+  const tspUni = get('TSP Uniformed','C Fund')*tspC + get('TSP Uniformed','S Fund')*tspS;
+
+  // Fidelity (proxy NAVs)
+  const viiix = fidNavs?.VIIIX || FIDELITY_BASELINE.VIIIX.nav;
+  const vtpsx = fidNavs?.VTPSX || FIDELITY_BASELINE.VTPSX.nav;
+  const vempx = fidNavs?.VEMPX || FIDELITY_BASELINE.VEMPX.nav;
+  const fid403b = get('Fidelity 403b','VIIIX')*viiix + get('Fidelity 403b','VTPSX')*vtpsx + get('Fidelity 403b','VEMPX')*vempx;
+  const fid401a = get('Fidelity 401a','VTPSX')*vtpsx;
+
+  // M1
+  const p = etfPrices || {};
+  const m1 = get('M1 Finance','VTI')*(p.VTI||_livePrices.VTI||357.47) +
+              get('M1 Finance','QQQM')*(p.QQQM||_livePrices.QQQM||277.81) +
+              get('M1 Finance','AVUV')*(p.AVUV||_livePrices.AVUV||121.00) +
+              get('M1 Finance','AVDV')*(p.AVDV||_livePrices.AVDV||105.61) +
+              get('M1 Finance','AVES')*(p.AVES||_livePrices.AVES||66.32);
+
+  // Crypto
+  const cp = cryptoPrices || {};
+  const crypto = get('Kraken','BTC')*(cp.BTC||_livePrices.BTC||80861) +
+                 get('Kraken','ETH')*(cp.ETH||_livePrices.ETH||2381) +
+                 get('Kraken','SOL')*(cp.SOL||_livePrices.SOL||84.79) +
+                 get('Kraken','TAO')*(cp.TAO||_livePrices.TAO||283.53) +
+                 get('Kraken','HYPE')*(cp.HYPE||_livePrices.HYPE||40.97) +
+                 get('Kraken','LINK')*(cp.LINK||_livePrices.LINK||9.59) +
+                 get('Kraken','XRP')*(cp.XRP||_livePrices.XRP||1.40);
+
+  // Regan
+  const regan = get('Regan Investment','VTI')*(p.VTI||357.47) +
+                get('Regan Investment','AVUV')*(p.AVUV||121.00) +
+                get('Regan Investment','VXUS')*(p.VXUS||_livePrices.VXUS||82.44) +
+                get('Regan Investment','AVDV')*(p.AVDV||105.61) +
+                get('Regan Investment','AVES')*(p.AVES||66.32);
+
+  return { tspCiv, tspUni, fid403b, fid401a, m1, crypto, regan,
+           total: tspCiv + tspUni + fid403b + fid401a + m1 + crypto };
+}
+
+// ── 6. Update DOM with live values ───────────────────────────────────────────
+function updateInvestmentDOM(vals) {
+  if (!vals) return;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const fmtD = n => '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
+
+  set('val-tsp-civ',  fmt(vals.tspCiv));
+  set('val-tsp-uni',  fmt(vals.tspUni));
+  set('val-fid-403b', fmt(vals.fid403b));
+  set('val-fid-401a', fmt(vals.fid401a));
+  set('val-m1',       fmt(vals.m1));
+  set('val-crypto',   fmt(vals.crypto));
+  set('val-regan',    fmt(vals.regan));
+
+  // Net worth KPI
+  const nwLiq = parseFloat(localStorage.getItem('mf_nw_liquid') || '25107');
+  const nwProps = parseFloat(localStorage.getItem('mf_nw_props') || '457725');
+  const nwVeh  = parseFloat(localStorage.getItem('mf_nw_veh')   || '57000');
+  const nwDebt = parseFloat(localStorage.getItem('mf_nw_debt')  || '157154');
+  const nwRegan = vals.regan;
+  const totalAssets = nwLiq + nwProps + nwVeh + vals.total + nwRegan;
+  const netWorth = totalAssets - nwDebt;
+
+  set('val-total-investable', fmt(vals.total));
+  const nwEl = document.getElementById('nw-liquid-cash');
+  const kpiNW = document.getElementById('kpi-net-worth');
+  const kpiInv = document.getElementById('kpi-total-investable');
+  if (kpiNW) kpiNW.textContent = '$' + (netWorth/1000000).toFixed(2) + 'M';
+  if (kpiInv) kpiInv.textContent = fmt(vals.total);
+
+  // Crypto % of NW
+  const cryptoPct = document.getElementById('val-crypto-pct');
+  if (cryptoPct && netWorth > 0) {
+    cryptoPct.textContent = (vals.crypto / netWorth * 100).toFixed(2) + '%';
+  }
+
+  // Update alloc bar values for each fund (TSP C/S/I etc)
+  updateAllocBars(vals);
+
+  // Cache for offline
+  try { localStorage.setItem('mf_live_portfolio', JSON.stringify({vals, ts: Date.now()})); } catch(e) {}
+  console.log('Live pricing updated:', new Date().toLocaleTimeString());
+}
+
+// ── 7. Update allocation bar dollar amounts ──────────────────────────────────
+function updateAllocBars(vals) {
+  if (!_shareCounts || !vals) return;
+  const sc = _shareCounts;
+  const get = (acc, fund) => { const r=sc.find(r=>r.account===acc&&r.fund===fund); return r?.shares||0; };
+  const p = _livePrices;
+  const fmt = n => '$'+Math.round(n).toLocaleString();
+
+  // TSP Civilian fund values
+  [['tsp-civ-c', get('TSP Civilian','C Fund')*(p.tspC||115.63)],
+   ['tsp-civ-s', get('TSP Civilian','S Fund')*(p.tspS||109.12)],
+   ['tsp-civ-i', get('TSP Civilian','I Fund')*(p.tspI||61.38)],
+   ['tsp-uni-c', get('TSP Uniformed','C Fund')*(p.tspC||115.63)],
+   ['tsp-uni-s', get('TSP Uniformed','S Fund')*(p.tspS||109.12)],
+  ].forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.textContent=fmt(val); });
+}
+
+// ── 8. Main entry point — fetch all prices and update ────────────────────────
+async function fetchLivePrices() {
+  if (!_shareCounts || Object.keys(_shareCounts).length === 0) return;
+
+  console.log('Fetching live prices...');
+
+  // Fetch all in parallel
+  const [tspRaw, etfRaw, cryptoRaw] = await Promise.all([
+    fetchTSPPrices(),
+    fetchYahooPrices(['VTI','QQQM','AVUV','AVDV','AVES','VXUS','VOO','VXF']),
+    fetchCryptoPrices(),
+  ]);
+
+  // Store latest prices globally for fallback
+  if (tspRaw) {
+    _livePrices.tspC = tspRaw.C;
+    _livePrices.tspS = tspRaw.S;
+    _livePrices.tspI = tspRaw.I;
+  }
+  if (etfRaw) Object.assign(_livePrices, etfRaw);
+  if (cryptoRaw) Object.assign(_livePrices, cryptoRaw);
+
+  // Calculate Fidelity NAVs via proxy
+  const fidNavs = etfRaw ? calcFidelityNAVs(etfRaw) : null;
+
+  // Update proxy baseline storage for next session
+  if (etfRaw && fidNavs) {
+    const proxyStore = {};
+    Object.entries(FIDELITY_BASELINE).forEach(([fund, cfg]) => {
+      proxyStore[fund] = { nav: fidNavs[fund], proxyPrice: etfRaw[cfg.proxyTicker] };
+    });
+    try { localStorage.setItem('mf_fidelity_proxy', JSON.stringify(proxyStore)); } catch(e) {}
+  }
+
+  // Calculate portfolio values
+  const vals = calcPortfolioValues(tspRaw, etfRaw, cryptoRaw, fidNavs);
+  if (vals) updateInvestmentDOM(vals);
+}
+
+// Load cached portfolio on startup (shows instantly before live prices arrive)
+function loadCachedPortfolio() {
+  try {
+    const cached = JSON.parse(localStorage.getItem('mf_live_portfolio') || '{}');
+    if (cached.vals && cached.ts && (Date.now() - cached.ts) < 86400000) { // 24hr
+      updateInvestmentDOM(cached.vals);
+    }
+  } catch(e) {}
+}
+
 async function processWorkbook(wb, lastModified) {
   // Validate required sheets
   const missing = REQUIRED_SHEETS.filter(s=>!wb.SheetNames.includes(s));
@@ -4904,6 +5109,43 @@ async function processWorkbook(wb, lastModified) {
   const wsStl=wb.Sheets['Savings Transaction Log'];
   const a3=wsStl['A3']; const savingsBal=a3?fmtBal(a3.v!==undefined?a3.v:a3.w):null;
   updBal('bal-savings',savingsBal,'bal_savings');
+
+  // Update savings sub-account balances from STL row 3
+  try {
+    const stlArr = window.XLSX.utils.sheet_to_json(wsStl, {header:1, defval:null, raw:true});
+    const balRow = stlArr[2]; // row 3 (0-indexed = 2)
+    if (balRow) {
+      // Balance columns (0-indexed): TrueSav=4, CC=6, VehMaint=8, CarIns=10,
+      // RentGarb=12, Garb=14, SanMain=16, Camp=18, HM=20, RentRep=22, RentIns=24, PropTax=26, RentSan=28
+      const BAL_COL_IDS = {
+        4:'sv-core', 6:'sv-xmas',
+        8:'sv-veh', 10:'sv-ins', 12:'sv-rentgarb', 14:'sv-garb', 16:'sv-san',
+        18:'sv-camp', 20:'sv-hm', 22:'sv-rentrep', 24:'sv-rentins', 26:'sv-proptax', 28:'sv-rentsan'
+      };
+      const savBals = {};
+      Object.entries(BAL_COL_IDS).forEach(([col, id]) => {
+        const val = balRow[parseInt(col)];
+        if (val !== null && val !== undefined && !isNaN(parseFloat(val))) {
+          savBals[id] = parseFloat(val);
+          const el = document.getElementById(id);
+          if (el) {
+            const amt = parseFloat(val);
+            el.textContent = (amt < 0 ? '−$' : '$') + Math.abs(amt).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+            el.style.color = amt < 0 ? 'var(--red)' : '';
+          }
+        }
+      });
+      // Also update periodic total (sum of sub-account balances)
+      const periodicCols = [8,10,12,14,16,18,20,22,24,26,28];
+      const periodicTotal = periodicCols.reduce((s,c)=>{
+        const v=balRow[c]; return s + (v!==null&&!isNaN(parseFloat(v))?parseFloat(v):0);
+      }, 0);
+      const svPeriodic = document.getElementById('sv-periodic');
+      if (svPeriodic) svPeriodic.textContent = (periodicTotal<0?'−$':'$') + Math.abs(periodicTotal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      // sv-total is already updated via bal-savings
+      try { localStorage.setItem('mf_sav_balances', JSON.stringify(savBals)); } catch(e) {}
+    }
+  } catch(e) { console.error('Savings balance update error:', e); }
 
   // Parse actual disbursements from savings sub-accounts for framework N/W classification
   const savingsDisbursements = parseSavingsDisbursements(wsStl);
@@ -4955,20 +5197,12 @@ async function processWorkbook(wb, lastModified) {
   // 3. Budget + income actuals
   const wsMb=wb.Sheets['Monthly Breakdown'];
   const {budget:newBudget,income:newIncome}=parseMonthlyBreakdown(wsMb);
-  // Merge sync data on top of seeded — preserves R-type periodic lines not in Monthly Breakdown
+  // Excel is single source of truth — full replace
   Object.entries(newBudget).forEach(([m,lines])=>{
-    if(Object.keys(lines).length>0) {
-      const base = SEEDED_ACTUALS[m] ? JSON.parse(JSON.stringify(SEEDED_ACTUALS[m])) : {};
-      Object.assign(base, lines); // Excel overwrites seeded where it has data
-      budgetActuals[m] = base;
-    }
+    if(Object.keys(lines).length>0) budgetActuals[m] = lines;
   });
   Object.entries(newIncome).forEach(([m,lines])=>{
-    if(Object.keys(lines).length>0) {
-      const base = SEEDED_INCOME[m] ? JSON.parse(JSON.stringify(SEEDED_INCOME[m])) : {};
-      Object.assign(base, lines);
-      incomeActuals[m] = base;
-    }
+    if(Object.keys(lines).length>0) incomeActuals[m] = lines;
   });
   try { await window.storage.set('budget_actuals',JSON.stringify(budgetActuals)); } catch(e) {}
   try { await window.storage.set('income_actuals',JSON.stringify(incomeActuals)); } catch(e) {}
@@ -4998,7 +5232,11 @@ async function processWorkbook(wb, lastModified) {
   if (wb.SheetNames.includes('Share Count')) {
     const shareData=parseShareCounts(wb.Sheets['Share Count']);
     window._shareCounts=shareData;
+    _shareCounts = shareData; // sync to live pricing engine
     try { await window.storage.set('share_counts',JSON.stringify(shareData)); } catch(e) {}
+    try { localStorage.setItem('mf_share_counts', JSON.stringify(shareData)); } catch(e) {}
+    // Trigger live pricing with fresh share counts
+    setTimeout(fetchLivePrices, 500);
   }
 
   // Re-render
@@ -5112,32 +5350,38 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
-// Restore savings disbursements and raw TX from storage
-let _hasSyncedDisbursements = false;
+// Load cached portfolio values instantly
+loadCachedPortfolio();
+// Restore share counts from storage
+try {
+  const sc = localStorage.getItem('mf_share_counts');
+  if (sc) { _shareCounts = JSON.parse(sc); window._shareCounts = _shareCounts; }
+} catch(e) {}
+// Fetch live prices after page stabilises (2 sec after auto-sync starts)
+setTimeout(fetchLivePrices, 3000);
+// Restore savings disbursements, raw TX, and sub-account balances from storage
 try {
   const sd = localStorage.getItem('mf_savings_disbursements');
-  if (sd) { window._savingsDisbursements = JSON.parse(sd); _hasSyncedDisbursements = true; }
+  if (sd) { window._savingsDisbursements = JSON.parse(sd); }
   const st = localStorage.getItem('mf_savings_raw_tx');
   if (st) window._savingsRawTx = JSON.parse(st);
+  // Restore sub-account balances
+  const sb = localStorage.getItem('mf_sav_balances');
+  if (sb) {
+    const bals = JSON.parse(sb);
+    Object.entries(bals).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        const amt = parseFloat(val);
+        el.textContent = (amt < 0 ? '−$' : '$') + Math.abs(amt).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+        el.style.color = amt < 0 ? 'var(--red)' : '';
+      }
+    });
+  }
 } catch(e) {}
 
-// Seeded savings disbursements for Jan-Apr 2026 (from known transactions)
-// These are overlaid by sync data once user syncs
+// Disbursements come entirely from sync (parseSavingsDisbursements)
 if (!window._savingsDisbursements) window._savingsDisbursements = {};
-// Seeded disbursements from actual Savings Transaction Log data Jan-Apr 2026
-const SEEDED_DISBURSEMENTS = {
-  '2026-01': { N: 651.23, W: 3035.05 },
-  '2026-02': { N: 3910.02, W: 4420.54 },
-  '2026-03': { N: 785.64, W: 2364.50 },
-  '2026-04': { N: 696.32, W: 607.64 },
-};
-// Only apply seeded disbursements if no synced data exists for that month
-// Once user syncs, sync data is authoritative (more accurate than seeded)
-Object.entries(SEEDED_DISBURSEMENTS).forEach(([m, disb]) => {
-  if (!_hasSyncedDisbursements || !window._savingsDisbursements[m]) {
-    window._savingsDisbursements[m] = disb;
-  }
-});
 setTimeout(autoSync, 800);
 
 </script>
