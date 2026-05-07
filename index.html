@@ -1703,7 +1703,7 @@
                  resize:vertical;line-height:1.6;outline:none"
           onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))analyzeAffordability()"></textarea>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div style="font-size:10px;color:var(--muted)">The more detail you provide (cost, financing terms, timeline), the more precise the analysis. Cmd+Enter to submit.</div>
+          <div style="font-size:10px;color:var(--muted)">The more detail you provide (cost, financing terms, timeline), the more precise the analysis. Opens a full Claude.ai conversation with your live financial context pre-loaded.</div>
           <div style="display:flex;gap:8px">
             <button onclick="clearAfford()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">Clear</button>
             <button onclick="analyzeAffordability()" id="afford-btn"
@@ -1719,12 +1719,14 @@
 
     <!-- Quick prompts -->
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="afford-prompts">
-      <div style="font-size:10px;color:var(--muted);align-self:center;margin-right:4px">Try:</div>
-      <button onclick="setAffordPrompt('Can we afford a camper or travel trailer compatible with the Silverado? Around $40,000-$50,000 range, would finance it.')" class="prompt-chip">🚐 Camper / travel trailer</button>
-      <button onclick="setAffordPrompt('Lorri wants a new car when the RAV4 is paid off in mid-2027. Budget around $35,000-$40,000. Should we finance or pay cash?')" class="prompt-chip">🚗 New car (post RAV4)</button>
-      <button onclick="setAffordPrompt('Thinking about a vacation home or short-term rental property. Around $200,000-$250,000. Does this make sense given our current portfolio?')" class="prompt-chip">🏡 Second property</button>
-      <button onclick="setAffordPrompt('Home renovation — looking at a kitchen and bathroom remodel. Total budget around $60,000. How should we fund this?')" class="prompt-chip">🔨 Home renovation</button>
-      <button onclick="setAffordPrompt('Private school tuition for Regan — approximately $15,000 per year for 3 years. How does this impact the family finances?')" class="prompt-chip">🎓 Education costs</button>
+      <div style="font-size:10px;color:var(--muted);align-self:center;margin-right:4px;white-space:nowrap">Try:</div>
+      <button onclick="setAffordPrompt('The Silverado is almost paid off in June 2026, freeing up ~$655/month. The RAV4 loan is ~$530/month and slightly underwater at $19,392 owed. Should we redirect the Silverado payment to aggressively pay off the RAV4, or is there a better use of that cash given our current debt picture and savings goals?')" class="prompt-chip">🚗 Silverado payoff → what next?</button>
+      <button onclick="setAffordPrompt('We have a Lowe&apos;s deferred interest balance that must be paid by August 14, 2026 to avoid back-interest charges. The balance is approximately $1,441. Walk me through the best way to handle this given our current checking and savings balances — should we pay it all now, or is there a smarter approach?')" class="prompt-chip">⚠️ Lowe's deadline Aug 14</button>
+      <button onclick="setAffordPrompt('Can we afford a camper or travel trailer compatible with the Silverado 1500? We have been researching options in the $35,000-$50,000 range, would finance it. The truck has a tow capacity of ~9,000 lbs. How does this fit into our monthly cash flow, debt picture, and retirement timeline?')" class="prompt-chip">🚐 Camper / travel trailer</button>
+      <button onclick="setAffordPrompt('Lorri turns 40 on June 27, 2026. We want to do something meaningful to celebrate — could be a trip, an experience, or a gift. What can we realistically spend without disrupting our savings plan or June cash flow? We have the Silverado payoff happening around the same time which helps.')" class="prompt-chip">🎂 Lorri&apos;s 40th celebration</button>
+      <button onclick="setAffordPrompt('We have talked about setting up a revocable living trust and updating our estate planning documents — wills, POA, beneficiary designations across TSP, Fidelity, M1, and Kraken. What is the realistic cost of doing this properly in Ohio, and how should we prioritize and fund it given everything else on our financial plate?')" class="prompt-chip">📋 Estate planning / living trust</button>
+      <button onclick="setAffordPrompt('I am thinking about increasing my TSP contribution above the current 5% — potentially pushing toward the 2026 IRS max of $23,500. What is the monthly take-home impact, and does it make sense to do this now given our current cash flow, debt payoffs coming up, and the dual pension floor we already have?')" class="prompt-chip">📈 Increase TSP contributions</button>
+      <button onclick="setAffordPrompt('The rental property at 41403 Elmwood is generating $800/month gross but the tenant is currently behind. What is our true net rental income after expenses — property tax, insurance, sanitation, maintenance reserves — and does it make sense to continue holding this property versus selling it and redeploying the equity?')" class="prompt-chip">🏠 Rental property ROI</button>
     </div>
 
     <!-- Analysis output -->
@@ -4034,111 +4036,75 @@ async function analyzeAffordability() {
   const btnText = document.getElementById('afford-btn-text');
   btn.disabled = true;
   btn.style.opacity = '0.7';
-  btnText.textContent = 'Analyzing…';
+  btnText.textContent = 'Opening…';
 
-  // Hide empty state, show output
+  // ── Pull current live numbers from DOM/localStorage ─────────────────────────
+  const getEl  = id => document.getElementById(id)?.textContent?.replace(/[$,]/g,'').trim() || '';
+  const getLs  = key => localStorage.getItem(key) || '';
+
+  const checkingBal   = getEl('bal-checking')   || getLs('bal_checking')   || '~$9,500';
+  const savingsBal    = getEl('bal-savings')     || getLs('bal_savings')    || '~$22,600';
+  const totalInvest   = getEl('kpi-total-investable') || '~$1,162,636';
+  const netWorthVal   = getEl('kpi-net-worth')   || '~$1.52M';
+  const tspCivVal     = getEl('val-tsp-civ')     || '~$415,229';
+  const tspUniVal     = getEl('val-tsp-uni')     || '~$133,331';
+  const fid403bVal    = getEl('val-fid-403b')    || '~$385,995';
+  const fid401aVal    = getEl('val-fid-401a')    || '~$118,702';
+  const m1Val         = getEl('val-m1')          || '~$90,050';
+  const cryptoVal     = getEl('val-crypto')      || '~$19,329';
+  const reganVal      = getEl('val-regan')       || '~$12,216';
+
+  // ── Build rich prompt with live context + question ──────────────────────────
+  const liveSnapshot = 'LIVE PORTFOLIO SNAPSHOT (as of today):\n' +
+    '- Checking: $' + checkingBal + '\n' +
+    '- Savings (all sub-accounts): $' + savingsBal + '\n' +
+    '- Total investable assets: $' + totalInvest + '\n' +
+    '- Net worth: ' + netWorthVal + '\n' +
+    '- TSP Civilian: $' + tspCivVal + '\n' +
+    '- TSP Uniformed: $' + tspUniVal + '\n' +
+    '- Fidelity 403b: $' + fid403bVal + '\n' +
+    '- Fidelity 401a: $' + fid401aVal + '\n' +
+    '- M1 Finance: $' + m1Val + '\n' +
+    '- Crypto (Kraken): $' + cryptoVal + '\n' +
+    '- Regan Investment: $' + reganVal;
+
+  const fullPrompt = FINANCIAL_CONTEXT + '\n\n' + liveSnapshot + '\n\nQUESTION TO ANALYZE:\n' + question;
+
+  // ── Open Claude.ai in new tab with pre-loaded prompt ───────────────────────
+  const url = 'https://claude.ai/new?q=' + encodeURIComponent(fullPrompt);
+  window.open(url, '_blank', 'noopener');
+
+  // ── Update UI to show it was opened ────────────────────────────────────────
   document.getElementById('afford-empty').style.display = 'none';
   document.getElementById('afford-output').style.display = 'block';
-
-  // Show loading state
   const resultEl = document.getElementById('afford-result');
   resultEl.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;padding:12px 0;color:var(--muted)">
-      <div style="width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--green);
-                  border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0"></div>
-      <span style="font-size:13px">Analyzing against your financial picture…</span>
+    <div style="padding:16px 0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+        <span style="font-size:13px;font-weight:600;color:var(--text)">Analysis opened in Claude.ai</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:12px">
+        A new tab has opened with your question and complete financial context pre-loaded.
+        The conversation includes your live portfolio balances, income, debts, and financial profile.
+        Ask follow-up questions there to dig deeper into any part of the analysis.
+      </div>
+      <div style="font-size:11px;color:var(--hint);padding:10px;background:var(--card2);border-radius:6px;border:1px solid var(--border)">
+        <strong style="color:var(--muted)">Your question:</strong><br>
+        <span style="color:var(--text)">${question.length > 200 ? question.substring(0,200) + '…' : question}</span>
+      </div>
     </div>`;
-
-  // Add spin animation if not present
-  if (!document.getElementById('spin-style')) {
-    const s = document.createElement('style');
-    s.id = 'spin-style';
-    s.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
-    document.head.appendChild(s);
-  }
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
-        system: FINANCIAL_CONTEXT,
-        messages: [{ role: 'user', content: question }]
-      })
-    });
-
-    const data = await response.json();
-    // Log full response for debugging
-    console.log('Anthropic response:', JSON.stringify(data).substring(0, 500));
-    if (data.error) throw new Error(data.error.message || JSON.stringify(data.error));
-    // Extract text from content blocks — skip tool_use and tool_result blocks
-    const textBlocks = (data.content || []).filter(b => b.type === 'text');
-    const text = textBlocks.map(b => b.text).join('\n') || 'Unable to generate analysis. Please try again.';
-
-    // Archive previous result to history
-    const prev = resultEl.querySelector('.afford-analysis');
-    if (prev) {
-      const histQ = resultEl.dataset.question || '';
-      const histEl = document.getElementById('afford-history');
-      const histItem = document.createElement('div');
-      histItem.style.cssText = 'opacity:0.5;margin-top:8px';
-      histItem.innerHTML = `
-        <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;
-                    padding:8px 0;border-top:1px solid var(--border);cursor:pointer;
-                    display:flex;justify-content:space-between;align-items:center"
-             onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'">
-          <span>Previous: ${histQ.substring(0, 60)}${histQ.length > 60 ? '…' : ''}</span>
-          <span>▸</span>
-        </div>
-        <div style="display:none">${prev.innerHTML}</div>`;
-      histEl.prepend(histItem);
-    }
-
-    // Show new result
-    resultEl.dataset.question = question;
-    resultEl.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-wrap:wrap">
-        <div style="font-size:11px;color:var(--muted);font-style:italic;flex:1">"${question}"</div>
-        <div style="font-size:10px;color:var(--hint);white-space:nowrap">${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-      </div>
-      <div class="afford-analysis" style="font-size:13px;color:var(--text);line-height:1.8">
-        ${formatAffordResponse(text)}
-      </div>
-      <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border);
-                  display:flex;gap:8px;flex-wrap:wrap">
-        <button onclick="startFollowUp()" style="font-size:11px;padding:5px 12px;border-radius:6px;
-                border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer">
-          Ask follow-up ↩
-        </button>
-        <button onclick="clearAfford()"
-                style="font-size:11px;padding:5px 12px;border-radius:6px;
-                border:1px solid var(--border2);background:transparent;color:var(--muted);cursor:pointer">
-          New question
-        </button>
-      </div>`;
-
-  } catch (err) {
-    resultEl.innerHTML = `
-      <div style="color:var(--red);font-size:13px;padding:8px 0">
-        <strong>Analysis failed:</strong> ${err.message}<br>
-        <span style="font-size:11px;color:var(--muted)">Please check your connection and try again.</span>
-      </div>`;
-  }
 
   btn.disabled = false;
   btn.style.opacity = '1';
   btnText.textContent = 'Analyze';
 
-  // Scroll result into view smoothly on mobile
-  setTimeout(() => {
-    const el = document.getElementById('afford-result');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 150);
+  // Save to history
+  try {
+    const hist = JSON.parse(localStorage.getItem('mf_afford_history') || '[]');
+    hist.unshift({ ts: Date.now(), question: question.substring(0,200) });
+    localStorage.setItem('mf_afford_history', JSON.stringify(hist.slice(0,20)));
+  } catch(e) {}
 }
 
 
