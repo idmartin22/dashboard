@@ -1144,6 +1144,26 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="checklist-grid"></div>
         <div style="margin-top:10px;font-size:10px;color:var(--hint)">Auto-resets on the 1st of each month. Check items off as you complete them — state saves across sessions.</div>
+
+      <!-- Research & Review Buttons -->
+      <div class="card" style="margin-top:12px">
+        <div class="card-title">Research & Review</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+
+          <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">🏠 Physical Asset Valuation</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Multi-source research: Zillow, Redfin, Realtor.com, county records, KBB, Edmunds, CarGurus. Run monthly to keep net worth current.</div>
+            <a href="https://claude.ai/new?q=Please%20research%20current%20market%20values%20for%20our%20physical%20assets%20and%20provide%20updated%20valuations%20with%20multiple%20sources.%0A%0APROPERTIES%3A%0A1.%2041377%20Elmwood%20Ave%2C%20Elyria%20OH%2044035%20%28primary%20residence%29%0A2.%2041403%20Elmwood%20Ave%2C%20Elyria%20OH%2044035%20%28rental%20property%29%0A%0AFor%20each%20property%20use%3A%20Zillow%2C%20Redfin%2C%20Realtor.com%2C%20recent%20comparable%20sales%20within%200.5%20miles%2C%20Lorain%20County%20Auditor/tax%20records%2C%20FHFA%20regional%20house%20price%20index%20for%20Cleveland%20metro%2C%20and%20local%20MLS%20days-on-market%20trends.%20Cast%20a%20wide%20net%20across%20all%20sources.%20Provide%20a%20recommended%20current%20market%20value%20with%20reasoning.%0A%0AVEHICLES%3A%0A1.%202019%20Chevy%20Silverado%20Custom%20Trail%20Boss%201500%0A2.%20Toyota%20RAV4%20%28Lorri%27s%20vehicle%29%0A%0AFor%20each%20vehicle%20use%3A%20KBB%20private%20party%20value%2C%20Edmunds%20TMV%2C%20CarGurus%20market%20price%2C%20local%20Northeast%20Ohio%20dealer%20listings%2C%20and%20Manheim%20wholesale%20index.%20Account%20for%20condition%2C%20mileage%2C%20and%20regional%20market%20conditions.%0A%0AProvide%20a%20final%20recommended%20value%20for%20each%20asset%20with%20source%20breakdown." target="_blank" rel="noopener" style="display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Research Session →</a>
+          </div>
+
+          <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">📊 Investment Allocation Review</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Opens a pre-loaded session with current allocations and established thesis. Claude reasons from prior methodology — any deviation must justify what changed.</div>
+            <a href="https://claude.ai/new?q=Please%20conduct%20a%20portfolio%20review%20for%20the%20Martin%20household.%20Established%20thesis%3A%20dual%20pension%20floor%20%28FERS%20~%2434K%20%2B%20Guard%20~%2443K/yr%29%20justifies%20100%25%20equity%3B%20household-level%20balancing%20%28Isaac%20TSP%20%3D%20US-heavy%2C%20Lorri%20Fidelity%20%3D%20intl-heavy%29%3B%20M1%20factor-tilted%20via%20Avantis%20%28AVUV/AVDV/AVES%29%3B%20crypto%20capped%20at%20~1.6%25%3B%20retirement%20target%20age%2057%20%28Nov%202038%29.%20Current%3A%20TSP%20Civ%20~%24415K%20%2855C/25S/20I%29%2C%20TSP%20Uni%20~%24133K%20%2840C/60S%29%2C%20Fid%20403b%20~%24386K%20%2830%20VIIIX/55%20VTPSX/15%20VEMPX%29%2C%20Fid%20401a%20~%24119K%20%28100%20VTPSX%29%2C%20M1%20~%2490K%20%2820%20VTI/10%20QQQM/30%20AVUV/25%20AVDV/15%20AVES%29%2C%20Crypto%20~%2419K.%20Review%20whether%20current%20market%20conditions%20or%20any%20situational%20changes%20warrant%20revisiting%20this%20structure.%20Reason%20from%20established%20thesis%20%E2%80%94%20any%20deviation%20must%20cite%20what%20specifically%20changed." target="_blank" rel="noopener" style="display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Review Session →</a>
+          </div>
+
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -1771,11 +1791,11 @@
       <div>
         <div class="card">
           <div class="card-title">Portfolio allocation — M1 Finance</div>
-          <div class="row"><div class="rl">VTI<div class="rsub">Vanguard Total US Market · broad, cheap, complete</div></div><div class="rv" style="color:var(--blue)">25% · <span id="reg-vti">$3,045</span></div></div>
-          <div class="row"><div class="rl">AVUV<div class="rsub">Avantis US Small Cap Value · highest conviction factor</div></div><div class="rv" style="color:var(--green)">25% · <span id="reg-avuv">$3,045</span></div></div>
-          <div class="row"><div class="rl">VXUS<div class="rsub">Vanguard Total International · developed + EM in one</div></div><div class="rv" style="color:var(--blue)">20% · <span id="reg-vxus">$2,436</span></div></div>
-          <div class="row"><div class="rl">AVDV<div class="rsub">Avantis Intl Small Cap Value · factor tilt</div></div><div class="rv" style="color:var(--green)">20% · <span id="reg-avdv">$2,436</span></div></div>
-          <div class="row"><div class="rl">AVES<div class="rsub">Avantis EM Value · factor tilt</div></div><div class="rv" style="color:var(--amber)">10% · <span id="reg-aves">$1,218</span></div></div>
+          <div class="row"><div class="rl">VTI<div class="rsub">Vanguard Total US Market · broad, cheap, complete</div><div class="rsub" style="color:var(--muted);font-size:10px"><span id="reg-sh-vti"></span></div></div><div class="rv" style="color:var(--blue)">25% · <span id="reg-vti">$3,045</span></div></div>
+          <div class="row"><div class="rl">AVUV<div class="rsub">Avantis US Small Cap Value · highest conviction factor</div><div class="rsub" style="color:var(--muted);font-size:10px"><span id="reg-sh-avuv"></span></div></div><div class="rv" style="color:var(--green)">25% · <span id="reg-avuv">$3,045</span></div></div>
+          <div class="row"><div class="rl">VXUS<div class="rsub">Vanguard Total International · developed + EM in one</div><div class="rsub" style="color:var(--muted);font-size:10px"><span id="reg-sh-vxus"></span></div></div><div class="rv" style="color:var(--blue)">20% · <span id="reg-vxus">$2,436</span></div></div>
+          <div class="row"><div class="rl">AVDV<div class="rsub">Avantis Intl Small Cap Value · factor tilt</div><div class="rsub" style="color:var(--muted);font-size:10px"><span id="reg-sh-avdv"></span></div></div><div class="rv" style="color:var(--green)">20% · <span id="reg-avdv">$2,436</span></div></div>
+          <div class="row"><div class="rl">AVES<div class="rsub">Avantis EM Value · factor tilt</div><div class="rsub" style="color:var(--muted);font-size:10px"><span id="reg-sh-aves"></span></div></div><div class="rv" style="color:var(--amber)">10% · <span id="reg-aves">$1,218</span></div></div>
           <div class="total-row"><span>Total</span><span class="rv" style="color:var(--purple)" id="reg-total">$12,181</span></div>
         </div>
         <div class="card">
@@ -3213,7 +3233,9 @@ function renderFramework(month) {
       const s38Val  = acts['s38'] || 0;
       const s39Val  = acts['s39'] || 0;
       const totalDisb = (disb.N || 0) + (disb.W || 0);
-      const netSubSav = B_TRANSFER_MONTHLY - totalDisb;
+      // Option B: use actual posted transfer credits, not hardcoded $2,000
+      const actualBTransfer = disb.bTransfer || 0;
+      const netSubSav = actualBTransfer - totalDisb;
 
       aS += s38Val + s39Val + netSubSav;
 
@@ -4548,7 +4570,7 @@ function parseSavingsDisbursements(wsStl) {
     if (isNaN(d)) return;
     const month = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
 
-    if (!result[month]) result[month] = { N: 0, W: 0 };
+    if (!result[month]) result[month] = { N: 0, W: 0, bTransfer: 0 };
 
     // Check each sub-account debit column
     Object.entries(SAVINGS_SUB_COLS).forEach(([col, [label, nPct, wPct]]) => {
@@ -4559,6 +4581,18 @@ function parseSavingsDisbursements(wsStl) {
         const amt = numVal;
         result[month].N += amt * nPct;
         result[month].W += amt * wPct;
+      }
+    });
+
+    // Option B: read actual B-line transfer credits (cols 8,10,12,14,16,18,20,22,24,26,28)
+    // These are the sub-account funding transfers — only count when actually posted
+    const B_CREDIT_COLS = [8,10,12,14,16,18,20,22,24,26,28];
+    B_CREDIT_COLS.forEach(col => {
+      const val = row[col];
+      const numVal = parseFloat(val);
+      // Credit columns: positive = transfer in (money moving into sub-account)
+      if (val !== null && val !== undefined && !isNaN(numVal) && numVal > 0) {
+        result[month].bTransfer += numVal;
       }
     });
   });
@@ -4853,25 +4887,31 @@ function updateConsolidatedTable(vals) {
   const taoSh=get('Kraken','TAO'), hypeSh=get('Kraken','HYPE'), linkSh=get('Kraken','LINK'), xrpSh=get('Kraken','XRP');
 
   let html = '';
-  html += hdr('TSP Civilian', vals.tspCiv);
-  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, vals.tspCiv,'0.054%', cCiv,  tspC);
-  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, vals.tspCiv,'0.054%', sCiv,  tspS);
-  html += row('I Fund','TSP Civ','International',  iCiv*tspI, vals.tspCiv,'0.054%', iCiv,  tspI);
-  html += hdr('TSP Uniformed', vals.tspUni);
-  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, vals.tspUni,'0.054%', cUni,  tspC);
-  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, vals.tspUni,'0.054%', sUni,  tspS);
-  html += hdr('Fidelity 403b', vals.fid403b, 'var(--coral)');
-  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, vals.fid403b,'0.02%', viiix, fidViiixV);
-  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, vals.fid403b,'0.07%', vtpsx, fidVtpsxV);
-  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, vals.fid403b,'0.04%', vempx, fidVempxV);
-  html += hdr('Fidelity 401a', vals.fid401a, 'var(--coral)');
-  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, vals.fid401a,'0.07%', v401, fidVtpsxV);
-  html += hdr('M1 Finance', vals.m1, 'var(--green)');
-  html += row('VTI','M1','US total market',  vtiSh*vtiP,   vals.m1,'0.03%', vtiSh,  vtiP);
-  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, vals.m1,'0.15%', qqqmSh, qqqmP);
-  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, vals.m1,'0.25%', avuvSh, avuvP);
-  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, vals.m1,'0.36%', avdvSh, avdvP);
-  html += row('AVES','M1','EM value',        avesSh*avesP, vals.m1,'0.36%', avesSh, avesP);
+  const tspCivActual = cCiv*tspC + sCiv*tspS + iCiv*tspI;
+  const tspUniActual = cUni*tspC + sUni*tspS;
+  html += hdr('TSP Civilian', tspCivActual);
+  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, tspCivActual,'0.054%', cCiv,  tspC);
+  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, tspCivActual,'0.054%', sCiv,  tspS);
+  html += row('I Fund','TSP Civ','International',  iCiv*tspI, tspCivActual,'0.054%', iCiv,  tspI);
+  html += hdr('TSP Uniformed', tspUniActual);
+  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, tspUniActual,'0.054%', cUni,  tspC);
+  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, tspUniActual,'0.054%', sUni,  tspS);
+  // Use actual sum of displayed values as acctTotal to avoid proxy rounding issues
+  const fid403bActual = viiix*fidViiixV + vtpsx*fidVtpsxV + vempx*fidVempxV;
+  const fid401aActual = v401*fidVtpsxV;
+  html += hdr('Fidelity 403b', fid403bActual, 'var(--coral)');
+  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, fid403bActual,'0.02%', viiix, fidViiixV);
+  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, fid403bActual,'0.07%', vtpsx, fidVtpsxV);
+  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, fid403bActual,'0.04%', vempx, fidVempxV);
+  html += hdr('Fidelity 401a', fid401aActual, 'var(--coral)');
+  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, fid401aActual,'0.07%', v401, fidVtpsxV);
+  const m1Actual = vtiSh*vtiP + qqqmSh*qqqmP + avuvSh*avuvP + avdvSh*avdvP + avesSh*avesP;
+  html += hdr('M1 Finance', m1Actual, 'var(--green)');
+  html += row('VTI','M1','US total market',  vtiSh*vtiP,   m1Actual,'0.03%', vtiSh,  vtiP);
+  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, m1Actual,'0.15%', qqqmSh, qqqmP);
+  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, m1Actual,'0.25%', avuvSh, avuvP);
+  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, m1Actual,'0.36%', avdvSh, avdvP);
+  html += row('AVES','M1','EM value',        avesSh*avesP, m1Actual,'0.36%', avesSh, avesP);
   html += hdr('Crypto (Kraken)', vals.crypto, 'var(--purple)');
   html += row('BTC','Kraken','Crypto',  btcSh*(cp.BTC||80861),  vals.crypto,'—', btcSh,  cp.BTC||80861);
   html += row('ETH','Kraken','Crypto',  ethSh*(cp.ETH||2381),   vals.crypto,'—', ethSh,  cp.ETH||2381);
@@ -4928,6 +4968,13 @@ function updateReganTab(vals) {
     set('val-regan',    fmt(regTotal));
     const d = new Date();
     set('regan-asof', 'live · ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}));
+    // Units owned for each fund
+    const fmtSh = n => n ? n.toLocaleString(undefined,{maximumFractionDigits:3}) + ' units' : '';
+    set('reg-sh-vti',  fmtSh(get('Regan Investment','VTI')));
+    set('reg-sh-avuv', fmtSh(get('Regan Investment','AVUV')));
+    set('reg-sh-vxus', fmtSh(get('Regan Investment','VXUS')));
+    set('reg-sh-avdv', fmtSh(get('Regan Investment','AVDV')));
+    set('reg-sh-aves', fmtSh(get('Regan Investment','AVES')));
   }
 }
 
@@ -5018,6 +5065,40 @@ function loadCachedPortfolio() {
       updateInvestmentDOM(cached.vals);
     }
   } catch(e) {}
+}
+
+// ── Crypto refresh every 6 hours (midnight, 6am, noon, 6pm) ──────────────────
+function scheduleCryptoRefresh() {
+  const now = new Date();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+
+  // Next 6-hour checkpoint: 0, 6, 12, 18
+  const nextCheckpoint = Math.ceil(hours / 6) * 6 % 24;
+  let msUntilNext;
+  if (nextCheckpoint === hours && minutes === 0 && seconds < 5) {
+    // We're right at a checkpoint - run now, schedule next in 6 hours
+    msUntilNext = 6 * 60 * 60 * 1000;
+  } else {
+    const hoursUntil = ((nextCheckpoint - hours) + 24) % 24 || 6;
+    msUntilNext = (hoursUntil * 60 * 60 - minutes * 60 - seconds) * 1000;
+  }
+
+  setTimeout(async () => {
+    console.log('Scheduled crypto refresh at', new Date().toLocaleTimeString());
+    const cryptoRaw = await fetchCryptoPrices();
+    if (cryptoRaw) {
+      Object.assign(_livePrices, cryptoRaw);
+      // Recalculate portfolio with updated crypto prices using last known other prices
+      const vals = calcPortfolioValues(null, null, cryptoRaw, null);
+      if (vals) updateInvestmentDOM(vals);
+    }
+    // Schedule next refresh
+    scheduleCryptoRefresh();
+  }, msUntilNext);
+
+  console.log('Next crypto refresh in', Math.round(msUntilNext/60000), 'minutes');
 }
 
 async function processWorkbook(wb, lastModified) {
@@ -5321,6 +5402,8 @@ try {
 } catch(e) {}
 // Fetch live prices after page stabilises (2 sec after auto-sync starts)
 setTimeout(fetchLivePrices, 3000);
+// Schedule crypto price refresh every 6 hours (midnight, 6am, noon, 6pm)
+scheduleCryptoRefresh();
 // Restore savings disbursements, raw TX, and sub-account balances from storage
 try {
   const sd = localStorage.getItem('mf_savings_disbursements');
