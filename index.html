@@ -4589,9 +4589,9 @@ let _livePrices = {};
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
   try {
-    const res = await fetch('https://www.tspdatacenter.com/daily-share-prices/', {
-      headers: { 'User-Agent': 'Mozilla/5.0' }
-    });
+    const CORS = 'https://api.allorigins.win/raw?url=';
+    const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
+    const res = await fetch(CORS + target);
     const html = await res.text();
     const prices = {};
     // Parse table: "C Fund | $115.6318"
@@ -4610,11 +4610,11 @@ async function fetchTSPPrices() {
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
 async function fetchYahooPrices(tickers) {
   const results = {};
-  // Yahoo Finance v8 chart API — works for ETFs
+  const CORS = 'https://api.allorigins.win/raw?url=';
   await Promise.all(tickers.map(async ticker => {
     try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
-      const res = await fetch(url);
+      const target = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`);
+      const res = await fetch(CORS + target);
       const data = await res.json();
       const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
       if (price) results[ticker] = price;
@@ -4629,8 +4629,16 @@ async function fetchYahooPrices(tickers) {
 async function fetchCryptoPrices() {
   try {
     const ids = 'bitcoin,ethereum,solana,bittensor,hyperliquid,chainlink,ripple';
-    const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
-    const res = await fetch(url);
+    const cgUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
+    // Try direct first (CoinGecko supports CORS), fall back to proxy if blocked
+    let res;
+    try {
+      res = await fetch(cgUrl);
+      if (!res.ok) throw new Error('direct failed');
+    } catch(e) {
+      const CORS = 'https://api.allorigins.win/raw?url=';
+      res = await fetch(CORS + encodeURIComponent(cgUrl));
+    }
     const data = await res.json();
     return {
       BTC:  data.bitcoin?.usd,
