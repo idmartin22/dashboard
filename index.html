@@ -114,7 +114,7 @@
   }
   .prompt-chip:hover { color: var(--text); border-color: var(--green); background: var(--green-dim); }
   .nav-btn.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border2); box-shadow: inset 0 -2px 0 var(--green); }
-  .page { display: none !important; }
+  .page { display: none; }
   .page.active { display: block !important; }
   .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .card {
@@ -2588,7 +2588,6 @@ async function clearActuals() {
 
 function renderBudget() {
   const month = document.getElementById('budgetMonth').value;
-  console.log('renderBudget called, month:', month, 'actuals keys:', Object.keys(budgetActuals));
 
   // Annual view — aggregate all months with data
   if (month === '2026-annual') {
