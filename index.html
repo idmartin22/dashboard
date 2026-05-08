@@ -1495,6 +1495,7 @@
       <div class="card">
         <div class="card-title">Tenant utility reimbursements</div>
         <div style="margin-bottom:8px;font-size:10px;color:var(--muted)">You pay upfront, tenant reimburses. Running balance:</div>
+        <div id="tenant-util-body">
         <div class="row"><div class="rl">Jan utilities paid<div class="rsub">First Energy $52.66 · Columbia Gas $130.51 · Opening $239.68</div></div><div class="rv red">−$422.85</div></div>
         <div class="row"><div class="rl">Jan reimbursement received</div><div class="rv green">+$422.00</div></div>
         <div class="row"><div class="rl">Feb utilities paid<div class="rsub">First Energy $65.78 · Columbia Gas $182.55</div></div><div class="rv red">−$248.33</div></div>
@@ -3523,8 +3524,31 @@ function mergeSyncedCheckingTx(wsCtl) {
       const debit = row[4];
       const credit = row[5];
 
-      if (!type || !lineId || !date || !desc) return;
-      if (!['d','f'].includes(String(type).toLowerCase())) return;
+      if (!type || !date || !desc) return;
+      const typeStr = String(type).toLowerCase();
+      // 'xx' = rental utility transactions (tenant utility tracking)
+      if (typeStr === 'xx') {
+        let dateStr2, monthKey2;
+        if (date instanceof Date) {
+          dateStr2 = (date.getMonth()+1).toString().padStart(2,'0') + '/' +
+                     date.getDate().toString().padStart(2,'0') + '/' + date.getFullYear();
+          monthKey2 = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2,'0');
+        } else if (typeof date === 'number') {
+          const d2 = new Date(Math.round((date - 25569) * 86400 * 1000));
+          dateStr2 = (d2.getMonth()+1).toString().padStart(2,'0') + '/' +
+                     d2.getDate().toString().padStart(2,'0') + '/' + d2.getFullYear();
+          monthKey2 = d2.getFullYear() + '-' + (d2.getMonth()+1).toString().padStart(2,'0');
+        } else return;
+        const debit2  = row[4] && parseFloat(row[4]) > 0 ? parseFloat(row[4]) : 0;
+        const credit2 = row[5] && parseFloat(row[5]) > 0 ? parseFloat(row[5]) : 0;
+        if (debit2 > 0 || credit2 > 0) {
+          newTx.push({ type:'xx', lineId:'xx', date: dateStr2, monthKey: monthKey2,
+                       desc, debit: debit2, credit: credit2 });
+        }
+        return;
+      }
+      if (!lineId) return;
+      if (!['d','f'].includes(typeStr)) return;
 
       // Parse date
       let dateStr, monthKey;
@@ -3556,6 +3580,8 @@ function mergeSyncedCheckingTx(wsCtl) {
     // Replace all checking transactions with fresh sync data
     CHECKING_TX = newTx;
     console.log('Merged checking tx — total:', CHECKING_TX.length, 'new:', newTx.length);
+    // Rebuild tenant utility KPI from xx transactions
+    renderTenantUtility(CHECKING_TX);
 
     // Persist synced tx to localStorage
     try {
@@ -3654,6 +3680,59 @@ function filterSavingsTx() {
     const acct = row.dataset.account || '';
     row.style.display = (filter === 'all' || acct === filter) ? '' : 'none';
   });
+}
+
+function renderTenantUtility(txList) {
+  // Parse xx transactions from checking log and build tenant utility display
+  const xxTx = (txList || window._checkingTx || []).filter(t => t.type === 'xx');
+  if (!xxTx.length) return;
+
+  // Group by month
+  const months = {};
+  xxTx.forEach(tx => {
+    const m = tx.monthKey;
+    if (!months[m]) months[m] = { paid: 0, received: 0, items: [] };
+    if (tx.debit > 0) { months[m].paid += tx.debit; months[m].items.push(tx.desc + ' $' + tx.debit.toFixed(2)); }
+    if (tx.credit > 0) months[m].received += tx.credit;
+  });
+
+  const monthNames = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May',
+                      '06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+  const fmt = n => '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  let totalPaid = 0, totalReceived = 0;
+  let html = '';
+
+  Object.keys(months).sort().forEach(m => {
+    const mo = months[m];
+    const label = monthNames[m.split('-')[1]] || m;
+    totalPaid += mo.paid;
+    totalReceived += mo.received;
+    html += `
+      <div class="row"><div class="rl">${label} utilities paid
+        <div class="rsub">${mo.items.join(' · ')}</div>
+      </div><div class="rv red">−${fmt(mo.paid)}</div></div>
+      <div class="row"><div class="rl">${label} reimbursement received</div>
+        <div class="rv ${mo.received > 0 ? 'green' : ''}">${mo.received > 0 ? '+' + fmt(mo.received) : fmt(0)}</div>
+      </div>`;
+  });
+
+  const netOwed = totalPaid - totalReceived;
+  html += `
+    <div class="total-row"><span>Total utilities paid</span><span class="rv">${fmt(totalPaid)}</span></div>
+    <div class="total-row"><span>Total reimbursed</span><span class="rv green">+${fmt(totalReceived)}</span></div>
+    <div class="total-row" style="font-weight:600"><span>Net owed by tenant</span>
+      <span class="rv ${netOwed > 0 ? 'red' : 'green'}">${netOwed > 0 ? '−' : '+'}${fmt(Math.abs(netOwed))}</span>
+    </div>`;
+
+  const el = document.getElementById('tenant-util-body');
+  if (el) el.innerHTML = html;
+
+  // Update hardcoded constants for other calculations
+  try {
+    localStorage.setItem('mf_rental_util_paid', totalPaid.toFixed(2));
+    localStorage.setItem('mf_rental_util_received', totalReceived.toFixed(2));
+  } catch(e) {}
 }
 
 function renderSavingsTx() {
@@ -5405,6 +5484,8 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
+// Render tenant utility from cached checking TX
+setTimeout(() => renderTenantUtility(CHECKING_TX), 200);
 // Load cached portfolio values instantly
 loadCachedPortfolio();
 // Restore share counts from storage
