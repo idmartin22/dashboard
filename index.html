@@ -5390,13 +5390,23 @@ async function autoSync() {
       });
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
-    // Cache-bust to ensure latest Excel file is always fetched from GitHub
-    const bustUrl = GDRIVE_URL + '?t=' + Date.now();
-    console.log('Fetching:', bustUrl);
-    const resp = await fetch(bustUrl, {
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
-    });
+    // Route through CORS proxy — raw.githubusercontent.com blocks direct browser requests
+    // Try multiple proxies in sequence
+    const EXCEL_PROXIES = [
+      'https://corsproxy.io/?url=',
+      'https://api.allorigins.win/raw?url=',
+      'https://thingproxy.freeboard.io/fetch/',
+    ];
+    let resp = null;
+    for (const proxy of EXCEL_PROXIES) {
+      try {
+        const proxyUrl = proxy + encodeURIComponent(GDRIVE_URL);
+        console.log('Fetching:', proxyUrl);
+        const r = await fetch(proxyUrl);
+        if (r.ok) { resp = r; break; }
+      } catch(e) { /* try next proxy */ }
+    }
+    if (!resp) throw new Error('All proxies failed fetching Excel file');
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     // Try to get last-modified from response headers
