@@ -4500,7 +4500,7 @@ const EXCEL_TO_DASH_ID = {
 };
 // GitHub raw content URL — CORS-friendly, works from any browser
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
-const GDRIVE_URL  = 'https://raw.githubusercontent.com/idmartin22/dashboard/main/2026_Family_Budget.xlsx';
+const GDRIVE_URL  = '/dashboard/2026_Family_Budget.xlsx'; // same-origin via GitHub Pages — no CORS
 const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
 const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
@@ -5390,23 +5390,9 @@ async function autoSync() {
       });
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
-    // Route through CORS proxy — raw.githubusercontent.com blocks direct browser requests
-    // Try multiple proxies in sequence
-    const EXCEL_PROXIES = [
-      'https://corsproxy.io/?url=',
-      'https://api.allorigins.win/raw?url=',
-      'https://thingproxy.freeboard.io/fetch/',
-    ];
-    let resp = null;
-    for (const proxy of EXCEL_PROXIES) {
-      try {
-        const proxyUrl = proxy + encodeURIComponent(GDRIVE_URL);
-        console.log('Fetching:', proxyUrl);
-        const r = await fetch(proxyUrl);
-        if (r.ok) { resp = r; break; }
-      } catch(e) { /* try next proxy */ }
-    }
-    if (!resp) throw new Error('All proxies failed fetching Excel file');
+    // Same-origin fetch — Excel file served from GitHub Pages, no CORS needed
+    console.log('Fetching:', GDRIVE_URL);
+    const resp = await fetch(GDRIVE_URL, { cache: 'no-store' });
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     // Try to get last-modified from response headers
