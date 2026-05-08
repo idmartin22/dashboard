@@ -1495,7 +1495,6 @@
       <div class="card">
         <div class="card-title">Tenant utility reimbursements</div>
         <div style="margin-bottom:8px;font-size:10px;color:var(--muted)">You pay upfront, tenant reimburses. Running balance:</div>
-        <div id="tenant-util-body">
         <div class="row"><div class="rl">Jan utilities paid<div class="rsub">First Energy $52.66 · Columbia Gas $130.51 · Opening $239.68</div></div><div class="rv red">−$422.85</div></div>
         <div class="row"><div class="rl">Jan reimbursement received</div><div class="rv green">+$422.00</div></div>
         <div class="row"><div class="rl">Feb utilities paid<div class="rsub">First Energy $65.78 · Columbia Gas $182.55</div></div><div class="rv red">−$248.33</div></div>
@@ -1564,7 +1563,6 @@
 
   <!-- BUDGET -->
   <div class="page active" id="page-budget">
-
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
       <div>
@@ -2523,17 +2521,20 @@ let budgetActuals = {};
 const DATA_VERSION = 'v6';
 
 async function loadBudgetActuals() {
-  budgetActuals = {};
-  incomeActuals = {};
   try {
+    // Sync is source of truth — load from storage (populated by autoSync)
+    budgetActuals = {};
+    incomeActuals = {};
     const r = await window.storage.get('budget_actuals');
-    if (r && r.value) budgetActuals = JSON.parse(r.value);
-  } catch(e) { /* key not found — start fresh */ }
-  try {
+    if (r) budgetActuals = JSON.parse(r.value);
     const ri = await window.storage.get('income_actuals');
-    if (ri && ri.value) incomeActuals = JSON.parse(ri.value);
-  } catch(e) { /* key not found — start fresh */ }
-  console.log('Loaded months:', Object.keys(budgetActuals));
+    if (ri) incomeActuals = JSON.parse(ri.value);
+    console.log('Loaded months:', Object.keys(budgetActuals));
+  } catch(e) {
+    console.error('loadBudgetActuals error:', e);
+    budgetActuals = {};
+    incomeActuals = {};
+  }
 }
 
 async function saveBudgetActuals() {
@@ -3369,7 +3370,7 @@ renderBudget = function() {
   renderFramework(month);
 };
 
-// Single unified init — load data then render
+// Single unified init — load data once then render everything
 loadBudgetActuals().then(() => {
   renderBudget();
   renderFramework(document.getElementById('budgetMonth')?.value || '2026-05');
@@ -3522,31 +3523,8 @@ function mergeSyncedCheckingTx(wsCtl) {
       const debit = row[4];
       const credit = row[5];
 
-      if (!type || !date || !desc) return;
-      const typeStr = String(type).toLowerCase();
-      // 'xx' = rental utility transactions (tenant utility tracking)
-      if (typeStr === 'xx') {
-        let dateStr2, monthKey2;
-        if (date instanceof Date) {
-          dateStr2 = (date.getMonth()+1).toString().padStart(2,'0') + '/' +
-                     date.getDate().toString().padStart(2,'0') + '/' + date.getFullYear();
-          monthKey2 = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2,'0');
-        } else if (typeof date === 'number') {
-          const d2 = new Date(Math.round((date - 25569) * 86400 * 1000));
-          dateStr2 = (d2.getMonth()+1).toString().padStart(2,'0') + '/' +
-                     d2.getDate().toString().padStart(2,'0') + '/' + d2.getFullYear();
-          monthKey2 = d2.getFullYear() + '-' + (d2.getMonth()+1).toString().padStart(2,'0');
-        } else return;
-        const debit2  = row[4] && parseFloat(row[4]) > 0 ? parseFloat(row[4]) : 0;
-        const credit2 = row[5] && parseFloat(row[5]) > 0 ? parseFloat(row[5]) : 0;
-        if (debit2 > 0 || credit2 > 0) {
-          newTx.push({ type:'xx', lineId:'xx', date: dateStr2, monthKey: monthKey2,
-                       desc, debit: debit2, credit: credit2 });
-        }
-        return;
-      }
-      if (!lineId) return;
-      if (!['d','f'].includes(typeStr)) return;
+      if (!type || !lineId || !date || !desc) return;
+      if (!['d','f'].includes(String(type).toLowerCase())) return;
 
       // Parse date
       let dateStr, monthKey;
@@ -3578,8 +3556,6 @@ function mergeSyncedCheckingTx(wsCtl) {
     // Replace all checking transactions with fresh sync data
     CHECKING_TX = newTx;
     console.log('Merged checking tx — total:', CHECKING_TX.length, 'new:', newTx.length);
-    // Rebuild tenant utility KPI from xx transactions
-    renderTenantUtility(CHECKING_TX);
 
     // Persist synced tx to localStorage
     try {
@@ -3678,59 +3654,6 @@ function filterSavingsTx() {
     const acct = row.dataset.account || '';
     row.style.display = (filter === 'all' || acct === filter) ? '' : 'none';
   });
-}
-
-function renderTenantUtility(txList) {
-  // Parse xx transactions from checking log and build tenant utility display
-  const xxTx = (txList || window._checkingTx || []).filter(t => t.type === 'xx');
-  if (!xxTx.length) return;
-
-  // Group by month
-  const months = {};
-  xxTx.forEach(tx => {
-    const m = tx.monthKey;
-    if (!months[m]) months[m] = { paid: 0, received: 0, items: [] };
-    if (tx.debit > 0) { months[m].paid += tx.debit; months[m].items.push(tx.desc + ' $' + tx.debit.toFixed(2)); }
-    if (tx.credit > 0) months[m].received += tx.credit;
-  });
-
-  const monthNames = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May',
-                      '06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
-  const fmt = n => '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-
-  let totalPaid = 0, totalReceived = 0;
-  let html = '';
-
-  Object.keys(months).sort().forEach(m => {
-    const mo = months[m];
-    const label = monthNames[m.split('-')[1]] || m;
-    totalPaid += mo.paid;
-    totalReceived += mo.received;
-    html += `
-      <div class="row"><div class="rl">${label} utilities paid
-        <div class="rsub">${mo.items.join(' · ')}</div>
-      </div><div class="rv red">−${fmt(mo.paid)}</div></div>
-      <div class="row"><div class="rl">${label} reimbursement received</div>
-        <div class="rv ${mo.received > 0 ? 'green' : ''}">${mo.received > 0 ? '+' + fmt(mo.received) : fmt(0)}</div>
-      </div>`;
-  });
-
-  const netOwed = totalPaid - totalReceived;
-  html += `
-    <div class="total-row"><span>Total utilities paid</span><span class="rv">${fmt(totalPaid)}</span></div>
-    <div class="total-row"><span>Total reimbursed</span><span class="rv green">+${fmt(totalReceived)}</span></div>
-    <div class="total-row" style="font-weight:600"><span>Net owed by tenant</span>
-      <span class="rv ${netOwed > 0 ? 'red' : 'green'}">${netOwed > 0 ? '−' : '+'}${fmt(Math.abs(netOwed))}</span>
-    </div>`;
-
-  const el = document.getElementById('tenant-util-body');
-  if (el) el.innerHTML = html;
-
-  // Update hardcoded constants for other calculations
-  try {
-    localStorage.setItem('mf_rental_util_paid', totalPaid.toFixed(2));
-    localStorage.setItem('mf_rental_util_received', totalReceived.toFixed(2));
-  } catch(e) {}
 }
 
 function renderSavingsTx() {
@@ -4498,7 +4421,7 @@ const EXCEL_TO_DASH_ID = {
 };
 // GitHub raw content URL — CORS-friendly, works from any browser
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
-const GDRIVE_URL  = '/dashboard/2026_Family_Budget.xlsx'; // same-origin via GitHub Pages — no CORS
+const GDRIVE_URL  = 'https://raw.githubusercontent.com/idmartin22/dashboard/main/2026_Family_Budget.xlsx';
 const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
 const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
@@ -4665,21 +4588,11 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
-  const PROXIES = [
-    'https://corsproxy.io/?url=',
-    'https://api.allorigins.win/raw?url=',
-    'https://thingproxy.freeboard.io/fetch/',
-  ];
-  const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
-  let html = null;
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy + target);
-      if (res.ok) { html = await res.text(); break; }
-    } catch(e) { /* try next */ }
-  }
   try {
-    if (!html) throw new Error('all proxies failed');
+    const CORS = 'https://api.allorigins.win/raw?url=';
+    const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
+    const res = await fetch(CORS + target);
+    const html = await res.text();
     const prices = {};
     // Parse table: "C Fund | $115.6318"
     const matches = html.matchAll(/([CGFSI] Fund)[^$]*[$]([0-9.]+)/g);
@@ -4697,31 +4610,19 @@ async function fetchTSPPrices() {
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
 async function fetchYahooPrices(tickers) {
   const results = {};
-  const PROXIES = [
-    'https://corsproxy.io/?url=',
-    'https://api.allorigins.win/raw?url=',
-    'https://thingproxy.freeboard.io/fetch/',
-  ];
-
+  const CORS = 'https://api.allorigins.win/raw?url=';
   await Promise.all(tickers.map(async ticker => {
-    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
-    for (const proxy of PROXIES) {
-      try {
-        const res = await fetch(proxy + encodeURIComponent(yahooUrl));
-        if (!res.ok) continue;
-        const data = await res.json();
-        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-        if (price && price > 0) {
-          results[ticker] = price;
-          break; // success — stop trying proxies
-        }
-      } catch(e) {
-        // try next proxy
-      }
+    try {
+      const target = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`);
+      const res = await fetch(CORS + target);
+      const data = await res.json();
+      const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+      if (price) results[ticker] = price;
+    } catch(e) {
+      console.warn(`Yahoo fetch failed for ${ticker}:`, e.message);
     }
-    if (!results[ticker]) console.warn(`All proxies failed for ${ticker}`);
   }));
-  return Object.keys(results).length > 0 ? results : null;
+  return results;
 }
 
 // ── 3. Fetch crypto prices from CoinGecko ────────────────────────────────────
@@ -4735,7 +4636,7 @@ async function fetchCryptoPrices() {
       res = await fetch(cgUrl);
       if (!res.ok) throw new Error('direct failed');
     } catch(e) {
-      const CORS = 'https://corsproxy.io/?url=';
+      const CORS = 'https://api.allorigins.win/raw?url=';
       res = await fetch(CORS + encodeURIComponent(cgUrl));
     }
     const data = await res.json();
@@ -4947,10 +4848,7 @@ function updateConsolidatedTable(vals) {
   const tspC=p.tspC||115.63, tspS=p.tspS||109.12, tspI=p.tspI||61.38;
   const vtiP=p.VTI||357.47, qqqmP=p.QQQM||277.81, avuvP=p.AVUV||121.00, avdvP=p.AVDV||105.61, avesP=p.AVES||66.32;
   const vxusP=p.VXUS||82.44;
-  // Use stored implied NAVs (not raw ETF prices — VOO/VXF are wrong dollar amounts for VIIIX/VEMPX)
-  const fidViiixV = p.VIIIX || 407.68;   // implied VIIIX NAV (not VOO price)
-  const fidVtpsxV = p.VTPSX || 175.15;   // implied VTPSX NAV (VXUS tracks same index, same price)
-  const fidVempxV = p.VEMPX || 385.26;   // implied VEMPX NAV (not VXF price)
+  const fidViiixV=p.VIIIX||p.VOO||571.59, fidVtpsxV=p.VTPSX||p.VXUS||175.15, fidVempxV=p.VEMPX||p.VXF||385.26;
   const cp = p;
 
   const cCiv=get('TSP Civilian','C Fund'), sCiv=get('TSP Civilian','S Fund'), iCiv=get('TSP Civilian','I Fund');
@@ -5118,14 +5016,6 @@ async function fetchLivePrices() {
 
   // Calculate Fidelity NAVs via proxy
   const fidNavs = etfRaw ? calcFidelityNAVs(etfRaw) : null;
-
-  // Store implied Fidelity NAVs into _livePrices so consolidated table uses them
-  // (NOT the raw ETF proxy prices — those are different dollar amounts)
-  if (fidNavs) {
-    _livePrices.VIIIX = fidNavs.VIIIX;
-    _livePrices.VTPSX = fidNavs.VTPSX;
-    _livePrices.VEMPX = fidNavs.VEMPX;
-  }
 
   // Update proxy baseline storage for next session
   if (etfRaw && fidNavs) {
@@ -5388,9 +5278,8 @@ async function autoSync() {
       });
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
-    // Same-origin fetch — Excel file served from GitHub Pages, no CORS needed
     console.log('Fetching:', GDRIVE_URL);
-    const resp = await fetch(GDRIVE_URL, { cache: 'no-store' });
+    const resp = await fetch(GDRIVE_URL);
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     // Try to get last-modified from response headers
@@ -5478,8 +5367,6 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
-// Render tenant utility from cached checking TX
-setTimeout(() => renderTenantUtility(CHECKING_TX), 200);
 // Load cached portfolio values instantly
 loadCachedPortfolio();
 // Restore share counts from storage
