@@ -5311,8 +5311,13 @@ async function autoSync() {
       });
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
-    console.log('Fetching:', GDRIVE_URL);
-    const resp = await fetch(GDRIVE_URL);
+    // Cache-bust to ensure latest Excel file is always fetched from GitHub
+    const bustUrl = GDRIVE_URL + '?t=' + Date.now();
+    console.log('Fetching:', bustUrl);
+    const resp = await fetch(bustUrl, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+    });
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     // Try to get last-modified from response headers
