@@ -3368,10 +3368,14 @@ renderBudget = function() {
   renderFramework(month);
 };
 
-// Single unified init — load data once then render everything
+// Render budget immediately with empty actuals so lines show instantly
+try { renderBudget(); } catch(e) { console.error('Initial renderBudget error:', e); }
+try { renderFramework(document.getElementById('budgetMonth')?.value || '2026-05'); } catch(e) {}
+
+// Then reload with actual data from storage
 loadBudgetActuals().then(() => {
-  renderBudget();
-  renderFramework(document.getElementById('budgetMonth')?.value || '2026-05');
+  try { renderBudget(); } catch(e) { console.error('Post-load renderBudget error:', e); }
+  try { renderFramework(document.getElementById('budgetMonth')?.value || '2026-05'); } catch(e) {}
   // Event delegation for budget row drill-down
   document.addEventListener('click', function(e) {
     const tr = e.target.closest('tr[data-line]');
