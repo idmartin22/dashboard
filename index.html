@@ -4588,11 +4588,21 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
+  const PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
+  const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
+  let html = null;
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy + target);
+      if (res.ok) { html = await res.text(); break; }
+    } catch(e) { /* try next */ }
+  }
   try {
-    const CORS = 'https://api.allorigins.win/raw?url=';
-    const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
-    const res = await fetch(CORS + target);
-    const html = await res.text();
+    if (!html) throw new Error('all proxies failed');
     const prices = {};
     // Parse table: "C Fund | $115.6318"
     const matches = html.matchAll(/([CGFSI] Fund)[^$]*[$]([0-9.]+)/g);
@@ -4610,19 +4620,31 @@ async function fetchTSPPrices() {
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
 async function fetchYahooPrices(tickers) {
   const results = {};
-  const CORS = 'https://api.allorigins.win/raw?url=';
+  const PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
+
   await Promise.all(tickers.map(async ticker => {
-    try {
-      const target = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`);
-      const res = await fetch(CORS + target);
-      const data = await res.json();
-      const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-      if (price) results[ticker] = price;
-    } catch(e) {
-      console.warn(`Yahoo fetch failed for ${ticker}:`, e.message);
+    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+    for (const proxy of PROXIES) {
+      try {
+        const res = await fetch(proxy + encodeURIComponent(yahooUrl));
+        if (!res.ok) continue;
+        const data = await res.json();
+        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+        if (price && price > 0) {
+          results[ticker] = price;
+          break; // success — stop trying proxies
+        }
+      } catch(e) {
+        // try next proxy
+      }
     }
+    if (!results[ticker]) console.warn(`All proxies failed for ${ticker}`);
   }));
-  return results;
+  return Object.keys(results).length > 0 ? results : null;
 }
 
 // ── 3. Fetch crypto prices from CoinGecko ────────────────────────────────────
@@ -4636,7 +4658,7 @@ async function fetchCryptoPrices() {
       res = await fetch(cgUrl);
       if (!res.ok) throw new Error('direct failed');
     } catch(e) {
-      const CORS = 'https://api.allorigins.win/raw?url=';
+      const CORS = 'https://corsproxy.io/?url=';
       res = await fetch(CORS + encodeURIComponent(cgUrl));
     }
     const data = await res.json();
