@@ -2522,20 +2522,17 @@ let budgetActuals = {};
 const DATA_VERSION = 'v6';
 
 async function loadBudgetActuals() {
+  budgetActuals = {};
+  incomeActuals = {};
   try {
-    // Sync is source of truth — load from storage (populated by autoSync)
-    budgetActuals = {};
-    incomeActuals = {};
     const r = await window.storage.get('budget_actuals');
-    if (r) budgetActuals = JSON.parse(r.value);
+    if (r && r.value) budgetActuals = JSON.parse(r.value);
+  } catch(e) { /* key not found — start fresh */ }
+  try {
     const ri = await window.storage.get('income_actuals');
-    if (ri) incomeActuals = JSON.parse(ri.value);
-    console.log('Loaded months:', Object.keys(budgetActuals));
-  } catch(e) {
-    console.error('loadBudgetActuals error:', e);
-    budgetActuals = {};
-    incomeActuals = {};
-  }
+    if (ri && ri.value) incomeActuals = JSON.parse(ri.value);
+  } catch(e) { /* key not found — start fresh */ }
+  console.log('Loaded months:', Object.keys(budgetActuals));
 }
 
 async function saveBudgetActuals() {
