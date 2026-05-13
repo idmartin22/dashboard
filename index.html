@@ -5172,6 +5172,11 @@ async function processWorkbook(wb, lastModified) {
   const wsStl=wb.Sheets['Savings Transaction Log'];
   const a3=wsStl['A3']; const savingsBal=a3?fmtBal(a3.v!==undefined?a3.v:a3.w):null;
   updBal('bal-savings',savingsBal,'bal_savings');
+  // Also update sv-total (Total Savings Balance KPI in Savings tab) from same A3 value
+  if (savingsBal !== null) {
+    const svTotalEl = document.getElementById('sv-total');
+    if (svTotalEl) svTotalEl.textContent = '$' + Math.abs(savingsBal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  }
 
   // Update savings sub-account balances from STL row 3
   try {
@@ -5209,7 +5214,6 @@ async function processWorkbook(wb, lastModified) {
       }, 0);
       const svPeriodic = document.getElementById('sv-periodic');
       if (svPeriodic) svPeriodic.textContent = (periodicTotal<0?'−$':'$') + Math.abs(periodicTotal).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-      // sv-total is already updated via bal-savings
       try { localStorage.setItem('mf_sav_balances', JSON.stringify(savBals)); } catch(e) {}
     }
   } catch(e) { console.error('Savings balance update error:', e); }
