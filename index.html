@@ -1511,7 +1511,7 @@
         <div class="total-row"><span>Tenant owes</span><span class="rv red">−$453.02</span></div>
         </div>
         <div id="tenant-balance-alert" style="margin-top:8px;padding:8px 10px;background:rgba(248,113,113,0.08);border-radius:6px;font-size:11px;color:var(--amber)">
-          ⚠ Total tenant balance outstanding: <strong style="color:var(--red)">$703.02</strong> ($250 rent + $453.02 utilities)
+          ⚠ Total tenant balance outstanding: <strong style="color:var(--red)" id="pl-tenant-bal">$703.02</strong> ($250 rent + $453.02 utilities)
         </div>
       </div>
 
@@ -1550,9 +1550,9 @@
             <div class="row"><div class="rl">Total expenses (actual)</div><div class="rv red">−$2,313.98</div></div>
             <div class="total-row"><span>Net cash (collected)</span><span class="rv green">$636.02</span></div>
             <div style="margin-top:8px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:6px;font-size:10px;color:var(--amber);line-height:1.7">
-              <div>⚠ Tenant balance outstanding: <strong style="color:var(--red)">$703.02</strong></div>
-              <div style="color:var(--muted);margin-top:2px">Net if fully collected: <strong style="color:var(--green)">$1,339.04</strong></div>
-              <div style="color:var(--muted)">Annual run-rate (actual pace): <strong>~$2,658/yr</strong></div>
+              <div>⚠ Tenant balance outstanding: <strong style="color:var(--red)" id="pl-tenant-bal">$703.02</strong></div>
+              <div style="color:var(--muted);margin-top:2px">Net if fully collected: <strong style="color:var(--green)" id="pl-net-full">$1,339.04</strong></div>
+              <div style="color:var(--muted)">Annual run-rate (actual pace): <strong id="pl-run-rate">~$2,658/yr</strong></div>
             </div>
             <div style="margin-top:8px;padding:8px 10px;background:rgba(255,255,255,0.03);border-radius:6px;font-size:10px;color:var(--muted);line-height:1.7">
               <div>Avg monthly expenses (actual): <strong style="color:var(--text)">$578.50</strong></div>
@@ -3848,6 +3848,32 @@ function updateRentalPL(rentMonths, totalRentReceived, rentOutstanding) {
   setEl('pl-util-owed', '−' + fmtN(uNet));
   const subEl = document.getElementById('pl-util-owed-sub');
   if (subEl) subEl.textContent = '';
+
+  // Update net summary box — tenant balance, net if fully collected, run-rate
+  const totalTenantOwed = rentOutstanding + uNet;
+  const netCollected = totalRentReceived - totalExpensesPaid();
+  const netIfFull = netCollected + totalTenantOwed;
+  // Run-rate: annualize based on months with actual data
+  const monthsWithData = Object.keys(rentMonths).length || 1;
+  const annualRunRate = (netCollected / monthsWithData) * 12;
+
+  setEl('pl-tenant-bal', fmtN(totalTenantOwed));
+  setEl('pl-net-full', fmtN(netIfFull));
+  const rrEl = document.getElementById('pl-run-rate');
+  if (rrEl) rrEl.textContent = '~' + fmtN(Math.abs(annualRunRate)) + '/yr';
+}
+
+function totalExpensesPaid() {
+  // Sum all hardcoded expense rows — this is static until expense tracking is dynamic
+  // Read from the DOM values already rendered
+  const expEls = ['pl-util-val']; // utility net is already dynamic
+  // For now return the hardcoded total expenses from the P&L
+  const totalEl = document.querySelector('#rental-pl-body .total-row .rv');
+  if (totalEl) {
+    const val = parseFloat(totalEl.textContent.replace(/[^0-9.-]/g,''));
+    return isNaN(val) ? 2313.98 : val;
+  }
+  return 2313.98; // fallback
 }
 
 function renderTenantUtility() {
