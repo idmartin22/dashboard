@@ -4902,7 +4902,10 @@ function updateConsolidatedTable(vals) {
   const tspC=p.tspC||115.63, tspS=p.tspS||109.12, tspI=p.tspI||61.38;
   const vtiP=p.VTI||357.47, qqqmP=p.QQQM||277.81, avuvP=p.AVUV||121.00, avdvP=p.AVDV||105.61, avesP=p.AVES||66.32;
   const vxusP=p.VXUS||82.44;
-  const fidViiixV=p.VIIIX||p.VOO||571.59, fidVtpsxV=p.VTPSX||p.VXUS||175.15, fidVempxV=p.VEMPX||p.VXF||385.26;
+  // Use stored implied NAVs (not raw ETF prices — VOO/VXF are wrong dollar amounts for VIIIX/VEMPX)
+  const fidViiixV = p.VIIIX || 407.68;   // implied VIIIX NAV (not VOO price ~$550+)
+  const fidVtpsxV = p.VTPSX || 175.15;   // implied VTPSX NAV (VXUS tracks same index)
+  const fidVempxV = p.VEMPX || 385.26;   // implied VEMPX NAV (not VXF price ~$228)
   const cp = p;
 
   const cCiv=get('TSP Civilian','C Fund'), sCiv=get('TSP Civilian','S Fund'), iCiv=get('TSP Civilian','I Fund');
@@ -5070,6 +5073,14 @@ async function fetchLivePrices() {
 
   // Calculate Fidelity NAVs via proxy
   const fidNavs = etfRaw ? calcFidelityNAVs(etfRaw) : null;
+
+  // Store implied Fidelity NAVs into _livePrices so consolidated table uses them
+  // (NOT the raw ETF proxy prices — VOO/VXF trade at different dollar amounts than VIIIX/VEMPX)
+  if (fidNavs) {
+    _livePrices.VIIIX = fidNavs.VIIIX;
+    _livePrices.VTPSX = fidNavs.VTPSX;
+    _livePrices.VEMPX = fidNavs.VEMPX;
+  }
 
   // Update proxy baseline storage for next session
   if (etfRaw && fidNavs) {
