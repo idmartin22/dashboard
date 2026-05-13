@@ -432,15 +432,15 @@
           <div class="nw-sub">Isaac &amp; Lorri Martin · Elyria, OH 44035</div>
           <div style="margin-top:16px">
             <div class="row"><div class="rl">Total gross assets</div><div class="rv green" id="nw-gross-assets">$1,681,318</div></div>
-            <div class="row"><div class="rl">Total liabilities<div class="rsub">click to expand</div></div><div class="rv red" id="liab-toggle" onclick="document.getElementById('liab-detail').style.display=document.getElementById('liab-detail').style.display==='none'?'block':'none';this.querySelector('.rsub-inline').textContent=document.getElementById('liab-detail').style.display==='none'?'▸':'▾'" style="cursor:pointer">−$185,424 <span class="rsub-inline" style="font-size:10px;opacity:0.6">▸</span></div></div>
-            <div id="liab-detail" style="display:none;margin:4px 0 8px 0;padding:0 0 0 8px;border-left:2px solid var(--border2)">
+            <div class="row"><div class="rl">Total liabilities<div class="rsub">click to expand</div></div><div class="rv red" id="liab-toggle" onclick="document.getElementById('liab-detail').style.display=document.getElementById('liab-detail').style.display==='none'?'block':'none';this.querySelector('.rsub-inline').textContent=document.getElementById('liab-detail').style.display==='none'?'▸':'▾'" style="cursor:pointer"><span id="nw-liab-total">−$185,424</span> <span class="rsub-inline" style="font-size:10px;opacity:0.6">▸</span></div></div>
+            <div id="liab-detail" style="display:none;margin:4px 0 8px 0;padding:0 0 0 8px;border-left:2px solid var(--border2)"><div id="liab-detail-body">
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Rocket Mortgage<div class="rsub">2.625% · payoff 2038</div></div><div class="rv red" style="font-size:11px">−$136,517</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Toyota RAV4<div class="rsub">auto loan · ~Jun 2027</div></div><div class="rv red" style="font-size:11px">−$19,392</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">WF Pool Card<div class="rsub">28.99% deferred APR · 0% promo</div></div><div class="rv red" style="font-size:11px">−$10,040</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">WF Deck Card<div class="rsub">29.49% deferred APR · 0% promo</div></div><div class="rv red" style="font-size:11px">−$11,965</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Lowes (...2659)<div class="rsub">deferred interest · clear Aug 2026</div></div><div class="rv red" style="font-size:11px">−$6,200</div></div>
               <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Chevy Silverado<div class="rsub">final payment ~Jun 2026</div></div><div class="rv red" style="font-size:11px">−$655</div></div>
-            </div>
+            </div></div>
             <div class="total-row"><span>Net worth</span><span class="rv green" id="nw-total-val">$1,495,894</span></div>
           </div>
           <div style="margin-top:12px">
@@ -653,17 +653,17 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="card-title" style="margin:0">Debt master list</div>
-            <div style="font-size:9px;color:var(--hint)">Last verified: <span style="color:var(--muted)">May 2, 2026</span></div>
+            <div style="font-size:9px;color:var(--hint)">Last verified: <span style="color:var(--muted)" id="debt-verified">May 2, 2026</span></div>
           </div>
-          <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff 2038 · needs ~$500-600/mo extra principal</div></div><div class="rv blue">$136,517 <span class="pill pill-blue">low rate</span></div></div>
-          <div class="row"><div class="rl">RAV4 — Toyota Financial<div class="rsub">&gt;5% · $530/mo · attack after Silverado done in June</div></div><div class="rv amber">$19,392 <span class="pill pill-amber">attack</span></div></div>
-          <div class="row"><div class="rl">Silverado — GM Financial<div class="rsub">Final payment ~June 2026 · frees $655/mo</div></div><div class="rv green">~$655 <span class="pill pill-green">almost done</span></div></div>
-          <div class="row"><div class="rl">WF Pool (...3845)<div class="rsub">0% / 28.99% lurking · $200/mo · exp ~Aug 2030</div></div><div class="rv green">$10,040 <span class="pill pill-green">on track</span></div></div>
-          <div class="row"><div class="rl">WF Deck (...2848)<div class="rsub">0% / 29.49% lurking · $600/mo · exp Feb 3, 2028</div></div><div class="rv green">$11,965 <span class="pill pill-green">on track</span></div></div>
-          <div class="row"><div class="rl">Lowes (...2659) Aug 14, 2026<div class="rsub">$128.81 deferred interest accrued · CLEAR THIS WEEK</div></div><div class="rv red">$1,441 <span class="pill pill-red">urgent</span></div></div>
-          <div class="row"><div class="rl">Lowes (...2659) Dec 15, 2026<div class="rsub">$465.49 deferred interest accrued · 7 months</div></div><div class="rv amber">$3,944 <span class="pill pill-amber">7 months</span></div></div>
-          <div class="row"><div class="rl">Lowes (...2659) Mar 15, 2027<div class="rsub">10 months runway</div></div><div class="rv green">$815 <span class="pill pill-green">10 months</span></div></div>
-          <div class="total-row"><span>Total debt</span><span class="rv red">$184,769</span></div>
+          <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff 2038 · needs ~$500-600/mo extra principal</div></div><div class="rv blue" id="debt-mortgage">$136,517 <span class="pill pill-blue">low rate</span></div></div>
+          <div class="row"><div class="rl">RAV4 — Toyota Financial<div class="rsub">&gt;5% · $530/mo · attack after Silverado done in June</div></div><div class="rv amber" id="debt-rav4">$19,392 <span class="pill pill-amber">attack</span></div></div>
+          <div class="row"><div class="rl">Silverado — GM Financial<div class="rsub">Final payment ~June 2026 · frees $655/mo</div></div><div class="rv green" id="debt-silverado">~$655 <span class="pill pill-green">almost done</span></div></div>
+          <div class="row"><div class="rl">WF Pool (...3845)<div class="rsub">0% / 28.99% lurking · $200/mo · exp ~Aug 2030</div></div><div class="rv green" id="debt-wfpool">$10,040 <span class="pill pill-green">on track</span></div></div>
+          <div class="row"><div class="rl">WF Deck (...2848)<div class="rsub">0% / 29.49% lurking · $600/mo · exp Feb 3, 2028</div></div><div class="rv green" id="debt-wfdeck">$11,965 <span class="pill pill-green">on track</span></div></div>
+          <div class="row"><div class="rl">Lowes (...2659) Aug 14, 2026<div class="rsub">$128.81 deferred interest accrued · CLEAR THIS WEEK</div></div><div class="rv red" id="debt-lowes1">$1,441 <span class="pill pill-red">urgent</span></div></div>
+          <div class="row"><div class="rl">Lowes (...2659) Dec 15, 2026<div class="rsub">$465.49 deferred interest accrued · 7 months</div></div><div class="rv amber" id="debt-lowes2">$3,944 <span class="pill pill-amber">7 months</span></div></div>
+          <div class="row"><div class="rl">Lowes (...2659) Mar 15, 2027<div class="rsub">10 months runway</div></div><div class="rv green" id="debt-lowes3">$815 <span class="pill pill-green">10 months</span></div></div>
+          <div class="total-row"><span>Total debt</span><span class="rv red" id="debt-total">$184,769</span></div>
         </div>
         <div class="alert-box alert-amber">Both Wells Fargo cards carry 28.99–29.49% deferred APR. Never miss a payment. Autopay enrolled on deck card — verify pool card minimum autopay.</div>
       </div>
@@ -3715,6 +3715,71 @@ function filterSavingsTx() {
   });
 }
 
+function renderDebts(debtRows, debtTotal, lastVerified) {
+  const fmt = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Map Excel description to debt element ID
+  // Matched by keywords in the description
+  const ID_MAP = [
+    { key: 'Rocket',   id: 'debt-mortgage'  },
+    { key: 'Lormet',   id: 'debt-rav4'      },
+    { key: 'RAV4',     id: 'debt-rav4'      },
+    { key: 'GM',       id: 'debt-silverado' },
+    { key: 'Pool',     id: 'debt-wfpool'    },
+    { key: 'Deck',     id: 'debt-wfdeck'    },
+    { key: 'Aug 14',   id: 'debt-lowes1'    },
+    { key: 'Dec 15',   id: 'debt-lowes2'    },
+    { key: 'Mar 2027', id: 'debt-lowes3'    },
+    { key: 'Mar 15',   id: 'debt-lowes3'    },
+  ];
+
+  const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+
+  debtRows.forEach(row => {
+    const match = ID_MAP.find(m => row.desc.includes(m.key));
+    if (match) {
+      const el = document.getElementById(match.id);
+      if (el) {
+        // Preserve the pill span, just update the text node
+        const pill = el.querySelector('.pill');
+        const newText = fmt(row.bal) + ' ';
+        if (pill) {
+          el.childNodes[0].textContent = newText;
+        } else {
+          el.textContent = fmt(row.bal);
+        }
+      }
+    }
+  });
+
+  // Update debt total in master list
+  if (debtTotal > 0) setEl('debt-total', fmt(debtTotal));
+
+  // Update last verified date
+  if (lastVerified) setEl('debt-verified', lastVerified);
+
+  // Update NW liabilities toggle total
+  const nwLibEl = document.getElementById('nw-liab-total');
+  if (nwLibEl && debtTotal > 0) nwLibEl.textContent = '−' + fmt(debtTotal);
+
+  // Rebuild liab-detail-body with all debt rows
+  const detailBody = document.getElementById('liab-detail-body');
+  if (detailBody) {
+    let html = '';
+    debtRows.forEach(row => {
+      html += '<div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">' +
+              row.desc +
+              (row.date ? '<div class="rsub">verified ' + row.date.split(' ')[0] + '</div>' : '') +
+              '</div><div class="rv red" style="font-size:11px">−' + fmt(row.bal) + '</div></div>';
+    });
+    detailBody.innerHTML = html;
+  }
+
+  // Also update the NW debt figure used in nw-total-val calculation
+  // Store for use by updateInvestmentDOM
+  window._liveDebtTotal = debtTotal;
+}
+
 function renderRentalIncome() {
   const txList = window._rentalIncomeTx || [];
   const tracker = document.getElementById('rent-tracker-body');
@@ -4720,7 +4785,7 @@ const EXCEL_TO_DASH_ID = {
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
 const GDRIVE_URL  = '/dashboard/2026_Family_Budget.xlsx'; // same-origin GitHub Pages
 const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
-const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
+const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget','Net Worth'];
 
 // Excel column index for each month's actuals (0-indexed)
 const MONTH_COL = {
@@ -5594,6 +5659,35 @@ async function processWorkbook(wb, lastModified) {
     setTimeout(fetchLivePrices, 500);
   }
 
+  // Parse Net Worth sheet liabilities (E6:G13)
+  try {
+    const wsNw = wb.Sheets['Net Worth'];
+    if (wsNw) {
+      const nwData = window.XLSX.utils.sheet_to_json(wsNw, {header:1, defval:null, raw:false});
+      // Rows 5-13 (0-indexed 4-12) contain liabilities — E=col4, F=col5, G=col6
+      // Row 4 = header "Liabilities", rows 5-12 = debt rows, row 8 = Total
+      const debtRows = [];
+      let debtTotal = 0;
+      let lastVerified = null;
+      for (let r = 5; r <= 13; r++) {
+        const row = nwData[r] || [];
+        const desc = row[4], bal = row[5], date = row[6];
+        if (!desc || desc === 'Total Liabilities') {
+          if (desc === 'Total Liabilities' && bal) debtTotal = parseFloat(bal);
+          continue;
+        }
+        const balNum = parseFloat(bal);
+        if (isNaN(balNum)) continue;
+        debtRows.push({ desc: String(desc), bal: balNum, date: date ? String(date) : null });
+        if (date && !lastVerified) lastVerified = String(date).split(' ')[0];
+      }
+      window._debtRows = debtRows;
+      window._debtTotal = debtTotal;
+      try { localStorage.setItem('mf_debt_rows', JSON.stringify(debtRows)); localStorage.setItem('mf_debt_total', String(debtTotal)); } catch(e) {}
+      renderDebts(debtRows, debtTotal, lastVerified);
+    }
+  } catch(e) { console.warn('Debt parse error:', e.message); }
+
   // Re-render
   const month=document.getElementById('budgetMonth')?.value||'2026-05';
   renderBudget(month); renderFramework(month);
@@ -5705,6 +5799,16 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
+// Restore debt data from cache
+try {
+  const dr = localStorage.getItem('mf_debt_rows');
+  const dt = localStorage.getItem('mf_debt_total');
+  if (dr && dt) {
+    window._debtRows = JSON.parse(dr);
+    window._debtTotal = parseFloat(dt);
+    renderDebts(window._debtRows, window._debtTotal, null);
+  }
+} catch(e) {}
 // Restore utility and rental income transactions from cache and render
 try {
   const ut = localStorage.getItem('mf_utility_tx');
