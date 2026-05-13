@@ -653,7 +653,6 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="card-title" style="margin:0">Debt master list</div>
-            <div style="font-size:9px;color:var(--hint)">Last verified: <span style="color:var(--muted)" id="debt-verified">May 2, 2026</span></div>
           </div>
           <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff 2038 · needs ~$500-600/mo extra principal</div></div><div class="rv blue" id="debt-mortgage">$136,517 <span class="pill pill-blue">low rate</span></div></div>
           <div class="row"><div class="rl">RAV4 — Toyota Financial<div class="rsub">&gt;5% · $530/mo · attack after Silverado done in June</div></div><div class="rv amber" id="debt-rav4">$19,392 <span class="pill pill-amber">attack</span></div></div>
@@ -3749,6 +3748,26 @@ function renderDebts(debtRows, debtTotal, lastVerified) {
           el.textContent = fmt(row.bal);
         }
       }
+      // Update or add verified date sub-line in the debt row label
+      if (row.date) {
+        const verifiedId = match.id + '-verified';
+        let verifiedEl = document.getElementById(verifiedId);
+        if (!verifiedEl) {
+          // Find the rl div for this debt and append a sub-line
+          const rowEl = document.getElementById(match.id)?.closest('.row');
+          if (rowEl) {
+            const rlEl = rowEl.querySelector('.rl');
+            if (rlEl) {
+              verifiedEl = document.createElement('div');
+              verifiedEl.id = verifiedId;
+              verifiedEl.className = 'rsub';
+              verifiedEl.style.color = 'var(--hint)';
+              rlEl.appendChild(verifiedEl);
+            }
+          }
+        }
+        if (verifiedEl) verifiedEl.textContent = 'verified ' + row.date;
+      }
     }
   });
 
@@ -3756,8 +3775,6 @@ function renderDebts(debtRows, debtTotal, lastVerified) {
   if (debtTotal > 0) setEl('debt-total', fmt(debtTotal));
 
   // Update last verified date
-  if (lastVerified) setEl('debt-verified', lastVerified);
-
   // Update NW liabilities toggle total
   const nwLibEl = document.getElementById('nw-liab-total');
   if (nwLibEl && debtTotal > 0) nwLibEl.textContent = '−' + fmt(debtTotal);
