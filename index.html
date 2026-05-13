@@ -444,8 +444,8 @@
             <div class="total-row"><span>Net worth</span><span class="rv green" id="nw-total-val">$1,495,894</span></div>
           </div>
           <div style="margin-top:12px">
-            <div class="row"><div class="rl">Debt-to-asset ratio</div><div class="rv">11.0%</div></div>
-            <div class="row"><div class="rl">Crypto % of net worth</div><div class="rv">1.27% <span class="pill pill-green">below 5% ceiling</span></div></div>
+            <div class="row"><div class="rl">Debt-to-asset ratio</div><div class="rv" id="nw-debt-ratio">11.0%</div></div>
+            <div class="row"><div class="rl">Crypto % of net worth</div><div class="rv" id="nw-crypto-pct">1.27% <span class="pill pill-green">below 5% ceiling</span></div></div>
           </div>
         </div>
         <div class="card">
@@ -5201,6 +5201,20 @@ function updateInvestmentDOM(vals) {
     if (pctEl) pctEl.textContent = Math.round(vals.m1/totalGross*100) + '%';
     const nwLcEl = document.getElementById('nw-liquid-cash');
     if (nwLcEl) nwLcEl.textContent = fmt(nwLiquidVal2);
+    // Debt-to-asset ratio (uses live debt total if available)
+    const liveDebt = window._liveDebtTotal || 185424;
+    const debtRatioEl = document.getElementById('nw-debt-ratio');
+    if (debtRatioEl && totalGross > 0) {
+      debtRatioEl.textContent = (liveDebt / totalGross * 100).toFixed(1) + '%';
+    }
+    // Crypto % of net worth
+    const cryptoPctEl = document.getElementById('nw-crypto-pct');
+    if (cryptoPctEl && nwFull > 0) {
+      const cryptoPct = (vals.crypto / nwFull * 100).toFixed(2) + '%';
+      const pill = cryptoPctEl.querySelector('.pill');
+      const isBelow = vals.crypto / nwFull < 0.05;
+      cryptoPctEl.innerHTML = cryptoPct + ' <span class="pill ' + (isBelow ? 'pill-green">below 5% ceiling' : 'pill-amber">above 5% ceiling') + '</span>';
+    }
   }
 
   // ── Issues 3 & 4: Consolidated table and Regan tab ─────────────────────────
