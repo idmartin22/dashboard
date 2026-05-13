@@ -4421,7 +4421,7 @@ const EXCEL_TO_DASH_ID = {
 };
 // GitHub raw content URL — CORS-friendly, works from any browser
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
-const GDRIVE_URL  = 'https://raw.githubusercontent.com/idmartin22/dashboard/main/2026_Family_Budget.xlsx';
+const GDRIVE_URL  = '/dashboard/2026_Family_Budget.xlsx'; // same-origin GitHub Pages
 const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
 const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
@@ -4588,11 +4588,21 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
+  const PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
+  const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
+  let html = null;
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy + target);
+      if (res.ok) { html = await res.text(); break; }
+    } catch(e) {}
+  }
   try {
-    const CORS = 'https://api.allorigins.win/raw?url=';
-    const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
-    const res = await fetch(CORS + target);
-    const html = await res.text();
+    if (!html) throw new Error('all proxies failed');
     const prices = {};
     // Parse table: "C Fund | $115.6318"
     const matches = html.matchAll(/([CGFSI] Fund)[^$]*[$]([0-9.]+)/g);
@@ -4610,19 +4620,25 @@ async function fetchTSPPrices() {
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
 async function fetchYahooPrices(tickers) {
   const results = {};
-  const CORS = 'https://api.allorigins.win/raw?url=';
+  const PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
   await Promise.all(tickers.map(async ticker => {
-    try {
-      const target = encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`);
-      const res = await fetch(CORS + target);
-      const data = await res.json();
-      const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
-      if (price) results[ticker] = price;
-    } catch(e) {
-      console.warn(`Yahoo fetch failed for ${ticker}:`, e.message);
+    const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${ticker}?interval=1d&range=1d`;
+    for (const proxy of PROXIES) {
+      try {
+        const res = await fetch(proxy + encodeURIComponent(yahooUrl));
+        if (!res.ok) continue;
+        const data = await res.json();
+        const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+        if (price && price > 0) { results[ticker] = price; break; }
+      } catch(e) {}
     }
+    if (!results[ticker]) console.warn('All proxies failed for', ticker);
   }));
-  return results;
+  return Object.keys(results).length > 0 ? results : null;
 }
 
 // ── 3. Fetch crypto prices from CoinGecko ────────────────────────────────────
@@ -5199,6 +5215,7 @@ async function processWorkbook(wb, lastModified) {
     });
   });
   window._savingsRawTx = rawTx;
+  console.log('Savings raw TX parsed:', rawTx.length, 'entries');
   try { localStorage.setItem('mf_savings_raw_tx', JSON.stringify(rawTx)); } catch(e) {}
 
   // Net worth liquid cash
@@ -5279,7 +5296,7 @@ async function autoSync() {
     }
     // Fetch from Google Drive — try primary URL, fall back to secondary
     console.log('Fetching:', GDRIVE_URL);
-    const resp = await fetch(GDRIVE_URL);
+    const resp = await fetch(GDRIVE_URL, { cache: 'no-store' });
     console.log('Response status:', resp.status, 'type:', resp.headers.get('content-type'));
     if (!resp.ok) throw new Error('HTTP '+resp.status+' fetching Excel file. URL: '+GDRIVE_URL);
     // Try to get last-modified from response headers
