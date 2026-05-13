@@ -5198,6 +5198,10 @@ async function processWorkbook(wb, lastModified) {
           }
         }
       });
+      // Sync sv-xmas-list to match sv-xmas (same balance, different display location)
+      const xmasEl = document.getElementById('sv-xmas');
+      const xmasListEl = document.getElementById('sv-xmas-list');
+      if (xmasEl && xmasListEl) xmasListEl.textContent = xmasEl.textContent;
       // Also update periodic total (sum of sub-account balances)
       const periodicCols = [8,10,12,14,16,18,20,22,24,26,28];
       const periodicTotal = periodicCols.reduce((s,c)=>{
@@ -5253,7 +5257,6 @@ async function processWorkbook(wb, lastModified) {
     });
   });
   window._savingsRawTx = rawTx;
-  console.log('Savings raw TX parsed:', rawTx.length, 'entries');
   try { localStorage.setItem('mf_savings_raw_tx', JSON.stringify(rawTx)); } catch(e) {}
   // Refresh transaction log with live data
   renderSavingsTx();
