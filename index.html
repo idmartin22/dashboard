@@ -4785,7 +4785,7 @@ const EXCEL_TO_DASH_ID = {
 // Upload 2026_Family_Budget.xlsx to your GitHub dashboard repo to enable auto-sync
 const GDRIVE_URL  = '/dashboard/2026_Family_Budget.xlsx'; // same-origin GitHub Pages
 const GDRIVE_URL2 = GDRIVE_URL; // same URL, no fallback needed
-const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget','Net Worth'];
+const REQUIRED_SHEETS = ['Checking Transaction Log','Savings Transaction Log','Monthly Breakdown','Proposed Budget'];
 
 // Excel column index for each month's actuals (0-indexed)
 const MONTH_COL = {
@@ -5684,6 +5684,7 @@ async function processWorkbook(wb, lastModified) {
       window._debtRows = debtRows;
       window._debtTotal = debtTotal;
       try { localStorage.setItem('mf_debt_rows', JSON.stringify(debtRows)); localStorage.setItem('mf_debt_total', String(debtTotal)); } catch(e) {}
+      console.log('Debt rows parsed:', debtRows.length, 'total:', debtTotal);
       renderDebts(debtRows, debtTotal, lastVerified);
     }
   } catch(e) { console.warn('Debt parse error:', e.message); }
