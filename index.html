@@ -3720,36 +3720,55 @@ function renderRentalIncome() {
   const tracker = document.getElementById('rent-tracker-body');
   if (!tracker || !txList.length) return;
 
-  const monthNames = {'2026-01':'January','2026-02':'February','2026-03':'March',
-                      '2026-04':'April','2026-05':'May','2026-06':'June',
-                      '2026-07':'July','2026-08':'August','2026-09':'September',
-                      '2026-10':'October','2026-11':'November','2026-12':'December'};
+  const MONTH_KEYS = ['2026-01','2026-02','2026-03','2026-04','2026-05',
+                      '2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
+  const MONTH_NAMES = {'2026-01':'January','2026-02':'February','2026-03':'March',
+                       '2026-04':'April','2026-05':'May','2026-06':'June',
+                       '2026-07':'July','2026-08':'August','2026-09':'September',
+                       '2026-10':'October','2026-11':'November','2026-12':'December'};
+  const SHORT = {'January':'Jan','February':'Feb','March':'Mar','April':'Apr',
+                 'May':'May','June':'Jun','July':'Jul','August':'Aug',
+                 'September':'Sep','October':'Oct','November':'Nov','December':'Dec'};
   const fmt = n => '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
   const EXPECTED = 800;
 
-  // Group by month
+  // Group by INTENDED month from description (e.g. "February Rent" → 2026-02)
+  // NOT by transaction date (payments often arrive in the following month)
   const months = {};
   txList.forEach(tx => {
-    if (!months[tx.month]) months[tx.month] = { received: 0, items: [] };
-    months[tx.month].received += tx.credit;
-    months[tx.month].items.push(tx.date + ' ' + fmt(tx.credit));
+    let mKey = null;
+    const descLower = tx.desc.toLowerCase();
+    for (const [key, name] of Object.entries(MONTH_NAMES)) {
+      if (descLower.includes(name.toLowerCase())) { mKey = key; break; }
+    }
+    if (!mKey) mKey = tx.month; // fallback to tx date month
+    if (!months[mKey]) months[mKey] = { received: 0, items: [] };
+    months[mKey].received += tx.credit;
+    months[mKey].items.push(tx.date + ' ' + fmt(tx.credit));
   });
 
+  // Expected = Jan through current month (May 2026 = 5 months)
+  const now = new Date();
+  const currentMonthKey = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const expectedMonths = MONTH_KEYS.filter(m => m >= '2026-01' && m <= currentMonthKey);
+
   let totalExpected = 0, totalReceived = 0, html = '';
-  Object.keys(months).sort().forEach(m => {
-    const mo = months[m];
-    const label = monthNames[m] || m;
-    const isPartial = mo.received < EXPECTED;
-    const color = isPartial ? 'var(--amber)' : 'var(--green)';
+  expectedMonths.forEach(m => {
+    const mo = months[m] || { received: 0, items: [] };
+    const label = MONTH_NAMES[m] || m;
+    const short = SHORT[label] || label.slice(0,3);
+    const isPartial = mo.received > 0 && mo.received < EXPECTED;
+    const isMissing = mo.received === 0;
+    const color = isMissing ? 'var(--red)' : isPartial ? 'var(--amber)' : 'var(--green)';
     totalExpected += EXPECTED;
     totalReceived += mo.received;
-    html += '<div class="row"><div class="rl">' + label.slice(0,3) + ' — ' + label + ' Rent' +
-            '<div class="rsub">' + mo.items.join(' · ') + '</div></div>' +
-            '<div class="rv" style="color:' + color + '">' + fmt(mo.received) + '</div></div>';
+    html += '<div class="row"><div class="rl">' + short + ' — ' + label + ' Rent' +
+            (mo.items.length ? '<div class="rsub">' + mo.items.join(' · ') + '</div>' : '<div class="rsub" style="color:var(--red)">not yet received</div>') +
+            '</div><div class="rv" style="color:' + color + '">' + fmt(mo.received) + '</div></div>';
   });
 
   const outstanding = totalExpected - totalReceived;
-  html += '<div class="total-row"><span>Expected (' + Object.keys(months).length + ' months)</span><span class="rv">' + fmt(totalExpected) + '</span></div>';
+  html += '<div class="total-row"><span>Expected (' + expectedMonths.length + ' months)</span><span class="rv">' + fmt(totalExpected) + '</span></div>';
   html += '<div class="total-row"><span>Received</span><span class="rv green">' + fmt(totalReceived) + '</span></div>';
   html += '<div class="total-row"><span>Outstanding</span><span class="rv ' + (outstanding > 0 ? 'red' : 'green') + '">' + (outstanding > 0 ? '−' : '+') + fmt(Math.abs(outstanding)) + '</span></div>';
 
