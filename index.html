@@ -5663,23 +5663,39 @@ async function processWorkbook(wb, lastModified) {
   try {
     const wsNw = wb.Sheets['Net Worth'];
     if (wsNw) {
-      const nwData = window.XLSX.utils.sheet_to_json(wsNw, {header:1, defval:null, raw:false});
-      // Rows 5-13 (0-indexed 4-12) contain liabilities — E=col4, F=col5, G=col6
-      // Row 4 = header "Liabilities", rows 5-12 = debt rows, row 8 = Total
+      // Use raw:true so numbers stay as numbers and row indices match Excel row numbers
+      const nwData = window.XLSX.utils.sheet_to_json(wsNw, {header:1, defval:null, raw:true});
       const debtRows = [];
       let debtTotal = 0;
       let lastVerified = null;
-      for (let r = 5; r <= 13; r++) {
+      // Find the 'Liabilities' header row then read until 'Total Liabilities'
+      let inLiabilities = false;
+      for (let r = 0; r < nwData.length; r++) {
         const row = nwData[r] || [];
-        const desc = row[4], bal = row[5], date = row[6];
-        if (!desc || desc === 'Total Liabilities') {
-          if (desc === 'Total Liabilities' && bal) debtTotal = parseFloat(bal);
-          continue;
+        const desc = row[4] != null ? String(row[4]).trim() : null;
+        const bal  = row[5];
+        const date = row[6];
+        if (!desc) continue;
+        if (desc === 'Liabilities') { inLiabilities = true; continue; }
+        if (!inLiabilities) continue;
+        if (desc === 'Total Liabilities') {
+          if (bal) debtTotal = parseFloat(bal);
+          break; // done
         }
-        const balNum = parseFloat(bal);
+        const balNum = typeof bal === 'number' ? bal : parseFloat(bal);
         if (isNaN(balNum)) continue;
-        debtRows.push({ desc: String(desc), bal: balNum, date: date ? String(date) : null });
-        if (date && !lastVerified) lastVerified = String(date).split(' ')[0];
+        let dateStr = null;
+        if (date) {
+          if (typeof date === 'number') {
+            // Excel serial date
+            const d = new Date(Math.round((date - 25569) * 86400 * 1000));
+            dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+          } else {
+            dateStr = String(date);
+          }
+          if (!lastVerified) lastVerified = dateStr;
+        }
+        debtRows.push({ desc: String(desc), bal: balNum, date: dateStr });
       }
       window._debtRows = debtRows;
       window._debtTotal = debtTotal;
