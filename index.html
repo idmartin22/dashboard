@@ -1510,7 +1510,7 @@
         <div class="total-row"><span>Total reimbursed</span><span class="rv green">$613.00</span></div>
         <div class="total-row"><span>Tenant owes</span><span class="rv red">−$453.02</span></div>
         </div>
-        <div style="margin-top:8px;padding:8px 10px;background:rgba(248,113,113,0.08);border-radius:6px;font-size:11px;color:var(--amber)">
+        <div id="tenant-balance-alert" style="margin-top:8px;padding:8px 10px;background:rgba(248,113,113,0.08);border-radius:6px;font-size:11px;color:var(--amber)">
           ⚠ Total tenant balance outstanding: <strong style="color:var(--red)">$703.02</strong> ($250 rent + $453.02 utilities)
         </div>
       </div>
@@ -1530,8 +1530,8 @@
             <div class="row"><div class="rl">March rent<div class="rsub">03/21 $400 · 03/27 $400</div></div><div class="rv green">+$800.00</div></div>
             <div class="row"><div class="rl">April rent<div class="rsub">04/16 $300 · 04/30 $250 · partial</div></div><div class="rv amber">+$550.00</div></div>
             <div class="total-row"><span>Rent collected</span><span class="rv green">$2,950.00</span></div>
-            <div class="row" style="margin-top:4px"><div class="rl" style="color:var(--red)">Apr rent outstanding</div><div class="rv red">−$250.00</div></div>
-            <div class="row"><div class="rl" style="color:var(--red)">Utility reimb. owed<div class="rsub">Mar $219.57 + Apr $175.27</div></div><div class="rv red">−$453.02</div></div>
+            <div class="row" style="margin-top:4px"><div class="rl" style="color:var(--red)" id="pl-rent-owed-label">Apr rent outstanding</div><div class="rv red" id="pl-rent-owed">−$250.00</div></div>
+            <div class="row"><div class="rl" style="color:var(--red)">Utility reimb. owed<div class="rsub" id="pl-util-owed-sub">Mar $219.57 + Apr $175.27</div></div><div class="rv red" id="pl-util-owed">−$453.02</div></div>
           </div>
           <div>
             <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Actual expenses paid</div>
@@ -1539,14 +1539,14 @@
             <div class="row"><div class="rl">Sanitation — Rental<div class="rsub">Mar $92.82 · Apr $92.82</div></div><div class="rv red">−$185.64</div></div>
             <div class="row"><div class="rl">Property tax<div class="rsub">Feb 10 payment</div></div><div class="rv red">−$1,276.40</div></div>
             <div class="row"><div class="rl">Water bill — Rental<div class="rsub">Checking line 43 · 8 payments</div></div><div class="rv red">−$271.96</div></div>
-            <div class="row"><div class="rl">Utilities (net of reimb.)<div class="rsub">$1,066.02 paid − $613.00 back</div></div><div class="rv red">−$453.02</div></div>
+            <div class="row"><div class="rl">Utilities (net of reimb.)<div class="rsub" id="pl-util-sub">$1,066.02 paid − $613.00 back</div></div><div class="rv red" id="pl-util-val">−$453.02</div></div>
             <div class="row" style="opacity:0.5"><div class="rl">Rental insurance<div class="rsub">reserved — not yet disbursed</div></div><div class="rv muted">$0.00</div></div>
             <div class="row" style="opacity:0.5"><div class="rl">Rental repairs<div class="rsub">reserved — not yet disbursed</div></div><div class="rv muted">$0.00</div></div>
             <div class="total-row"><span>Total expenses</span><span class="rv red">−$2,313.98</span></div>
           </div>
           <div>
             <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Net summary</div>
-            <div class="row"><div class="rl">Rent collected</div><div class="rv green">$2,950.00</div></div>
+            <div class="row"><div class="rl">Rent collected</div><div class="rv green" id="pl-net-rent">$2,950.00</div></div>
             <div class="row"><div class="rl">Total expenses (actual)</div><div class="rv red">−$2,313.98</div></div>
             <div class="total-row"><span>Net cash (collected)</span><span class="rv green">$636.02</span></div>
             <div style="margin-top:8px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:6px;font-size:10px;color:var(--amber);line-height:1.7">
@@ -3553,10 +3553,10 @@ function mergeSyncedCheckingTx(wsCtl) {
         return; // don't fall through to normal processing
       }
 
-      // Handle 'i' type (income) rows - rental income line 41
+      // Handle 'i' type (income) rows - ONLY lineId=41 (rental income)
       if (String(type).toLowerCase() === 'i') {
         const lineNum = parseInt(lineId);
-        if (isNaN(lineNum)) return;
+        if (isNaN(lineNum) || lineNum !== 41) return; // skip non-rental income
         let dStr, mKey;
         if (date instanceof Date) {
           dStr = (date.getMonth()+1).toString().padStart(2,'0') + '/' +
@@ -3757,6 +3757,19 @@ function renderRentalIncome() {
 
   // Also update the P&L income column with rent received
   updateRentalPL(months, totalReceived, outstanding);
+
+  // Update the tenant balance alert dynamically
+  const utilTx = window._utilityTx || [];
+  let utilOwedCalc = 0;
+  utilTx.forEach(tx => { utilOwedCalc += tx.debit - tx.credit; });
+  const totalOwed = outstanding + utilOwedCalc;
+  const alertEl = document.getElementById('tenant-balance-alert');
+  if (alertEl && totalOwed > 0) {
+    const fmt2 = n => '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    alertEl.innerHTML = '⚠ Total tenant balance outstanding: <strong style="color:var(--red)">' + fmt2(totalOwed) + '</strong> (' + fmt2(outstanding) + ' rent + ' + fmt2(utilOwedCalc) + ' utilities)';
+  } else if (alertEl && totalOwed <= 0) {
+    alertEl.style.display = 'none';
+  }
 }
 
 function updateRentalPL(rentMonths, totalRentReceived, rentOutstanding) {
@@ -3795,6 +3808,27 @@ function updateRentalPL(rentMonths, totalRentReceived, rentOutstanding) {
   // Update only the first column of the grid (income)
   const cols = plBody.querySelectorAll(':scope > div');
   if (cols[0]) cols[0].innerHTML = incomeHtml;
+
+  // Update utility net row in expenses column
+  const utilTx2 = window._utilityTx || [];
+  let uPaid = 0, uReceived = 0;
+  utilTx2.forEach(tx => { uPaid += tx.debit; uReceived += tx.credit; });
+  const uNet = uPaid - uReceived;
+  const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
+  const fmtN = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+  setEl('pl-util-val', '−' + fmtN(uNet));
+  setEl('pl-util-sub', fmtN(uPaid) + ' paid − ' + fmtN(uReceived) + ' back');
+
+  // Update net summary section
+  setEl('pl-net-rent', fmtN(totalRentReceived));
+  if (rentOutstanding > 0) {
+    setEl('pl-rent-owed', '−' + fmtN(rentOutstanding));
+    const lbl = document.getElementById('pl-rent-owed-label');
+    if (lbl) lbl.textContent = 'Rent outstanding';
+  }
+  setEl('pl-util-owed', '−' + fmtN(uNet));
+  const subEl = document.getElementById('pl-util-owed-sub');
+  if (subEl) subEl.textContent = '';
 }
 
 function renderTenantUtility() {
