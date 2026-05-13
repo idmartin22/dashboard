@@ -1424,7 +1424,7 @@
       <div class="card">
         <div class="card-title">Sub-account balances</div>
         <div class="row"><div class="rl">Savings<div class="rsub">unallocated true savings</div></div><div class="rv green">$17,298.82</div></div>
-        <div class="row"><div class="rl">CC Rewards — Xmas<div class="rsub">Isaac + Lorri rewards + interest</div></div><div class="rv" style="color:var(--purple)">$983.19</div></div>
+        <div class="row"><div class="rl">CC Rewards — Xmas<div class="rsub">Isaac + Lorri rewards + interest</div></div><div class="rv" style="color:var(--purple)" id="sv-xmas-list">$983.19</div></div>
         <div style="margin:8px 0 4px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Periodic bill sub-accounts</div>
         <div class="row" onclick="showSavingsSubDrillDown('Vehicle Maintenance',7)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Vehicle Maintenance</div><div class="rv" id="sv-veh">$3,092.35</div></div>
         <div class="row" onclick="showSavingsSubDrillDown('Car Insurance',9)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Car Insurance</div><div class="rv" id="sv-ins">$2,280.00</div></div>
@@ -3659,6 +3659,44 @@ function filterSavingsTx() {
 function renderSavingsTx() {
   const tbody = document.getElementById('sv-tx-body');
   if (!tbody) return;
+
+  // Use live synced data from _savingsRawTx if available, else fall back to SAVINGS_TX
+  const rawTx = window._savingsRawTx;
+  if (rawTx && rawTx.length > 0) {
+    // Build account name map from col index
+    const COL_TO_ACCT = {
+      3:'Savings', 5:'CC Rewards - Xmas', 7:'Vehicle Maintenance',
+      9:'Car Insurance', 11:'Rental Garbage', 13:'Garbage', 15:'Sanitation - Main',
+      17:'Camping / Vacation', 19:'Home Maintenance', 21:'Rental Repairs',
+      23:'Rental Insurance', 25:'Rental Property Taxes', 27:'Rental Sanitation'
+    };
+    // Get current filter
+    const filterEl = document.getElementById('sv-tx-filter');
+    const filter = filterEl ? filterEl.value : 'all';
+    // Sort newest first
+    const sorted = [...rawTx].sort((a,b) => new Date(b.date) - new Date(a.date));
+    let html = '';
+    sorted.forEach(tx => {
+      const acct = COL_TO_ACCT[tx.col] || 'Unknown';
+      if (filter !== 'all' && acct !== filter) return;
+      const isCredit = tx.credit > 0;
+      const amt = isCredit ? tx.credit : tx.debit;
+      const amtColor = isCredit ? 'var(--green)' : 'var(--red)';
+      const amtStr = (isCredit ? '+' : '−') + '$' + amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+      const acctColor = ACCT_COLOR[acct] || 'var(--muted)';
+      html += `<tr data-account="${acct}" style="border-bottom:1px solid var(--border)">
+        <td style="padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap">${tx.date}</td>
+        <td style="padding:5px 12px;color:var(--text)">${tx.desc}</td>
+        <td style="padding:5px 12px;font-size:10px;color:${acctColor}">${acct}</td>
+        <td style="padding:5px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:${amtColor}">${amtStr}</td>
+      </tr>`;
+    });
+    if (!html) html = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--muted)">No transactions found</td></tr>';
+    tbody.innerHTML = html;
+    return;
+  }
+
+  // Fallback to hardcoded SAVINGS_TX
   let html = '';
   SAVINGS_TX.forEach(tx => {
     const isCredit = tx.type === 'credit';
@@ -5217,6 +5255,8 @@ async function processWorkbook(wb, lastModified) {
   window._savingsRawTx = rawTx;
   console.log('Savings raw TX parsed:', rawTx.length, 'entries');
   try { localStorage.setItem('mf_savings_raw_tx', JSON.stringify(rawTx)); } catch(e) {}
+  // Refresh transaction log with live data
+  renderSavingsTx();
 
   // Net worth liquid cash
   if (cb!==null||co!==null||savingsBal!==null) {
