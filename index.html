@@ -1495,6 +1495,7 @@
       <div class="card">
         <div class="card-title">Tenant utility reimbursements</div>
         <div style="margin-bottom:8px;font-size:10px;color:var(--muted)">You pay upfront, tenant reimburses. Running balance:</div>
+        <div id="tenant-util-body">
         <div class="row"><div class="rl">Jan utilities paid<div class="rsub">First Energy $52.66 · Columbia Gas $130.51 · Opening $239.68</div></div><div class="rv red">−$422.85</div></div>
         <div class="row"><div class="rl">Jan reimbursement received</div><div class="rv green">+$422.00</div></div>
         <div class="row"><div class="rl">Feb utilities paid<div class="rsub">First Energy $65.78 · Columbia Gas $182.55</div></div><div class="rv red">−$248.33</div></div>
@@ -1506,6 +1507,7 @@
         <div class="total-row"><span>Total utilities paid</span><span class="rv">$1,066.02</span></div>
         <div class="total-row"><span>Total reimbursed</span><span class="rv green">$613.00</span></div>
         <div class="total-row"><span>Tenant owes</span><span class="rv red">−$453.02</span></div>
+        </div>
         <div style="margin-top:8px;padding:8px 10px;background:rgba(248,113,113,0.08);border-radius:6px;font-size:11px;color:var(--amber)">
           ⚠ Total tenant balance outstanding: <strong style="color:var(--red)">$703.02</strong> ($250 rent + $453.02 utilities)
         </div>
@@ -3514,6 +3516,8 @@ function mergeSyncedCheckingTx(wsCtl) {
     const data = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
     const newTx = [];
 
+    const utilityTx = []; // xx-type rental utility transactions
+
     data.forEach((row, i) => {
       if (i < 4) return; // skip header rows
       const type = row[0];
@@ -3523,7 +3527,30 @@ function mergeSyncedCheckingTx(wsCtl) {
       const debit = row[4];
       const credit = row[5];
 
-      if (!type || !lineId || !date || !desc) return;
+      if (!type || !date || !desc) return;
+
+      // Handle xx (rental utility) rows separately
+      if (String(type).toLowerCase() === 'xx') {
+        let dStr, mKey;
+        if (date instanceof Date) {
+          dStr = (date.getMonth()+1).toString().padStart(2,'0') + '/' +
+                 date.getDate().toString().padStart(2,'0') + '/' + date.getFullYear();
+          mKey = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2,'0');
+        } else if (typeof date === 'number') {
+          const d2 = new Date(Math.round((date - 25569) * 86400 * 1000));
+          dStr = (d2.getMonth()+1).toString().padStart(2,'0') + '/' +
+                 d2.getDate().toString().padStart(2,'0') + '/' + d2.getFullYear();
+          mKey = d2.getFullYear() + '-' + (d2.getMonth()+1).toString().padStart(2,'0');
+        } else return;
+        const dAmt = debit  && parseFloat(debit)  > 0 ? parseFloat(debit)  : 0;
+        const cAmt = credit && parseFloat(credit) > 0 ? parseFloat(credit) : 0;
+        if (dAmt > 0 || cAmt > 0) {
+          utilityTx.push({ date: dStr, month: mKey, desc: String(desc).trim(), debit: dAmt, credit: cAmt });
+        }
+        return; // don't fall through to normal processing
+      }
+
+      if (!lineId) return;
       if (!['d','f'].includes(String(type).toLowerCase())) return;
 
       // Parse date
@@ -3556,6 +3583,10 @@ function mergeSyncedCheckingTx(wsCtl) {
     // Replace all checking transactions with fresh sync data
     CHECKING_TX = newTx;
     console.log('Merged checking tx — total:', CHECKING_TX.length, 'new:', newTx.length);
+    // Store utility transactions and render KPI
+    window._utilityTx = utilityTx;
+    try { localStorage.setItem('mf_utility_tx', JSON.stringify(utilityTx)); } catch(e) {}
+    renderTenantUtility();
 
     // Persist synced tx to localStorage
     try {
@@ -3654,6 +3685,45 @@ function filterSavingsTx() {
     const acct = row.dataset.account || '';
     row.style.display = (filter === 'all' || acct === filter) ? '' : 'none';
   });
+}
+
+function renderTenantUtility() {
+  const txList = window._utilityTx || [];
+  const container = document.getElementById('tenant-util-body');
+  if (!container || !txList.length) return;
+
+  const monthNames = {'01':'Jan','02':'Feb','03':'Mar','04':'Apr','05':'May',
+                      '06':'Jun','07':'Jul','08':'Aug','09':'Sep','10':'Oct','11':'Nov','12':'Dec'};
+  const fmt = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  // Group by month
+  const months = {};
+  txList.forEach(tx => {
+    if (!months[tx.month]) months[tx.month] = { paid: 0, received: 0, items: [] };
+    if (tx.debit  > 0) { months[tx.month].paid     += tx.debit;  months[tx.month].items.push(tx.desc + ' ' + fmt(tx.debit)); }
+    if (tx.credit > 0)   months[tx.month].received += tx.credit;
+  });
+
+  let totalPaid = 0, totalReceived = 0, html = '';
+  Object.keys(months).sort().forEach(m => {
+    const mo = months[m];
+    const label = monthNames[m.split('-')[1]] || m;
+    totalPaid += mo.paid;
+    totalReceived += mo.received;
+    html += `<div class="row"><div class="rl">${label} utilities paid` +
+            (mo.items.length ? `<div class="rsub">${mo.items.join(' · ')}</div>` : '') +
+            `</div><div class="rv red">−${fmt(mo.paid)}</div></div>`;
+    html += `<div class="row"><div class="rl">${label} reimbursement received</div>` +
+            `<div class="rv ${mo.received > 0 ? 'green' : ''}">${mo.received > 0 ? '+' + fmt(mo.received) : fmt(0)}</div></div>`;
+  });
+
+  const netOwed = totalPaid - totalReceived;
+  html += `<div class="total-row"><span>Total utilities paid</span><span class="rv">${fmt(totalPaid)}</span></div>`;
+  html += `<div class="total-row"><span>Total reimbursed</span><span class="rv green">+${fmt(totalReceived)}</span></div>`;
+  html += `<div class="total-row" style="font-weight:600"><span>Tenant owes</span>` +
+          `<span class="rv ${netOwed > 0 ? 'red' : 'green'}">${netOwed > 0 ? '−' : '+'}${fmt(netOwed)}</span></div>`;
+
+  container.innerHTML = html;
 }
 
 function renderSavingsTx() {
@@ -5442,6 +5512,11 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
+// Restore utility transactions from cache and render
+try {
+  const ut = localStorage.getItem('mf_utility_tx');
+  if (ut) { window._utilityTx = JSON.parse(ut); renderTenantUtility(); }
+} catch(e) {}
 // Load cached portfolio values instantly
 loadCachedPortfolio();
 // Restore share counts from storage
