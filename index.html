@@ -3769,7 +3769,7 @@ function renderDebts(debtRows, debtTotal, lastVerified) {
     debtRows.forEach(row => {
       html += '<div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">' +
               row.desc +
-              (row.date ? '<div class="rsub">verified ' + row.date.split(' ')[0] + '</div>' : '') +
+              (row.date ? '<div class="rsub">verified ' + row.date + '</div>' : '') +
               '</div><div class="rv red" style="font-size:11px">−' + fmt(row.bal) + '</div></div>';
     });
     detailBody.innerHTML = html;
@@ -5686,14 +5686,19 @@ async function processWorkbook(wb, lastModified) {
         if (isNaN(balNum)) continue;
         let dateStr = null;
         if (date) {
+          let d = null;
           if (typeof date === 'number') {
-            // Excel serial date
-            const d = new Date(Math.round((date - 25569) * 86400 * 1000));
-            dateStr = (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
-          } else {
-            dateStr = String(date);
+            d = new Date(Math.round((date - 25569) * 86400 * 1000));
+          } else if (date instanceof Date) {
+            d = date;
+          } else if (typeof date === 'string') {
+            d = new Date(date);
           }
-          if (!lastVerified) lastVerified = dateStr;
+          if (d && !isNaN(d)) {
+            dateStr = (d.getMonth()+1).toString().padStart(2,'0') + '/' +
+                      d.getDate().toString().padStart(2,'0') + '/' + d.getFullYear();
+          }
+          if (!lastVerified && dateStr) lastVerified = dateStr;
         }
         debtRows.push({ desc: String(desc), bal: balNum, date: dateStr });
       }
