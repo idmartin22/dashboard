@@ -982,53 +982,38 @@
 
   <!-- ACTIONS -->
   <div class="page" id="page-actions">
+
+    <!-- ── SECTION 1: Monthly Deployment Engine (full width) ─────────────── -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>Monthly Deployment Plan</span>
+        <span style="font-size:10px;font-weight:400;color:var(--muted)">Powered by Budget Breakdown column D trigger</span>
+      </div>
+      <div id="deployment-card-body">
+        <div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Mark a month as closed in Budget Breakdown tab (column D = x) to generate deployment plan.</div>
+      </div>
+    </div>
+
     <div class="two-col">
       <div>
+
+        <!-- ── SECTION 2: Time-Sensitive ──────────────────────────────────── -->
         <div class="card">
-          <div class="card-title">Urgent — do this week</div>
+          <div class="card-title">Time-Sensitive</div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--red)"></div>
             <div>
-              <div class="action-title">Clear Lowes August 14 balance — $1,441</div>
-              <div class="action-sub">Call Synchrony (number on card back) · direct payment to Aug 14, 2026 promo balance specifically · get confirmation number · eliminates $128.81 deferred interest</div>
+              <div class="action-title">Lowe's Aug 14, 2026 — <span id="actions-lowes1-bal">$1,441</span></div>
+              <div class="action-sub">Call Synchrony (number on card back) · direct payment to Aug 14 promo balance specifically · get confirmation number · eliminates deferred interest</div>
             </div>
           </div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--amber)"></div>
             <div>
-              <div class="action-title">RAV4 extra principal — $2,000</div>
-              <div class="action-sub">Online portal · max $2k per transaction · guaranteed &gt;5% return · call to confirm no prepayment penalty</div>
+              <div class="action-title">Silverado final payment — <span id="actions-silv-bal">~$1,245</span></div>
+              <div class="action-sub">GM Financial final payment ~June 2026 · frees $655/mo · redirect immediately to Lowe's Dec 15 balance</div>
             </div>
           </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--amber)"></div>
-            <div>
-              <div class="action-title">Confirm pool deck invoice</div>
-              <div class="action-sub">Finalize actual cash outflow before completing May surplus deployment · savings vs $6k estimate go to M1 or extra RAV4</div>
-            </div>
-          </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--green)"></div>
-            <div>
-              <div class="action-title">M1 Finance — deploy surplus</div>
-              <div class="action-sub">Markets open Monday · pie set to VTI/QQQM/AVUV/AVDV/AVES · contribution auto-allocates to new targets</div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-title">June — Silverado payoff</div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--green)"></div>
-            <div>
-              <div class="action-title">Redirect $655/mo to RAV4 starting June</div>
-              <div class="action-sub">$655 extra + $530 regular = $1,185/mo total · payoff ~Sep 2027 · frees $1,185/mo permanently</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div>
-        <div class="card">
-          <div class="card-title">When able</div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--red)"></div>
             <div>
@@ -1036,61 +1021,71 @@
               <div class="action-sub">$1.5M+ net worth · 2 kids (21 and 15) · no will or trust in place · find Ohio estate attorney · $1,000–$2,000 one-time cost</div>
             </div>
           </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--muted)"></div>
-            <div>
-              <div class="action-title">RAV4 loan rate + remaining term</div>
-              <div class="action-sub">Call credit union · only unknown remaining · rate determines precise payoff strategy</div>
+        </div>
+
+        <!-- ── SECTION 3: Research & Review ───────────────────────────────── -->
+        <div class="card" style="margin-top:12px">
+          <div class="card-title">Research &amp; Review</div>
+          <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">&#127968; Physical Asset Valuation</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Multi-source: Zillow, Redfin, Realtor.com, county records, KBB, Edmunds, CarGurus. Run monthly.</div>
+              <a href="https://claude.ai/new?q=Please%20research%20current%20market%20values%20for%20our%20physical%20assets.%20PROPERTIES%3A%2041377%20Elmwood%20Ave%20Elyria%20OH%2044035%20(primary)%2C%2041403%20Elmwood%20Ave%20Elyria%20OH%2044035%20(rental).%20Use%3A%20Zillow%2C%20Redfin%2C%20Realtor.com%2C%20recent%20comps%2C%20Lorain%20County%20Auditor%2C%20FHFA%20regional%20index%2C%20local%20MLS%20DOM.%20VEHICLES%3A%202019%20Chevy%20Silverado%20Custom%20Trail%20Boss%201500%2C%20Toyota%20RAV4%20(Lorri).%20Use%3A%20KBB%2C%20Edmunds%2C%20CarGurus%2C%20local%20NE%20Ohio%20dealer%20listings%2C%20Manheim%20wholesale.%20Provide%20recommended%20value%20per%20asset%20with%20source%20breakdown." target="_blank" rel="noopener" style="display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Research Session &#8594;</a>
             </div>
-          </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--muted)"></div>
-            <div>
-              <div class="action-title">PNC High Yield Savings</div>
-              <div class="action-sub">Check availability zip 44035 · 3.25% APY · ~$325/yr on $10k buffer · instant transfer preserved</div>
-            </div>
-          </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--muted)"></div>
-            <div>
-              <div class="action-title">Guard retirement points</div>
-              <div class="action-sub">HRC / MyArmyBenefits · last pulled May 2024: 3,063 pts · update for pension accuracy</div>
-            </div>
-          </div>
-          <div class="action-item">
-            <div class="action-dot" style="background:var(--muted)"></div>
-            <div>
-              <div class="action-title">Fresh SS estimate — ssa.gov</div>
-              <div class="action-sub">Prior data missing 2025 income · pull annually · 5 minutes</div>
+            <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+              <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">&#128202; Investment Allocation Review</div>
+              <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Opens pre-loaded session with current allocations and established thesis. Claude reasons from prior methodology.</div>
+              <a href="https://claude.ai/new?q=Please%20conduct%20a%20portfolio%20review%20for%20the%20Martin%20household.%20Established%20thesis%3A%20dual%20pension%20floor%20(FERS%20~%2434K%20%2B%20Guard%20~%2443K%2Fyr)%20justifies%20100%25%20equity%3B%20household-level%20balancing%20(Isaac%20TSP%20%3D%20US-heavy%2C%20Lorri%20Fidelity%20%3D%20intl-heavy)%3B%20M1%20factor-tilted%20via%20Avantis%20(AVUV%2FAVDV%2FAVES)%3B%20crypto%20capped%20at%20~1.6%25%3B%20retirement%20target%20age%2057%20(Nov%202038).%20Review%20whether%20current%20market%20conditions%20warrant%20revisiting%20this%20structure.%20Reason%20from%20established%20thesis." target="_blank" rel="noopener" style="display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Review Session &#8594;</a>
             </div>
           </div>
         </div>
+
+      </div>
+      <div>
+
+        <!-- ── SECTION 4: Monthly Checklist ───────────────────────────────── -->
         <div class="card">
-          <div class="card-title">Recurring — monthly</div>
+          <div class="card-title">Monthly Checklist</div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--blue)"></div>
             <div>
-              <div class="action-title">Property values — 41377 &amp; 41403 Elmwood</div>
-              <div class="action-sub">Share with Claude · pulls Zillow/Redfin estimates · updates net worth hardcoded values · 5 minutes</div>
+              <div class="action-title">Update debt balances — Net Worth sheet</div>
+              <div class="action-sub">Log into each lender · update E6:G13 with current balance and verified date · dashboard syncs automatically</div>
             </div>
           </div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--blue)"></div>
             <div>
-              <div class="action-title">Vehicle values — Silverado, RAV4, Corolla</div>
-              <div class="action-sub">Share current mileage for each · Claude pulls KBB estimates · updates physical assets · 5 minutes</div>
+              <div class="action-title">Property &amp; vehicle values</div>
+              <div class="action-sub">Use Physical Asset Valuation button → Claude pulls multi-source estimates · update Net Worth sheet</div>
             </div>
           </div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--blue)"></div>
             <div>
-              <div class="action-title">Share counts → live pricing</div>
-              <div class="action-sub">Update Share Count sheet in Excel after any rebalance · dashboard auto-prices on open once Google Drive sync is live</div>
+              <div class="action-title">Fidelity proxy NAV verification</div>
+              <div class="action-sub">Log into Fidelity · compare 403b and 401a totals to dashboard · flag any drift &gt;$500 for recalibration</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--blue)"></div>
+            <div>
+              <div class="action-title">Share counts — after any rebalance</div>
+              <div class="action-sub">Update Share Count sheet in Excel · dashboard auto-prices on next open</div>
+            </div>
+          </div>
+          <div class="action-item">
+            <div class="action-dot" style="background:var(--blue)"></div>
+            <div>
+              <div class="action-title">Close month — Budget Breakdown column D</div>
+              <div class="action-sub">Type x in column D next to closed month · triggers deployment plan calculation on next sync</div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-title">Recurring — annually</div>
+
+        <!-- ── SECTION 5: Annual Checklist ────────────────────────────────── -->
+        <div class="card" style="margin-top:12px">
+          <div class="card-title">Annual Checklist</div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--purple)"></div>
             <div>
@@ -1101,7 +1096,7 @@
           <div class="action-item">
             <div class="action-dot" style="background:var(--purple)"></div>
             <div>
-              <div class="action-title">Social Security estimates — January/February</div>
+              <div class="action-title">Social Security estimates — Jan/Feb</div>
               <div class="action-sub">Pull from ssa.gov after prior year income posts · update Isaac and Lorri SS figures · 5 minutes each</div>
             </div>
           </div>
@@ -1109,65 +1104,20 @@
             <div class="action-dot" style="background:var(--purple)"></div>
             <div>
               <div class="action-title">FERS High-3 recalculation</div>
-              <div class="action-sub">Update when step/grade changes · share current salary with Claude · recalculates projected pension · impacts retirement tab</div>
+              <div class="action-sub">Update when step/grade changes · share current salary with Claude · recalculates projected pension</div>
             </div>
           </div>
           <div class="action-item">
             <div class="action-dot" style="background:var(--purple)"></div>
             <div>
               <div class="action-title">Guard retirement points — update total</div>
-              <div class="action-sub">HRC / MyArmyBenefits · pull annually · currently 3,063 pts as of 2026 · update for pension accuracy</div>
+              <div class="action-sub">HRC / MyArmyBenefits · pull annually · currently 3,063 pts as of 2026 · target 4,077 for full pension</div>
             </div>
           </div>
         </div>
-        <div class="card">
-          <div class="card-title">Completed May 2, 2026</div>
-          <div class="row"><div class="rl">TSP Civilian</div><div class="rv green">55% C / 25% S / 20% I</div></div>
-          <div class="row"><div class="rl">TSP Uniformed</div><div class="rv green">40% C / 60% S</div></div>
-          <div class="row"><div class="rl">Fidelity 403b</div><div class="rv green">30/55/15 — done</div></div>
-          <div class="row"><div class="rl">Fidelity 401a</div><div class="rv green">100% VTPSX — done</div></div>
-          <div class="row"><div class="rl">M1 Finance</div><div class="rv green">Pie set · pending Monday</div></div>
-          <div class="row"><div class="rl">M1 Kids account</div><div class="rv green">Pie set · pending Monday</div></div>
-          <div class="row"><div class="rl">Kraken crypto</div><div class="rv green">7 positions — done</div></div>
-        </div>
+
       </div>
     </div>
-
-    <!-- Monthly check-in checklist -->
-    <div style="margin-top:14px">
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div class="card-title" style="margin:0">Monthly check-in checklist</div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <span id="checklist-month" style="font-size:11px;color:var(--muted)"></span>
-            <button onclick="resetChecklist()" style="font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);cursor:pointer">Reset</button>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px" id="checklist-grid"></div>
-        <div style="margin-top:10px;font-size:10px;color:var(--hint)">Auto-resets on the 1st of each month. Check items off as you complete them — state saves across sessions.</div>
-
-      <!-- Research & Review Buttons -->
-      <div class="card" style="margin-top:12px">
-        <div class="card-title">Research & Review</div>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
-
-          <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
-            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">🏠 Physical Asset Valuation</div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Multi-source research: Zillow, Redfin, Realtor.com, county records, KBB, Edmunds, CarGurus. Run monthly to keep net worth current.</div>
-            <a href="https://claude.ai/new?q=Please%20research%20current%20market%20values%20for%20our%20physical%20assets%20and%20provide%20updated%20valuations%20with%20multiple%20sources.%0A%0APROPERTIES%3A%0A1.%2041377%20Elmwood%20Ave%2C%20Elyria%20OH%2044035%20%28primary%20residence%29%0A2.%2041403%20Elmwood%20Ave%2C%20Elyria%20OH%2044035%20%28rental%20property%29%0A%0AFor%20each%20property%20use%3A%20Zillow%2C%20Redfin%2C%20Realtor.com%2C%20recent%20comparable%20sales%20within%200.5%20miles%2C%20Lorain%20County%20Auditor/tax%20records%2C%20FHFA%20regional%20house%20price%20index%20for%20Cleveland%20metro%2C%20and%20local%20MLS%20days-on-market%20trends.%20Cast%20a%20wide%20net%20across%20all%20sources.%20Provide%20a%20recommended%20current%20market%20value%20with%20reasoning.%0A%0AVEHICLES%3A%0A1.%202019%20Chevy%20Silverado%20Custom%20Trail%20Boss%201500%0A2.%20Toyota%20RAV4%20%28Lorri%27s%20vehicle%29%0A%0AFor%20each%20vehicle%20use%3A%20KBB%20private%20party%20value%2C%20Edmunds%20TMV%2C%20CarGurus%20market%20price%2C%20local%20Northeast%20Ohio%20dealer%20listings%2C%20and%20Manheim%20wholesale%20index.%20Account%20for%20condition%2C%20mileage%2C%20and%20regional%20market%20conditions.%0A%0AProvide%20a%20final%20recommended%20value%20for%20each%20asset%20with%20source%20breakdown." target="_blank" rel="noopener" style="display:inline-block;background:var(--blue);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Research Session →</a>
-          </div>
-
-          <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
-            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">📊 Investment Allocation Review</div>
-            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Opens a pre-loaded session with current allocations and established thesis. Claude reasons from prior methodology — any deviation must justify what changed.</div>
-            <a href="https://claude.ai/new?q=Please%20conduct%20a%20portfolio%20review%20for%20the%20Martin%20household.%20Established%20thesis%3A%20dual%20pension%20floor%20%28FERS%20~%2434K%20%2B%20Guard%20~%2443K/yr%29%20justifies%20100%25%20equity%3B%20household-level%20balancing%20%28Isaac%20TSP%20%3D%20US-heavy%2C%20Lorri%20Fidelity%20%3D%20intl-heavy%29%3B%20M1%20factor-tilted%20via%20Avantis%20%28AVUV/AVDV/AVES%29%3B%20crypto%20capped%20at%20~1.6%25%3B%20retirement%20target%20age%2057%20%28Nov%202038%29.%20Current%3A%20TSP%20Civ%20~%24415K%20%2855C/25S/20I%29%2C%20TSP%20Uni%20~%24133K%20%2840C/60S%29%2C%20Fid%20403b%20~%24386K%20%2830%20VIIIX/55%20VTPSX/15%20VEMPX%29%2C%20Fid%20401a%20~%24119K%20%28100%20VTPSX%29%2C%20M1%20~%2490K%20%2820%20VTI/10%20QQQM/30%20AVUV/25%20AVDV/15%20AVES%29%2C%20Crypto%20~%2419K.%20Review%20whether%20current%20market%20conditions%20or%20any%20situational%20changes%20warrant%20revisiting%20this%20structure.%20Reason%20from%20established%20thesis%20%E2%80%94%20any%20deviation%20must%20cite%20what%20specifically%20changed." target="_blank" rel="noopener" style="display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Review Session →</a>
-          </div>
-
-        </div>
-      </div>
-      </div>
-    </div>
-  </div>
 
   <!-- RETIREMENT -->
   <div class="page" id="page-retire">
@@ -3716,6 +3666,162 @@ function filterSavingsTx() {
   });
 }
 
+function computeDeployment() {
+  const closedMonth = window._closedMonth;
+  if (!closedMonth) return null;
+
+  // Deployable = savings above $10K floor
+  const kpiLiqEl = document.getElementById('kpi-liquid-cash');
+  const savingsBal = kpiLiqEl ? parseFloat(kpiLiqEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
+  const deployable = Math.max(0, savingsBal - 10000);
+
+  // Current debt balances from sync
+  const debtRows = window._debtRows || [];
+  const getDebt = key => {
+    const r = debtRows.find(d => d.desc.includes(key));
+    return r ? r.bal : 0;
+  };
+  const lowes1 = getDebt('Aug 14');
+  const lowes2 = getDebt('Dec 15');
+  const lowes3 = getDebt('Mar 2027') || getDebt('Mar 15');
+  const rav4   = getDebt('Lormet') || getDebt('RAV4');
+  const silv   = getDebt('GM');
+
+  // ── Deployment logic ──────────────────────────────────────────────────────
+  const M1_FLOOR = 500;
+  let remaining = deployable;
+  let debtTarget = null, debtAmount = 0, debtReason = '';
+  let m1Amount = M1_FLOOR;
+  let cryptoNote = '';
+
+  // Step 1: Lowe's Aug 14 — hard deadline within 90 days
+  const now = new Date();
+  const aug14 = new Date('2026-08-14');
+  const daysToAug14 = Math.ceil((aug14 - now) / 86400000);
+
+  if (lowes1 > 0 && daysToAug14 <= 90) {
+    debtTarget = "Lowe's Aug 14, 2026";
+    debtAmount = Math.min(lowes1, remaining - M1_FLOOR);
+    debtReason = 'Hard deadline ' + daysToAug14 + ' days away — retroactive interest fires if unpaid';
+  }
+  // Step 2: Lowe's Dec 15 — promo deadline within 6 months
+  else if (lowes2 > 0) {
+    debtTarget = "Lowe's Dec 15, 2026";
+    debtAmount = Math.min(lowes2, remaining - M1_FLOOR);
+    debtReason = 'Promo deadline Dec 15 — redirect Silverado $655/mo here as primary engine';
+  }
+  // Step 3: Lowe's Mar 2027
+  else if (lowes3 > 0) {
+    debtTarget = "Lowe's Mar 2027";
+    debtAmount = Math.min(lowes3, remaining - M1_FLOOR);
+    debtReason = 'Final Lowes balance — knock out quickly after Dec deadline met';
+  }
+  // Step 4: RAV4 — real rate debt, attack aggressively
+  else if (rav4 > 0) {
+    debtTarget = 'RAV4 — Toyota Financial';
+    debtAmount = Math.min(remaining - M1_FLOOR, remaining * 0.70); // 70% to RAV4
+    m1Amount = Math.max(M1_FLOOR, remaining - debtAmount);
+    debtReason = '>5% rate — highest real cost remaining · dual pension floor justifies aggressive paydown';
+  }
+  // No urgent debt — maximize investment
+  else {
+    debtAmount = 0;
+    m1Amount = Math.round(remaining * 0.85);
+    cryptoNote = 'Discretionary — review market conditions before allocating';
+    debtReason = 'No urgent debt · maximize investment deployment';
+  }
+
+  // Ensure M1 gets at least floor
+  if (debtAmount > 0) {
+    m1Amount = Math.max(M1_FLOOR, remaining - debtAmount);
+    debtAmount = remaining - m1Amount;
+  }
+
+  const cryptoAmount = 0; // always discretionary — review monthly
+
+  return {
+    closedMonth, deployable, savingsBal,
+    debtTarget, debtAmount: Math.max(0, debtAmount), debtReason,
+    m1Amount: Math.max(M1_FLOOR, m1Amount),
+    cryptoAmount, cryptoNote,
+    projDebt: debtTarget && debtAmount > 0 ? Math.max(0, (
+      debtTarget.includes('Aug') ? lowes1 :
+      debtTarget.includes('Dec') ? lowes2 :
+      debtTarget.includes('Mar') ? lowes3 : rav4
+    ) - debtAmount) : null,
+    income: window._closedIncome || 0,
+  };
+}
+
+function renderDeploymentCard() {
+  var container = document.getElementById('deployment-card-body');
+  if (!container) return;
+
+  var plan = computeDeployment();
+  var fmt = function(n) { return '$' + Math.round(n).toLocaleString(); };
+  var fmt2 = function(n) { return '$' + n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}); };
+
+  if (!plan) {
+    container.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Mark a month as closed in Budget Breakdown tab (column D = x) to generate deployment plan.</div>';
+    return;
+  }
+
+  var MONTH_LABELS = {'2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026',
+    '2026-04':'April 2026','2026-05':'May 2026','2026-06':'June 2026','2026-07':'July 2026',
+    '2026-08':'August 2026','2026-09':'September 2026','2026-10':'October 2026',
+    '2026-11':'November 2026','2026-12':'December 2026'};
+
+  var monthLabel = MONTH_LABELS[plan.closedMonth] || plan.closedMonth;
+  var cryptoPrompt = 'Please assess the current crypto market for the Martin household. Holdings: BTC 45%, ETH 20%, SOL 10%, TAO 8%, HYPE 7%, LINK 7%, XRP 3%. Total ~$19K (~1.3% of net worth, 5% ceiling). Deployable this month: ' + fmt(plan.deployable) + '. Should any go to crypto? Assess conditions, momentum, risk.';
+  var reviewPrompt = 'Monthly financial review for the Martin household. Closed month: ' + monthLabel + '. Actual income: ' + fmt2(plan.income) + '. Deployable cash: ' + fmt(plan.deployable) + '. Debt balances: ' + (window._debtRows||[]).map(function(d){return d.desc+' $'+d.bal.toFixed(2);}).join(', ') + '. Rules-based plan: Debt (' + (plan.debtTarget||'none') + ') ' + fmt(plan.debtAmount) + ', M1 ' + fmt(plan.m1Amount) + '. Please review, validate or override based on current market conditions, and provide crypto recommendation.';
+
+  var projHtml = '';
+  if (plan.projDebt !== null) {
+    projHtml = '<div style="margin-top:8px;padding:6px 8px;background:rgba(255,255,255,0.04);border-radius:4px;font-size:10px;color:var(--muted)">Projected remaining: <span style="color:var(--amber);font-weight:600">' + fmt2(plan.projDebt) + '</span></div>';
+  }
+
+  var html = '';
+  html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">';
+  html += '<div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Closed month</div>';
+  html += '<div style="font-size:16px;font-weight:600;color:var(--text)">' + monthLabel + '</div>';
+  html += '<div style="font-size:11px;color:var(--muted);margin-top:2px">Actual income: <span style="color:var(--green)">' + fmt2(plan.income) + '</span></div></div>';
+  html += '<div style="text-align:right"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Deployable cash</div>';
+  html += '<div style="font-size:20px;font-weight:700;color:var(--green)">' + fmt(plan.deployable) + '</div>';
+  html += '<div style="font-size:10px;color:var(--hint)">savings ' + fmt2(plan.savingsBal) + ' − $10,000 floor</div></div></div>';
+
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">';
+
+  // Debt bucket
+  html += '<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:12px">';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">① Debt Attack</div>';
+  html += '<div style="font-size:18px;font-weight:700;color:var(--text)">' + fmt(plan.debtAmount) + '</div>';
+  html += '<div style="font-size:11px;font-weight:500;color:var(--muted);margin-top:4px">' + (plan.debtTarget || 'No urgent debt') + '</div>';
+  html += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">' + plan.debtReason + '</div>';
+  html += projHtml + '</div>';
+
+  // M1 bucket
+  html += '<div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:12px">';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">② M1 Finance</div>';
+  html += '<div style="font-size:18px;font-weight:700;color:var(--text)">' + fmt(plan.m1Amount) + '</div>';
+  html += '<div style="font-size:11px;font-weight:500;color:var(--muted);margin-top:4px">Factor-tilted allocation</div>';
+  html += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">20% VTI · 10% QQQM · 30% AVUV · 25% AVDV · 15% AVES · $500/mo floor</div></div>';
+
+  // Crypto bucket
+  html += '<div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px">';
+  html += '<div style="font-size:10px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">③ Crypto</div>';
+  html += '<div style="font-size:18px;font-weight:700;color:var(--text)">Discretionary</div>';
+  html += '<div style="font-size:11px;font-weight:500;color:var(--muted);margin-top:4px">Market review required</div>';
+  html += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">Amount set after monthly assessment</div>';
+  html += '<a href="https://claude.ai/new?q=' + encodeURIComponent(cryptoPrompt) + '" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
+
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:flex-end">';
+  html += '<a href="https://claude.ai/new?q=' + encodeURIComponent(reviewPrompt) + '" target="_blank" rel="noopener" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a>';
+  html += '</div>';
+
+  container.innerHTML = html;
+}
+
 function renderDebts(debtRows, debtTotal, lastVerified) {
   const fmt = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -5706,6 +5812,37 @@ async function processWorkbook(wb, lastModified) {
     setTimeout(fetchLivePrices, 500);
   }
 
+  // Parse Budget Breakdown sheet for closed month trigger (column D = 'x')
+  try {
+    const wsBb = wb.Sheets['Budget Breakdown'];
+    if (wsBb) {
+      const bbData = window.XLSX.utils.sheet_to_json(wsBb, {header:1, defval:null, raw:true});
+      const MONTH_MAP = {JAN:'2026-01',FEB:'2026-02',MAR:'2026-03',APR:'2026-04',
+                        MAY:'2026-05',JUN:'2026-06',JUL:'2026-07',AUG:'2026-08',
+                        SEP:'2026-09',OCT:'2026-10',NOV:'2026-11',DEC:'2026-12'};
+      let lastClosedMonth = null;
+      let lastClosedIncome = 0;
+      bbData.forEach(row => {
+        if (!row || !row[0]) return;
+        const monthLabel = String(row[0]).toUpperCase().trim();
+        const closed = row[3]; // column D (0-indexed = 3)
+        const actualIncome = row[5]; // column F = A Income
+        if (MONTH_MAP[monthLabel] && closed && String(closed).toLowerCase().trim() === 'x') {
+          lastClosedMonth = MONTH_MAP[monthLabel];
+          lastClosedIncome = parseFloat(actualIncome) || 0;
+        }
+      });
+      if (lastClosedMonth) {
+        window._closedMonth = lastClosedMonth;
+        window._closedIncome = lastClosedIncome;
+        try { localStorage.setItem('mf_closed_month', lastClosedMonth);
+              localStorage.setItem('mf_closed_income', String(lastClosedIncome)); } catch(e) {}
+        console.log('Closed month:', lastClosedMonth, 'income:', lastClosedIncome);
+        renderDeploymentCard();
+      }
+    }
+  } catch(e) { console.warn('Budget Breakdown parse error:', e.message); }
+
   // Parse Net Worth sheet liabilities (E6:G13)
   try {
     const wsNw = wb.Sheets['Net Worth'];
@@ -5754,6 +5891,11 @@ async function processWorkbook(wb, lastModified) {
       try { localStorage.setItem('mf_debt_rows', JSON.stringify(debtRows)); localStorage.setItem('mf_debt_total', String(debtTotal)); } catch(e) {}
       console.log('Debt rows parsed:', debtRows.length, 'total:', debtTotal);
       renderDebts(debtRows, debtTotal, lastVerified);
+      // Update time-sensitive balances in Actions tab
+      var l1 = debtRows.find(function(d){return d.desc.includes('Aug 14');});
+      var sv = debtRows.find(function(d){return d.desc.includes('GM');});
+      if (l1) { var e1=document.getElementById('actions-lowes1-bal'); if(e1) e1.textContent='$'+l1.bal.toFixed(2); }
+      if (sv) { var e2=document.getElementById('actions-silv-bal'); if(e2) e2.textContent='$'+sv.bal.toFixed(2); }
     }
   } catch(e) { console.warn('Debt parse error:', e.message); }
 
@@ -5868,6 +6010,12 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
+// Restore closed month from cache
+try {
+  const cm = localStorage.getItem('mf_closed_month');
+  const ci = localStorage.getItem('mf_closed_income');
+  if (cm) { window._closedMonth = cm; window._closedIncome = parseFloat(ci) || 0; setTimeout(renderDeploymentCard, 300); }
+} catch(e) {}
 // Restore debt data from cache
 try {
   const dr = localStorage.getItem('mf_debt_rows');
