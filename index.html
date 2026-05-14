@@ -455,7 +455,7 @@
           <div class="alloc-row"><span class="alloc-label">M1 Finance</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)" id="nw-alloc-m1-pct">5%</span><span class="alloc-val" id="nw-alloc-m1">$89,587</span></div>
           <div class="alloc-row"><span class="alloc-label">Vehicles + recreation</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#6b7280"></div></div><span class="alloc-pct" style="color:var(--muted)">5%</span><span class="alloc-val">$77,000</span></div>
           <div class="alloc-row"><span class="alloc-label">Crypto</span><div class="alloc-track"><div class="alloc-fill" style="width:1%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">1%</span><span class="alloc-val" id="nw-alloc-crypto">$19,014</span></div>
-          <div class="alloc-row"><span class="alloc-label">Cash</span><div class="alloc-track"><div class="alloc-fill" style="width:2%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)">2%</span><span class="alloc-val" id="nw-alloc-cash">$25,600</span></div>
+          <div class="alloc-row"><span class="alloc-label">Cash</span><div class="alloc-track"><div class="alloc-fill" id="nw-alloc-cash-fill" style="width:2%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)" id="nw-alloc-cash-pct">2%</span><span class="alloc-val" id="nw-alloc-cash">$25,600</span></div>
         </div>
       </div>
       <div>
@@ -467,7 +467,7 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="card-title" style="margin:0">Physical assets</div>
-            <div style="font-size:9px;color:var(--hint)">Last valued: <span style="color:var(--muted)">May 2, 2026</span></div>
+            <div style="font-size:9px;color:var(--hint)">Last valued: <span style="color:var(--muted)" id="phys-last-valued">May 2, 2026</span></div>
           </div>
           <div class="row"><div class="rl">Primary — 41377 Elmwood St<div class="rsub">3/2 · 1,942sqft · pole barn · Zillow est.</div></div><div class="rv green">$315,000</div></div>
           <div class="row"><div class="rl">Rental — 41403 Elmwood St<div class="rsub">1/1 · $800/mo gross · Zillow est.</div></div><div class="rv green">$92,000</div></div>
@@ -3777,6 +3777,12 @@ function renderDebts(debtRows, debtTotal, lastVerified) {
   if (debtTotal > 0) setEl('debt-total', fmt(debtTotal));
 
   // Update last verified date
+  // Update physical assets last valued date (use most recent debt verification as proxy)
+  if (lastVerified) {
+    const physEl = document.getElementById('phys-last-valued');
+    if (physEl) physEl.textContent = lastVerified;
+  }
+
   // Update NW liabilities toggle total
   const nwLibEl = document.getElementById('nw-liab-total');
   if (nwLibEl && debtTotal > 0) nwLibEl.textContent = '−' + fmt(debtTotal);
@@ -5154,7 +5160,9 @@ function updateInvestmentDOM(vals) {
   if (!isNaN(lorriPool)) set('lorriCurrentPool', fmt(lorriPool));
 
   // Net worth KPI
-  const nwLiq = parseFloat(localStorage.getItem('mf_nw_liquid') || '25107');
+  // Read liquid cash directly from the KPI banner (source of truth — set by sync)
+  const kpiLiqEl = document.getElementById('kpi-liquid-cash');
+  const nwLiq = kpiLiqEl ? parseFloat(kpiLiqEl.textContent.replace(/[$,]/g,'')) || 25107 : 25107;
   const nwProps = parseFloat(localStorage.getItem('mf_nw_props') || '457725');
   const nwVeh  = parseFloat(localStorage.getItem('mf_nw_veh')   || '57000');
   const nwDebt = parseFloat(localStorage.getItem('mf_nw_debt')  || '157154');
@@ -5197,6 +5205,12 @@ function updateInvestmentDOM(vals) {
     set('nw-alloc-m1',     fmt(vals.m1));
     set('nw-alloc-crypto', fmt(vals.crypto));
     set('nw-alloc-cash',   fmt(nwLiquidVal2));
+    // Update cash allocation % and bar width
+    const cashPct = totalGross > 0 ? Math.round(nwLiquidVal2/totalGross*100) : 2;
+    const cashPctEl = document.getElementById('nw-alloc-cash-pct');
+    if (cashPctEl) cashPctEl.textContent = cashPct + '%';
+    const cashFillEl = document.getElementById('nw-alloc-cash-fill');
+    if (cashFillEl) cashFillEl.style.width = cashPct + '%';
     const pctEl = document.getElementById('nw-alloc-m1-pct');
     if (pctEl) pctEl.textContent = Math.round(vals.m1/totalGross*100) + '%';
     const nwLcEl = document.getElementById('nw-liquid-cash');
