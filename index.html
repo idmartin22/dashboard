@@ -5073,31 +5073,31 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
-  const PROXIES = [
-    'https://corsproxy.io/?url=',
-    'https://api.allorigins.win/raw?url=',
-    'https://thingproxy.freeboard.io/fetch/',
-  ];
-  const target = encodeURIComponent('https://www.tspdatacenter.com/daily-share-prices/');
-  let html = null;
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy + target);
-      if (res.ok) { html = await res.text(); break; }
-    } catch(e) {}
-  }
+  // Use TSP's official CSV endpoint — no proxy needed, no CORS issues, updated daily
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(today.getDate() - 7); // last 7 days to ensure we get latest
+  const fmt = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  const url = 'https://www.tsp.gov/data/fund-price-history.csv?startdate=' + fmt(startDate) + '&enddate=' + fmt(today) + '&Lfunds=&InvFunds=G,F,C,S,I';
   try {
-    if (!html) throw new Error('all proxies failed');
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('TSP CSV fetch failed: ' + res.status);
+    const csv = await res.text();
+    const lines = csv.trim().split('\n');
+    // CSV format: Date,G Fund,F Fund,C Fund,S Fund,I Fund
+    // Last line = most recent date
+    const header = lines[0].split(',').map(h => h.trim().replace(' Fund','').replace('\r',''));
+    const lastLine = lines[lines.length - 1].split(',');
     const prices = {};
-    // Parse table: "C Fund | $115.6318"
-    const matches = html.matchAll(/([CGFSI] Fund)[^$]*[$]([0-9.]+)/g);
-    for (const m of matches) {
-      const fund = m[1].replace(' Fund','').trim();
-      prices[fund] = parseFloat(m[2]);
-    }
-    return prices;
+    header.forEach((name, i) => {
+      if (i === 0) return; // skip Date column
+      const val = parseFloat(lastLine[i]);
+      if (!isNaN(val) && val > 0) prices[name] = val;
+    });
+    console.log('TSP prices from official CSV:', prices);
+    return Object.keys(prices).length > 0 ? prices : null;
   } catch(e) {
-    console.warn('TSP fetch failed:', e.message);
+    console.warn('TSP official CSV failed:', e.message);
     return null;
   }
 }
