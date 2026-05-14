@@ -3725,6 +3725,95 @@ function filterSavingsTx() {
   });
 }
 
+function computeDeployment() {
+  if (!window._closedMonth) return null;
+  var kpiEl = document.getElementById('kpi-liquid-cash');
+  var savBal = kpiEl ? parseFloat(kpiEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
+  var deployable = Math.max(0, savBal - 10000);
+  var rows = window._debtRows || [];
+  var get = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? r.bal : 0; };
+  var lowes1 = get('Aug 14');
+  var lowes2 = get('Dec 15');
+  var lowes3 = get('Mar 2027') || get('Mar 15');
+  var rav4 = get('Lormet') || get('RAV4');
+  var M1_FLOOR = 500;
+  var debtTarget = null, debtAmount = 0, debtReason = '';
+  var m1Amount = M1_FLOOR;
+  var now = new Date();
+  var aug14 = new Date('2026-08-14');
+  var daysToAug14 = Math.ceil((aug14 - now) / 86400000);
+  if (lowes1 > 0 && daysToAug14 <= 90) {
+    debtTarget = "Lowe's Aug 14, 2026";
+    debtAmount = Math.min(lowes1, deployable - M1_FLOOR);
+    debtReason = 'Hard deadline ' + daysToAug14 + ' days away — retroactive interest fires if unpaid';
+  } else if (lowes2 > 0) {
+    debtTarget = "Lowe's Dec 15, 2026";
+    debtAmount = Math.min(lowes2, deployable - M1_FLOOR);
+    debtReason = 'Promo deadline Dec 15 — redirect Silverado $655/mo here as primary engine';
+  } else if (lowes3 > 0) {
+    debtTarget = "Lowe's Mar 2027";
+    debtAmount = Math.min(lowes3, deployable - M1_FLOOR);
+    debtReason = 'Final Lowes balance — knock out quickly after Dec deadline met';
+  } else if (rav4 > 0) {
+    debtAmount = Math.min(deployable - M1_FLOOR, deployable * 0.70);
+    debtTarget = 'RAV4 — Toyota Financial';
+    debtReason = '>5% rate — highest real cost remaining';
+  } else {
+    m1Amount = Math.round(deployable * 0.85);
+    debtReason = 'No urgent debt — maximize investment deployment';
+  }
+  if (debtAmount > 0) { m1Amount = Math.max(M1_FLOOR, deployable - debtAmount); debtAmount = deployable - m1Amount; }
+  var projBal = null;
+  if (debtTarget && debtAmount > 0) {
+    var cur = debtTarget.includes('Aug') ? lowes1 : debtTarget.includes('Dec') ? lowes2 : debtTarget.includes('Mar') ? lowes3 : rav4;
+    projBal = Math.max(0, cur - debtAmount);
+  }
+  return { closedMonth: window._closedMonth, income: window._closedIncome || 0,
+           deployable: deployable, savBal: savBal,
+           debtTarget: debtTarget, debtAmount: Math.max(0, debtAmount), debtReason: debtReason,
+           m1Amount: Math.max(M1_FLOOR, m1Amount), projBal: projBal };
+}
+
+function renderDeploymentCard() {
+  var el = document.getElementById('deployment-card-body');
+  if (!el) return;
+  var plan = computeDeployment();
+  if (!plan) { el.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Mark a month as closed in Budget Breakdown tab (column D = x) to generate deployment plan.</div>'; return; }
+  var MLABELS = {'2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026','2026-04':'April 2026','2026-05':'May 2026','2026-06':'June 2026','2026-07':'July 2026','2026-08':'August 2026','2026-09':'September 2026','2026-10':'October 2026','2026-11':'November 2026','2026-12':'December 2026'};
+  var fmt = function(n){return '$'+Math.round(n).toLocaleString();};
+  var fmt2 = function(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
+  var ml = MLABELS[plan.closedMonth] || plan.closedMonth;
+  var h = '';
+  h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">';
+  h += '<div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Closed month</div><div style="font-size:16px;font-weight:600;color:var(--text)">'+ml+'</div>';
+  h += '<div style="font-size:11px;color:var(--muted);margin-top:2px">Actual income: <span style="color:var(--green)">'+fmt2(plan.income)+'</span></div></div>';
+  h += '<div style="text-align:right"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Deployable cash</div>';
+  h += '<div style="font-size:20px;font-weight:700;color:var(--green)">'+fmt(plan.deployable)+'</div>';
+  h += '<div style="font-size:10px;color:var(--hint)">savings '+fmt2(plan.savBal)+' − $10,000 floor</div></div></div>';
+  h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">';
+  h += '<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:12px">';
+  h += '<div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Debt Attack</div>';
+  h += '<div style="font-size:18px;font-weight:700;color:var(--text)">'+fmt(plan.debtAmount)+'</div>';
+  h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">'+(plan.debtTarget||'No urgent debt')+'</div>';
+  h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">'+plan.debtReason+'</div>';
+  if (plan.projBal !== null) h += '<div style="margin-top:8px;padding:5px 8px;background:rgba(255,255,255,0.04);border-radius:4px;font-size:10px;color:var(--muted)">Projected remaining: <span style="color:var(--amber);font-weight:600">'+fmt2(plan.projBal)+'</span></div>';
+  h += '</div>';
+  h += '<div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:12px">';
+  h += '<div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">M1 Finance</div>';
+  h += '<div style="font-size:18px;font-weight:700;color:var(--text)">'+fmt(plan.m1Amount)+'</div>';
+  h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">Factor-tilted allocation</div>';
+  h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">20% VTI · 10% QQQM · 30% AVUV · 25% AVDV · 15% AVES · $500/mo floor</div></div>';
+  h += '<div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px">';
+  h += '<div style="font-size:10px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Crypto</div>';
+  h += '<div style="font-size:18px;font-weight:700;color:var(--text)">Discretionary</div>';
+  h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">Market review required</div>';
+  h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">Amount set after monthly assessment</div>';
+  h += '<a href="https://claude.ai" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
+  h += '</div>';
+  h += '<div style="display:flex;justify-content:flex-end"><a href="https://claude.ai" target="_blank" rel="noopener" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a></div>';
+  el.innerHTML = h;
+}
+
 function renderDebts(debtRows, debtTotal, lastVerified) {
   const fmt = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
 
@@ -5715,6 +5804,31 @@ async function processWorkbook(wb, lastModified) {
     setTimeout(fetchLivePrices, 500);
   }
 
+  // Parse Budget Breakdown for closed month trigger (column D = 'x')
+  try {
+    var wsBb = wb.Sheets['Budget Breakdown'];
+    if (wsBb) {
+      var bbData = window.XLSX.utils.sheet_to_json(wsBb, {header:1, defval:null, raw:true});
+      var MMAP = {JAN:'2026-01',FEB:'2026-02',MAR:'2026-03',APR:'2026-04',MAY:'2026-05',JUN:'2026-06',JUL:'2026-07',AUG:'2026-08',SEP:'2026-09',OCT:'2026-10',NOV:'2026-11',DEC:'2026-12'};
+      var lastClosed = null, lastIncome = 0;
+      bbData.forEach(function(row) {
+        if (!row || !row[0]) return;
+        var lbl = String(row[0]).toUpperCase().trim();
+        if (MMAP[lbl] && row[3] && String(row[3]).toLowerCase().trim() === 'x') {
+          lastClosed = MMAP[lbl];
+          lastIncome = parseFloat(row[5]) || 0;
+        }
+      });
+      if (lastClosed) {
+        window._closedMonth = lastClosed;
+        window._closedIncome = lastIncome;
+        try { localStorage.setItem('mf_closed_month', lastClosed); localStorage.setItem('mf_closed_income', String(lastIncome)); } catch(e) {}
+        console.log('Closed month:', lastClosed, 'income:', lastIncome);
+        try { renderDeploymentCard(); } catch(e) { console.warn('renderDeploymentCard error:', e.message); }
+      }
+    }
+  } catch(e) { console.warn('Budget Breakdown parse error:', e.message); }
+
   // Parse Net Worth sheet liabilities (E6:G13)
   try {
     const wsNw = wb.Sheets['Net Worth'];
@@ -5763,6 +5877,14 @@ async function processWorkbook(wb, lastModified) {
       try { localStorage.setItem('mf_debt_rows', JSON.stringify(debtRows)); localStorage.setItem('mf_debt_total', String(debtTotal)); } catch(e) {}
       console.log('Debt rows parsed:', debtRows.length, 'total:', debtTotal);
       renderDebts(debtRows, debtTotal, lastVerified);
+      try {
+        var dl1 = debtRows.find(function(d){return d.desc.includes('Aug 14');});
+        var dsv = debtRows.find(function(d){return d.desc.includes('GM');});
+        var el1 = document.getElementById('actions-lowes1-bal');
+        var el2 = document.getElementById('actions-silv-bal');
+        if (dl1 && el1) el1.textContent = '$' + dl1.bal.toFixed(2);
+        if (dsv && el2) el2.textContent = '$' + dsv.bal.toFixed(2);
+      } catch(e) {}
     }
   } catch(e) { console.warn('Debt parse error:', e.message); }
 
@@ -5877,6 +5999,12 @@ loadLastUpdated();
 
 // ── AUTO-PULL FROM GOOGLE DRIVE ON PAGE OPEN ─────────────────────────────────
 loadSyncedCheckingTx();
+// Restore closed month from cache
+try {
+  var cm = localStorage.getItem('mf_closed_month');
+  var ci = localStorage.getItem('mf_closed_income');
+  if (cm) { window._closedMonth = cm; window._closedIncome = parseFloat(ci) || 0; setTimeout(function(){ try { renderDeploymentCard(); } catch(e) {} }, 500); }
+} catch(e) {}
 // Restore debt data from cache
 try {
   const dr = localStorage.getItem('mf_debt_rows');
