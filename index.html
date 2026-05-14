@@ -1433,7 +1433,7 @@
       <!-- Sub-account balances -->
       <div class="card">
         <div class="card-title">Sub-account balances</div>
-        <div class="row"><div class="rl">Savings<div class="rsub">unallocated true savings</div></div><div class="rv green">$17,298.82</div></div>
+        <div class="row"><div class="rl">Savings<div class="rsub">unallocated true savings</div></div><div class="rv green" id="sv-core-list">$17,298.82</div></div>
         <div class="row"><div class="rl">CC Rewards — Xmas<div class="rsub">Isaac + Lorri rewards + interest</div></div><div class="rv" style="color:var(--purple)" id="sv-xmas-list">$983.19</div></div>
         <div style="margin:8px 0 4px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Periodic bill sub-accounts</div>
         <div class="row" onclick="showSavingsSubDrillDown('Vehicle Maintenance',7)" style="cursor:pointer" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background=''"><div class="rl">Vehicle Maintenance</div><div class="rv" id="sv-veh">$3,092.35</div></div>
@@ -3727,8 +3727,8 @@ function filterSavingsTx() {
 
 function computeDeployment() {
   if (!window._closedMonth) return null;
-  var kpiEl = document.getElementById('kpi-liquid-cash');
-  var savBal = kpiEl ? parseFloat(kpiEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
+  var savEl = document.getElementById('bal-savings');
+  var savBal = savEl ? parseFloat(savEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
   var deployable = Math.max(0, savBal - 10000);
   var rows = window._debtRows || [];
   var get = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? r.bal : 0; };
@@ -5683,6 +5683,10 @@ async function processWorkbook(wb, lastModified) {
           }
         }
       });
+      // Sync sv-core-list to match sv-core (sub-account list Savings row)
+      const coreEl = document.getElementById('sv-core');
+      const coreListEl = document.getElementById('sv-core-list');
+      if (coreEl && coreListEl) coreListEl.textContent = coreEl.textContent;
       // Sync sv-xmas-list to match sv-xmas (same balance, different display location)
       const xmasEl = document.getElementById('sv-xmas');
       const xmasListEl = document.getElementById('sv-xmas-list');
