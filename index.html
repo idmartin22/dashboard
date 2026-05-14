@@ -5839,7 +5839,7 @@ async function processWorkbook(wb, lastModified) {
         try { localStorage.setItem('mf_closed_month', lastClosedMonth);
               localStorage.setItem('mf_closed_income', String(lastClosedIncome)); } catch(e) {}
         console.log('Closed month:', lastClosedMonth, 'income:', lastClosedIncome);
-        renderDeploymentCard();
+        try { renderDeploymentCard(); } catch(e2) { console.warn('renderDeploymentCard error:', e2.message); }
       }
     }
   } catch(e) { console.warn('Budget Breakdown parse error:', e.message); }
@@ -5895,8 +5895,7 @@ async function processWorkbook(wb, lastModified) {
       // Update time-sensitive balances in Actions tab
       var l1 = debtRows.find(function(d){return d.desc.includes('Aug 14');});
       var sv = debtRows.find(function(d){return d.desc.includes('GM');});
-      if (l1) { var e1=document.getElementById('actions-lowes1-bal'); if(e1) e1.textContent='$'+l1.bal.toFixed(2); }
-      if (sv) { var e2=document.getElementById('actions-silv-bal'); if(e2) e2.textContent='$'+sv.bal.toFixed(2); }
+      try { if (l1) { var e1=document.getElementById('actions-lowes1-bal'); if(e1) e1.textContent='$'+l1.bal.toFixed(2); } if (sv) { var e2=document.getElementById('actions-silv-bal'); if(e2) e2.textContent='$'+sv.bal.toFixed(2); } } catch(e3) {}
     }
   } catch(e) { console.warn('Debt parse error:', e.message); }
 
@@ -6015,7 +6014,7 @@ loadSyncedCheckingTx();
 try {
   const cm = localStorage.getItem('mf_closed_month');
   const ci = localStorage.getItem('mf_closed_income');
-  if (cm) { window._closedMonth = cm; window._closedIncome = parseFloat(ci) || 0; setTimeout(renderDeploymentCard, 300); }
+  if (cm) { window._closedMonth = cm; window._closedIncome = parseFloat(ci) || 0; setTimeout(function(){ try { renderDeploymentCard(); } catch(e){ console.warn("startup renderDeploymentCard error:", e.message); } }, 300); }
 } catch(e) {}
 // Restore debt data from cache
 try {
