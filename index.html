@@ -5073,40 +5073,42 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
+  // Scrape individual fund pages on TSPDataCenter.com
+  // Each page shows: "Current Price $119.5807"
   const PROXIES = [
     'https://corsproxy.io/?url=',
     'https://api.allorigins.win/raw?url=',
     'https://thingproxy.freeboard.io/fetch/',
   ];
-  const today = new Date();
-  const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 7);
-  const fmt = function(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
-  const tspUrl = 'https://www.tsp.gov/data/fund-price-history.csv?startdate=' + fmt(startDate) + '&enddate=' + fmt(today) + '&Lfunds=&InvFunds=G,F,C,S,I';
-  for (const proxy of PROXIES) {
-    try {
-      const res = await fetch(proxy + encodeURIComponent(tspUrl));
-      if (!res.ok) continue;
-      const csv = await res.text();
-      if (!csv || !csv.includes('Fund')) continue;
-      const lines = csv.trim().split('\n').filter(l => l.trim());
-      if (lines.length < 2) continue;
-      const header = lines[0].split(',').map(function(h){ return h.trim().replace(' Fund','').replace('\r',''); });
-      const lastLine = lines[lines.length - 1].split(',');
-      const prices = {};
-      header.forEach(function(name, i) {
-        if (i === 0) return;
-        const val = parseFloat(lastLine[i]);
-        if (!isNaN(val) && val > 0) prices[name] = val;
-      });
-      if (Object.keys(prices).length > 0) {
-        console.log('TSP prices from tsp.gov CSV via proxy:', prices);
-        return prices;
-      }
-    } catch(e) {}
+  const FUNDS = {C:'c-fund', S:'s-fund', I:'i-fund', G:'g-fund', F:'f-fund'};
+  var fetchFund = async function(key, slug) {
+    var url = 'https://www.tspdatacenter.com/fund/' + slug + '/';
+    for (var j = 0; j < PROXIES.length; j++) {
+      try {
+        var res = await fetch(PROXIES[j] + encodeURIComponent(url));
+        if (!res.ok) continue;
+        var html = await res.text();
+        var m = html.match(/Current Price\s*\$([0-9]+\.[0-9]+)/);
+        if (m) return parseFloat(m[1]);
+      } catch(e) {}
+    }
+    return null;
+  };
+  try {
+    var results = await Promise.all(
+      Object.entries(FUNDS).map(function(e) { return fetchFund(e[0], e[1]).then(function(v){ return [e[0], v]; }); })
+    );
+    var prices = {};
+    results.forEach(function(r) { if (r[1] !== null) prices[r[0]] = r[1]; });
+    if (Object.keys(prices).length > 0) {
+      console.log('TSP prices from TSPDataCenter:', prices);
+      return prices;
+    }
+    return null;
+  } catch(e) {
+    console.warn('TSP fetch failed:', e.message);
+    return null;
   }
-  console.warn('TSP CSV: all proxies failed');
-  return null;
 }
 
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
@@ -5197,9 +5199,15 @@ function calcPortfolioValues(tspPrices, etfPrices, cryptoPrices, fidNavs) {
 
   // TSP
   // Last-resort fallbacks: May 4-5, 2026 verified prices
-  const tspC = tspPrices?.C || _livePrices.tspC || 115.63;
-  const tspS = tspPrices?.S || _livePrices.tspS || 109.12;
-  const tspI = tspPrices?.I || _livePrices.tspI || 61.38;
+  // TSP prices: try live fetch, then cached, then derive from ETF proxies
+  // Ratios verified May 14, 2026: C/VOO=0.2257, S/VXF=0.4785, I/VXUS=0.9410
+  const lp = _livePrices;
+  const tspCDerived = lp.VOO ? lp.VOO * 0.2257 : null;
+  const tspSDerived = lp.VXF ? lp.VXF * 0.4785 : null;
+  const tspIDerived = lp.VXUS ? lp.VXUS * 0.9410 : null;
+  const tspC = tspPrices?.C || _livePrices.tspC || tspCDerived || 119.58;
+  const tspS = tspPrices?.S || _livePrices.tspS || tspSDerived || 114.23;
+  const tspI = tspPrices?.I || _livePrices.tspI || tspIDerived || 64.12;
   const tspCiv = get('TSP Civilian','C Fund')*tspC + get('TSP Civilian','S Fund')*tspS + get('TSP Civilian','I Fund')*tspI;
   const tspUni = get('TSP Uniformed','C Fund')*tspC + get('TSP Uniformed','S Fund')*tspS;
 
