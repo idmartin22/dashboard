@@ -2537,6 +2537,7 @@ async function clearActuals() {
 
 function renderBudget() {
   const month = document.getElementById('budgetMonth').value;
+  console.log('renderBudget called, month:', month, 'budgetActuals keys:', Object.keys(budgetActuals).length);
 
   // Annual view — aggregate all months with data
   if (month === '2026-annual') {
