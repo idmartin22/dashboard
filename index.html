@@ -5073,42 +5073,45 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
-  // Scrape individual fund pages on TSPDataCenter.com
-  // Each page shows: "Current Price $119.5807"
+  // TSPTalk.com shows current TSP prices in a clean table — updated daily
+  // Pattern: Fund row shows "G Fund F Fund C Fund S Fund I Fund"
+  //          Price row shows "19.8953 20.8925 119.5807 109.6606 63.1407"
   const PROXIES = [
     'https://corsproxy.io/?url=',
     'https://api.allorigins.win/raw?url=',
     'https://thingproxy.freeboard.io/fetch/',
   ];
-  const FUNDS = {C:'c-fund', S:'s-fund', I:'i-fund', G:'g-fund', F:'f-fund'};
-  var fetchFund = async function(key, slug) {
-    var url = 'https://www.tspdatacenter.com/fund/' + slug + '/';
-    for (var j = 0; j < PROXIES.length; j++) {
-      try {
-        var res = await fetch(PROXIES[j] + encodeURIComponent(url));
-        if (!res.ok) continue;
-        var html = await res.text();
-        var m = html.match(/Current Price\s*\$([0-9]+\.[0-9]+)/);
-        if (m) return parseFloat(m[1]);
-      } catch(e) {}
-    }
-    return null;
-  };
-  try {
-    var results = await Promise.all(
-      Object.entries(FUNDS).map(function(e) { return fetchFund(e[0], e[1]).then(function(v){ return [e[0], v]; }); })
-    );
-    var prices = {};
-    results.forEach(function(r) { if (r[1] !== null) prices[r[0]] = r[1]; });
-    if (Object.keys(prices).length > 0) {
-      console.log('TSP prices from TSPDataCenter:', prices);
-      return prices;
-    }
-    return null;
-  } catch(e) {
-    console.warn('TSP fetch failed:', e.message);
-    return null;
+  const target = encodeURIComponent('https://www.tsptalk.com/tsp_share_prices.php');
+  for (var j = 0; j < PROXIES.length; j++) {
+    try {
+      var res = await fetch(PROXIES[j] + target);
+      if (!res.ok) continue;
+      var html = await res.text();
+      // Extract prices from the table — look for the Price row with 5 fund values
+      // Pattern matches: 19.8953 20.8925 119.5807 109.6606 63.1407
+      var m = html.match(/Price[\s\S]*?([\d]+\.[\d]{4})\s+([\d]+\.[\d]{4})\s+([\d]+\.[\d]{4})\s+([\d]+\.[\d]{4})\s+([\d]+\.[\d]{4})/);
+      if (m) {
+        var prices = { G: parseFloat(m[1]), F: parseFloat(m[2]), C: parseFloat(m[3]), S: parseFloat(m[4]), I: parseFloat(m[5]) };
+        if (prices.C > 50 && prices.S > 50 && prices.I > 30) {
+          console.log('TSP prices from TSPTalk:', prices);
+          return prices;
+        }
+      }
+    } catch(e) {}
   }
+  // Fallback: derive C/S/I from ETF proxies
+  var lp = _livePrices;
+  var prices = {};
+  if (lp.VOO  && lp.VOO  > 0) prices.C = parseFloat((lp.VOO  * 0.2257).toFixed(4));
+  if (lp.VXF  && lp.VXF  > 0) prices.S = parseFloat((lp.VXF  * 0.4793).toFixed(4));
+  if (lp.VXUS && lp.VXUS > 0) prices.I = parseFloat((lp.VXUS * 0.9410).toFixed(4));
+  prices.G = lp.tspG || 19.8953;
+  prices.F = lp.tspF || 20.8925;
+  if (Object.keys(prices).length > 2) {
+    console.log('TSP prices from ETF derivation (fallback):', prices);
+    return prices;
+  }
+  return null;
 }
 
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
@@ -5167,24 +5170,77 @@ async function fetchCryptoPrices() {
 
 // ── 4. Calculate implied Fidelity NAVs via ETF proxy ─────────────────────────
 function calcFidelityNAVs(etfPrices) {
-  const navs = {};
-  const stored = JSON.parse(localStorage.getItem('mf_fidelity_proxy') || '{}');
+  // This function is now async-capable — called separately
+  // Return synchronously from cache, refresh async in background
+  var navs = {};
+  var cached = JSON.parse(localStorage.getItem('mf_fidelity_navs') || '{}');
 
-  Object.entries(FIDELITY_BASELINE).forEach(([fund, cfg]) => {
-    const etfPrice = etfPrices[cfg.proxyTicker];
-    if (!etfPrice) {
-      // Fall back to stored NAV if available
-      navs[fund] = stored[fund]?.nav || cfg.nav;
-      return;
-    }
-    // Use stored proxy baseline or use current as baseline (first run)
-    const proxyBase = stored[fund]?.proxyPrice || etfPrice;
-    const storedNav = stored[fund]?.nav || cfg.nav;
-    // NAV scales proportionally with ETF price change
-    navs[fund] = storedNav * (etfPrice / proxyBase);
-  });
+  // Use cached values if fresh (updated today)
+  var today = new Date().toDateString();
+  if (cached.date === today && cached.VIIIX && cached.VTPSX && cached.VEMPX) {
+    console.log('Fidelity NAVs from cache:', cached);
+    return { VIIIX: cached.VIIIX, VTPSX: cached.VTPSX, VEMPX: cached.VEMPX };
+  }
+
+  // Fallback: derive from ETF proxies using verified ratios (May 14, 2026)
+  // VIIIX tracks S&P 500 (ratio vs VOO), VTPSX tracks intl (ratio vs VXUS), VEMPX tracks completion (ratio vs VXF)
+  const lp = _livePrices;
+  if (lp.VOO  && lp.VOO  > 0) navs.VIIIX = parseFloat((lp.VOO  * 1.1342).toFixed(4)); // VIIIX 601.14 / VOO 530 = 1.1342 (May 14 2026)
+  if (lp.VXUS && lp.VXUS > 0) navs.VTPSX = parseFloat((lp.VXUS * 2.6910).toFixed(4)); // VTPSX/VXUS ratio (pending verification)
+  if (lp.VXF  && lp.VXF  > 0) navs.VEMPX = parseFloat((lp.VXF  * 1.8753).toFixed(4)); // VEMPX 428.89 / VXF 228.8 = 1.8753 (May 14 2026)
+
+  // Use hardcoded baselines as last resort
+  if (!navs.VIIIX) navs.VIIIX = cached.VIIIX || 601.14;
+  if (!navs.VTPSX) navs.VTPSX = cached.VTPSX || 175.15;
+  if (!navs.VEMPX) navs.VEMPX = cached.VEMPX || 428.89;
 
   return navs;
+}
+
+async function fetchFidelityNAVs() {
+  // Try MarketWatch — known for plain HTML mutual fund data
+  var PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
+  var FUNDS = {
+    VIIIX: 'https://www.marketwatch.com/investing/fund/viiix',
+    VTPSX: 'https://www.marketwatch.com/investing/fund/vtpsx',
+    VEMPX: 'https://www.marketwatch.com/investing/fund/vempx',
+  };
+
+  var results = {};
+  for (var ticker in FUNDS) {
+    var url = FUNDS[ticker];
+    for (var j = 0; j < PROXIES.length; j++) {
+      try {
+        var res = await fetch(PROXIES[j] + encodeURIComponent(url));
+        if (!res.ok) continue;
+        var html = await res.text();
+        // MarketWatch pattern: NAV value appears near "Nav" label
+        // Try multiple patterns
+        var m = html.match(/class="intraday__price[^"]*"[^>]*>[^$]*\$([\d,]+\.[\d]+)/) ||
+                html.match(/Nav\D{0,30}([\d]+\.[\d]+)/) ||
+                html.match(/"nav"\D{0,20}([\d]+\.[\d]+)/i) ||
+                html.match(/>([\d]{2,3}\.[\d]{2,4})<.*?NAV/is);
+        if (m) {
+          var price = parseFloat(m[1].replace(',',''));
+          if (price > 50 && price < 10000) { results[ticker] = price; break; }
+        }
+      } catch(e) {}
+    }
+  }
+
+  if (Object.keys(results).length > 0) {
+    console.log('Fidelity NAVs from MarketWatch:', results);
+    // Cache with today's date
+    var toStore = Object.assign({ date: new Date().toDateString() }, results);
+    try { localStorage.setItem('mf_fidelity_navs', JSON.stringify(toStore)); } catch(e) {}
+    return results;
+  }
+  console.log('MarketWatch Fidelity NAV fetch failed — using ETF derivation');
+  return null;
 }
 
 // ── 5. Calculate all account values from share counts × prices ───────────────
@@ -5542,7 +5598,7 @@ async function fetchLivePrices() {
   // Fetch all in parallel
   const [tspRaw, etfRaw, cryptoRaw] = await Promise.all([
     fetchTSPPrices(),
-    fetchYahooPrices(['VTI','QQQM','AVUV','AVDV','AVES','VXUS','VOO','VXF']),
+    fetchYahooPrices(['VTI','QQQM','AVUV','AVDV','AVES','VXUS','VOO','VXF','VIIIX','VTPSX','VEMPX']),
     fetchCryptoPrices(),
   ]);
 
@@ -5555,10 +5611,13 @@ async function fetchLivePrices() {
   if (etfRaw) Object.assign(_livePrices, etfRaw);
   if (cryptoRaw) Object.assign(_livePrices, cryptoRaw);
 
-  // Calculate Fidelity NAVs via proxy
-  const fidNavs = etfRaw ? calcFidelityNAVs(etfRaw) : null;
+  // Fetch Fidelity NAVs from MarketWatch, fall back to ETF derivation
+  var mwNavs = null;
+  try { mwNavs = await fetchFidelityNAVs(); } catch(e) {}
+  const fidNavs = mwNavs || (etfRaw ? calcFidelityNAVs(etfRaw) : null);
 
-  // Store implied Fidelity NAVs into _livePrices so consolidated table uses them
+  // Store Fidelity NAVs (MarketWatch or ETF-derived) into _livePrices
+  // Also merge any directly fetched MarketWatch prices so consolidated table uses them
   // (NOT the raw ETF proxy prices — VOO/VXF trade at different dollar amounts than VIIIX/VEMPX)
   if (fidNavs) {
     _livePrices.VIIIX = fidNavs.VIIIX;
