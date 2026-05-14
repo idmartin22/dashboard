@@ -5073,33 +5073,40 @@ let _livePrices = {};
 
 // ── 1. Fetch TSP prices from TSPDataCenter.com ────────────────────────────────
 async function fetchTSPPrices() {
-  // Use TSP's official CSV endpoint — no proxy needed, no CORS issues, updated daily
+  const PROXIES = [
+    'https://corsproxy.io/?url=',
+    'https://api.allorigins.win/raw?url=',
+    'https://thingproxy.freeboard.io/fetch/',
+  ];
   const today = new Date();
   const startDate = new Date(today);
-  startDate.setDate(today.getDate() - 7); // last 7 days to ensure we get latest
-  const fmt = d => d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-  const url = 'https://www.tsp.gov/data/fund-price-history.csv?startdate=' + fmt(startDate) + '&enddate=' + fmt(today) + '&Lfunds=&InvFunds=G,F,C,S,I';
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('TSP CSV fetch failed: ' + res.status);
-    const csv = await res.text();
-    const lines = csv.trim().split('\n');
-    // CSV format: Date,G Fund,F Fund,C Fund,S Fund,I Fund
-    // Last line = most recent date
-    const header = lines[0].split(',').map(h => h.trim().replace(' Fund','').replace('\r',''));
-    const lastLine = lines[lines.length - 1].split(',');
-    const prices = {};
-    header.forEach((name, i) => {
-      if (i === 0) return; // skip Date column
-      const val = parseFloat(lastLine[i]);
-      if (!isNaN(val) && val > 0) prices[name] = val;
-    });
-    console.log('TSP prices from official CSV:', prices);
-    return Object.keys(prices).length > 0 ? prices : null;
-  } catch(e) {
-    console.warn('TSP official CSV failed:', e.message);
-    return null;
+  startDate.setDate(today.getDate() - 7);
+  const fmt = function(d) { return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+  const tspUrl = 'https://www.tsp.gov/data/fund-price-history.csv?startdate=' + fmt(startDate) + '&enddate=' + fmt(today) + '&Lfunds=&InvFunds=G,F,C,S,I';
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy + encodeURIComponent(tspUrl));
+      if (!res.ok) continue;
+      const csv = await res.text();
+      if (!csv || !csv.includes('Fund')) continue;
+      const lines = csv.trim().split('\n').filter(l => l.trim());
+      if (lines.length < 2) continue;
+      const header = lines[0].split(',').map(function(h){ return h.trim().replace(' Fund','').replace('\r',''); });
+      const lastLine = lines[lines.length - 1].split(',');
+      const prices = {};
+      header.forEach(function(name, i) {
+        if (i === 0) return;
+        const val = parseFloat(lastLine[i]);
+        if (!isNaN(val) && val > 0) prices[name] = val;
+      });
+      if (Object.keys(prices).length > 0) {
+        console.log('TSP prices from tsp.gov CSV via proxy:', prices);
+        return prices;
+      }
+    } catch(e) {}
   }
+  console.warn('TSP CSV: all proxies failed');
+  return null;
 }
 
 // ── 2. Fetch ETF/mutual fund proxy prices from Yahoo Finance ─────────────────
