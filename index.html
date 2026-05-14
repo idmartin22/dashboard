@@ -2670,6 +2670,7 @@ function renderBudget() {
     <td colspan="2" style="padding:8px 12px;font-size:10px;color:var(--hint)">${netFlow===null?'':'Every dollar of income is accounted for'}</td>
   </tr>`;
 
+  console.log('renderBudget: tbody=', tbody ? 'found' : 'NULL', 'html length=', html.length, 'BUDGET_LINES=', BUDGET_LINES.length);
   tbody.innerHTML = html;
 
   // Update KPI cards
