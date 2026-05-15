@@ -5139,6 +5139,11 @@ async function fetchLivePrices() {
   _livePrices.VTPSX = fidNavs.VTPSX;
   _livePrices.VEMPX = fidNavs.VEMPX;
 
+  // M1 + Regan ETF prices — from prices.json etf section
+  if (pricesData?.etf) {
+    Object.assign(_livePrices, pricesData.etf);
+  }
+
   // Crypto
   if (cryptoRaw) Object.assign(_livePrices, cryptoRaw);
 
@@ -5147,7 +5152,8 @@ async function fetchLivePrices() {
   console.log('Live pricing source:', source);
 
   // Calculate and render portfolio values
-  const vals = calcPortfolioValues(tspRaw, null, cryptoRaw, fidNavs);
+  const etfPrices = pricesData?.etf || null;
+  const vals = calcPortfolioValues(tspRaw, etfPrices, cryptoRaw, fidNavs);
   if (vals) updateInvestmentDOM(vals);
 }
 
@@ -5243,8 +5249,8 @@ function updateInvestmentDOM(vals) {
   const nwProps = parseFloat(localStorage.getItem('mf_nw_props') || '457725');
   const nwVeh  = parseFloat(localStorage.getItem('mf_nw_veh')   || '57000');
   const nwDebt = parseFloat(localStorage.getItem('mf_nw_debt')  || '157154');
-  const nwRegan = vals.regan;
-  const totalAssets = nwLiq + nwProps + nwVeh + vals.total + nwRegan;
+  const nwRegan = vals.regan; // tracked separately — not part of household net worth
+  const totalAssets = nwLiq + nwProps + nwVeh + vals.total;
   const netWorth = totalAssets - nwDebt;
 
   set('val-total-investable', fmt(vals.total));
@@ -5270,7 +5276,7 @@ function updateInvestmentDOM(vals) {
   const nwRealestate = 407000;
   const nwVehicles   = 77000;
   const nwDebtTotal  = 185424;
-  const totalGross   = nwLiquidVal2 + nwRealestate + nwVehicles + vals.total + vals.regan;
+  const totalGross   = nwLiquidVal2 + nwRealestate + nwVehicles + vals.total; // Regan excluded — standalone account
   const nwFull       = totalGross - nwDebtTotal;
   if (!isNaN(nwFull)) {
     set('nw-big-val',      '$' + (nwFull/1000000).toFixed(2) + 'M');
@@ -5543,7 +5549,12 @@ function scheduleCryptoRefresh() {
     if (cryptoRaw) {
       Object.assign(_livePrices, cryptoRaw);
       // Recalculate portfolio with updated crypto prices using last known other prices
-      const vals = calcPortfolioValues(null, null, cryptoRaw, null);
+      const vals = calcPortfolioValues(
+          { C: _livePrices.tspC, S: _livePrices.tspS, I: _livePrices.tspI, G: _livePrices.tspG, F: _livePrices.tspF },
+          { VTI: _livePrices.VTI, QQQM: _livePrices.QQQM, AVUV: _livePrices.AVUV, AVDV: _livePrices.AVDV, AVES: _livePrices.AVES, VXUS: _livePrices.VXUS },
+          cryptoRaw,
+          { VIIIX: _livePrices.VIIIX, VTPSX: _livePrices.VTPSX, VEMPX: _livePrices.VEMPX }
+        );
       if (vals) updateInvestmentDOM(vals);
     }
     // Schedule next refresh
@@ -5578,7 +5589,12 @@ function scheduleCryptoRefresh() {
     if (cryptoRaw) {
       Object.assign(_livePrices, cryptoRaw);
       // Recalculate portfolio with updated crypto prices using last known other prices
-      const vals = calcPortfolioValues(null, null, cryptoRaw, null);
+      const vals = calcPortfolioValues(
+          { C: _livePrices.tspC, S: _livePrices.tspS, I: _livePrices.tspI, G: _livePrices.tspG, F: _livePrices.tspF },
+          { VTI: _livePrices.VTI, QQQM: _livePrices.QQQM, AVUV: _livePrices.AVUV, AVDV: _livePrices.AVDV, AVES: _livePrices.AVES, VXUS: _livePrices.VXUS },
+          cryptoRaw,
+          { VIIIX: _livePrices.VIIIX, VTPSX: _livePrices.VTPSX, VEMPX: _livePrices.VEMPX }
+        );
       if (vals) updateInvestmentDOM(vals);
     }
     // Schedule next refresh
