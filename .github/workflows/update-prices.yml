@@ -26,7 +26,8 @@ jobs:
           prices = {
             "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
             "tsp": {},
-            "fidelity": {}
+            "fidelity": {},
+            "etf": {}
           }
  
           try:
@@ -48,9 +49,13 @@ jobs:
           except Exception as e:
             print(f"TSP fetch failed: {e}")
  
-          funds = {"VIIIX": None, "VTPSX": None, "VEMPX": None}
+          tickers = [
+            "VIIIX", "VTPSX", "VEMPX",
+            "VTI", "QQQM", "AVUV", "AVDV", "AVES", "VXUS"
+          ]
  
-          for ticker in funds:
+          all_prices = {}
+          for ticker in tickers:
             try:
               url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=1d"
               req = urllib.request.Request(
@@ -63,13 +68,25 @@ jobs:
               with urllib.request.urlopen(req, timeout=10) as r:
                 data = json.loads(r.read())
               price = data["chart"]["result"][0]["meta"]["regularMarketPrice"]
-              funds[ticker] = price
+              all_prices[ticker] = price
               print(f"{ticker}: {price}")
             except Exception as e:
               print(f"{ticker} fetch failed: {e}")
  
-          prices["fidelity"] = funds
-          print(f"Fidelity NAVs: {prices['fidelity']}")
+          prices["fidelity"] = {
+            "VIIIX": all_prices.get("VIIIX"),
+            "VTPSX": all_prices.get("VTPSX"),
+            "VEMPX": all_prices.get("VEMPX")
+          }
+ 
+          prices["etf"] = {
+            "VTI":  all_prices.get("VTI"),
+            "QQQM": all_prices.get("QQQM"),
+            "AVUV": all_prices.get("AVUV"),
+            "AVDV": all_prices.get("AVDV"),
+            "AVES": all_prices.get("AVES"),
+            "VXUS": all_prices.get("VXUS")
+          }
  
           with open("prices.json", "w") as f:
             json.dump(prices, f, indent=2)
