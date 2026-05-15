@@ -1,0 +1,87 @@
+name: Update Fund Prices
+ 
+on:
+  schedule:
+    - cron: '0 1 * * 1-5'
+  workflow_dispatch:
+ 
+permissions:
+  contents: write
+ 
+jobs:
+  update-prices:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+ 
+      - name: Fetch prices and write prices.json
+        run: |
+          python3 - <<'EOF'
+          import urllib.request
+          import json
+          from datetime import datetime, timezone
+ 
+          prices = {
+            "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+            "tsp": {},
+            "fidelity": {}
+          }
+ 
+          try:
+            req = urllib.request.Request(
+              "https://api.dailytsp.com/close/",
+              headers={"User-Agent": "Mozilla/5.0"}
+            )
+            with urllib.request.urlopen(req, timeout=10) as r:
+              data = json.loads(r.read())
+            latest = data[max(data.keys())]
+            prices["tsp"] = {
+              "G": latest.get("G Fund"),
+              "F": latest.get("F Fund"),
+              "C": latest.get("C Fund"),
+              "S": latest.get("S Fund"),
+              "I": latest.get("I Fund")
+            }
+            print(f"TSP prices: {prices['tsp']}")
+          except Exception as e:
+            print(f"TSP fetch failed: {e}")
+ 
+          funds = {"VIIIX": None, "VTPSX": None, "VEMPX": None}
+ 
+          for ticker in funds:
+            try:
+              url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=1d&range=1d"
+              req = urllib.request.Request(
+                url,
+                headers={
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                  "Accept": "application/json"
+                }
+              )
+              with urllib.request.urlopen(req, timeout=10) as r:
+                data = json.loads(r.read())
+              price = data["chart"]["result"][0]["meta"]["regularMarketPrice"]
+              funds[ticker] = price
+              print(f"{ticker}: {price}")
+            except Exception as e:
+              print(f"{ticker} fetch failed: {e}")
+ 
+          prices["fidelity"] = funds
+          print(f"Fidelity NAVs: {prices['fidelity']}")
+ 
+          with open("prices.json", "w") as f:
+            json.dump(prices, f, indent=2)
+ 
+          print(f"\nprices.json written:")
+          print(json.dumps(prices, indent=2))
+          EOF
+ 
+      - name: Commit prices.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add prices.json
+          git diff --staged --quiet || git commit -m "Update fund prices $(date -u '+%Y-%m-%d')"
+          git push
