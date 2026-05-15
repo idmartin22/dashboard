@@ -5416,6 +5416,109 @@ function loadCachedPortfolio() {
   } catch(e) {}
 }
 
+
+function updateConsolidatedTable(vals) {
+  const tbody = document.getElementById('fund-table-body');
+  if (!tbody || !_shareCounts || !_shareCounts.length) return;
+  const sc = _shareCounts;
+  const get = (acc, fund) => { const r=sc.find(r=>r.account===acc&&r.fund===fund); return r?.shares||0; };
+  const p = _livePrices;
+  const total = vals.total;
+  const fmt = n => '$' + Math.round(n).toLocaleString();
+  const fmtSh = n => n ? n.toLocaleString(undefined,{maximumFractionDigits:3}) : '—';
+  const fmtP = n => n ? '$'+n.toFixed(2) : '';
+
+  const hdr = (label, val, color='var(--blue)') =>
+    `<tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
+      <td colspan="8" style="padding:5px 10px;font-size:10px;font-weight:500;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${fmt(val)}</td>
+    </tr>`;
+
+  const row = (fund, acct, cls, val, acctTotal, er, shares, price) => {
+    const acctPct = acctTotal ? (val/acctTotal*100).toFixed(1)+'%' : '—';
+    const portPct = total     ? (val/total*100).toFixed(1)+'%'     : '—';
+    return `<tr style="border-bottom:1px solid var(--border)">
+      <td style="padding:6px 10px;color:var(--text);font-weight:500">${fund}</td>
+      <td style="padding:6px 10px;color:var(--muted)">${acct}</td>
+      <td style="padding:6px 10px;color:var(--muted)">${cls}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(val)}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px">${fmtSh(shares)}<br><span style="color:var(--hint)">${fmtP(price)}</span></td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">${acctPct}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${portPct}</td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${er}</td>
+    </tr>`;
+  };
+
+  const tspC=p.tspC||115.63, tspS=p.tspS||109.12, tspI=p.tspI||61.38;
+  const vtiP=p.VTI||357.47, qqqmP=p.QQQM||277.81, avuvP=p.AVUV||121.00, avdvP=p.AVDV||105.61, avesP=p.AVES||66.32;
+  const vxusP=p.VXUS||82.44;
+  // Use stored implied NAVs (not raw ETF prices — VOO/VXF are wrong dollar amounts for VIIIX/VEMPX)
+  const fidViiixV = p.VIIIX || 407.68;   // implied VIIIX NAV (not VOO price ~$550+)
+  const fidVtpsxV = p.VTPSX || 175.15;   // implied VTPSX NAV (VXUS tracks same index)
+  const fidVempxV = p.VEMPX || 385.26;   // implied VEMPX NAV (not VXF price ~$228)
+  const cp = p;
+
+  const cCiv=get('TSP Civilian','C Fund'), sCiv=get('TSP Civilian','S Fund'), iCiv=get('TSP Civilian','I Fund');
+  const cUni=get('TSP Uniformed','C Fund'), sUni=get('TSP Uniformed','S Fund');
+  const viiix=get('Fidelity 403b','VIIIX'), vtpsx=get('Fidelity 403b','VTPSX'), vempx=get('Fidelity 403b','VEMPX');
+  const v401=get('Fidelity 401a','VTPSX');
+  const vtiSh=get('M1 Finance','VTI'), qqqmSh=get('M1 Finance','QQQM');
+  const avuvSh=get('M1 Finance','AVUV'), avdvSh=get('M1 Finance','AVDV'), avesSh=get('M1 Finance','AVES');
+  const btcSh=get('Kraken','BTC'), ethSh=get('Kraken','ETH'), solSh=get('Kraken','SOL');
+  const taoSh=get('Kraken','TAO'), hypeSh=get('Kraken','HYPE'), linkSh=get('Kraken','LINK'), xrpSh=get('Kraken','XRP');
+
+  let html = '';
+  const tspCivActual = cCiv*tspC + sCiv*tspS + iCiv*tspI;
+  const tspUniActual = cUni*tspC + sUni*tspS;
+  html += hdr('TSP Civilian', tspCivActual);
+  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, tspCivActual,'0.054%', cCiv,  tspC);
+  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, tspCivActual,'0.054%', sCiv,  tspS);
+  html += row('I Fund','TSP Civ','International',  iCiv*tspI, tspCivActual,'0.054%', iCiv,  tspI);
+  html += hdr('TSP Uniformed', tspUniActual);
+  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, tspUniActual,'0.054%', cUni,  tspC);
+  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, tspUniActual,'0.054%', sUni,  tspS);
+  // Use actual sum of displayed values as acctTotal to avoid proxy rounding issues
+  const fid403bActual = viiix*fidViiixV + vtpsx*fidVtpsxV + vempx*fidVempxV;
+  const fid401aActual = v401*fidVtpsxV;
+  html += hdr('Fidelity 403b', fid403bActual, 'var(--coral)');
+  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, fid403bActual,'0.02%', viiix, fidViiixV);
+  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, fid403bActual,'0.07%', vtpsx, fidVtpsxV);
+  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, fid403bActual,'0.04%', vempx, fidVempxV);
+  html += hdr('Fidelity 401a', fid401aActual, 'var(--coral)');
+  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, fid401aActual,'0.07%', v401, fidVtpsxV);
+  const m1Actual = vtiSh*vtiP + qqqmSh*qqqmP + avuvSh*avuvP + avdvSh*avdvP + avesSh*avesP;
+  html += hdr('M1 Finance', m1Actual, 'var(--green)');
+  html += row('VTI','M1','US total market',  vtiSh*vtiP,   m1Actual,'0.03%', vtiSh,  vtiP);
+  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, m1Actual,'0.15%', qqqmSh, qqqmP);
+  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, m1Actual,'0.25%', avuvSh, avuvP);
+  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, m1Actual,'0.36%', avdvSh, avdvP);
+  html += row('AVES','M1','EM value',        avesSh*avesP, m1Actual,'0.36%', avesSh, avesP);
+  html += hdr('Crypto (Kraken)', vals.crypto, 'var(--purple)');
+  html += row('BTC','Kraken','Crypto',  btcSh*(cp.BTC||80861),  vals.crypto,'—', btcSh,  cp.BTC||80861);
+  html += row('ETH','Kraken','Crypto',  ethSh*(cp.ETH||2381),   vals.crypto,'—', ethSh,  cp.ETH||2381);
+  html += row('SOL','Kraken','Crypto',  solSh*(cp.SOL||84.79),  vals.crypto,'—', solSh,  cp.SOL||84.79);
+  html += row('TAO','Kraken','Crypto',  taoSh*(cp.TAO||283.53), vals.crypto,'—', taoSh,  cp.TAO||283.53);
+  html += row('HYPE','Kraken','Crypto', hypeSh*(cp.HYPE||40.97),vals.crypto,'—', hypeSh, cp.HYPE||40.97);
+  html += row('LINK','Kraken','Crypto', linkSh*(cp.LINK||9.59), vals.crypto,'—', linkSh, cp.LINK||9.59);
+  html += row('XRP','Kraken','Crypto',  xrpSh*(cp.XRP||1.40),  vals.crypto,'—', xrpSh,  cp.XRP||1.40);
+  html += `<tr style="border-top:2px solid var(--border2);font-weight:600">
+    <td colspan="3" style="padding:8px 10px">Total Portfolio</td>
+    <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(total)}</td>
+    <td colspan="4"></td>
+  </tr>`;
+
+  // Also add a "Units Owned" column header if it doesn't exist
+  const thead = tbody.closest('table').querySelector('thead tr');
+  if (thead && thead.children.length === 7) {
+    const th = document.createElement('th');
+    th.style.cssText = 'text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap';
+    th.textContent = 'Units / Price';
+    thead.insertBefore(th, thead.children[3]);
+  }
+
+  tbody.innerHTML = html;
+}
+
+
 // ── Crypto refresh every 6 hours (midnight, 6am, noon, 6pm) ──────────────────
 function scheduleCryptoRefresh() {
   const now = new Date();
