@@ -5320,6 +5320,9 @@ function updateInvestmentDOM(vals) {
   updateConsolidatedTable(vals);
   updateReganTab(vals);
 
+  // Refresh drift tracker with live starting values now that _livePoolValues is set
+  if (typeof calcDrift === 'function') calcDrift();
+
   console.log('Live pricing updated:', new Date().toLocaleTimeString());
 }
 
