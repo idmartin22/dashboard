@@ -375,6 +375,15 @@
       <span id="sync-icon">⇅</span>
       <span id="sync-label">Sync</span>
     </button>
+    <button onclick="triggerExcelSync()" id="sync-excel-btn"
+      style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
+             border:1px solid var(--border2);background:var(--surface2);color:var(--text);
+             font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s"
+      onmouseover="this.style.borderColor='var(--amber)';this.style.color='var(--amber)'"
+      onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">
+      <span>☁</span>
+      <span id="sync-excel-label">Drive Sync</span>
+    </button>
     <div class="updated" id="last-updated">Updated May 2, 2026</div>
   </div>
 </div>
@@ -1172,13 +1181,20 @@
             <a href="https://claude.ai/new?q=Please%20conduct%20a%20portfolio%20review%20for%20the%20Martin%20household.%20Established%20thesis%3A%20dual%20pension%20floor%20%28FERS%20~%2434K%20%2B%20Guard%20~%2443K/yr%29%20justifies%20100%25%20equity%3B%20household-level%20balancing%20%28Isaac%20TSP%20%3D%20US-heavy%2C%20Lorri%20Fidelity%20%3D%20intl-heavy%29%3B%20M1%20factor-tilted%20via%20Avantis%20%28AVUV/AVDV/AVES%29%3B%20crypto%20capped%20at%20~1.6%25%3B%20retirement%20target%20age%2057%20%28Nov%202038%29.%20Current%3A%20TSP%20Civ%20~%24415K%20%2855C/25S/20I%29%2C%20TSP%20Uni%20~%24133K%20%2840C/60S%29%2C%20Fid%20403b%20~%24386K%20%2830%20VIIIX/55%20VTPSX/15%20VEMPX%29%2C%20Fid%20401a%20~%24119K%20%28100%20VTPSX%29%2C%20M1%20~%2490K%20%2820%20VTI/10%20QQQM/30%20AVUV/25%20AVDV/15%20AVES%29%2C%20Crypto%20~%2419K.%20Review%20whether%20current%20market%20conditions%20or%20any%20situational%20changes%20warrant%20revisiting%20this%20structure.%20Reason%20from%20established%20thesis%20%E2%80%94%20any%20deviation%20must%20cite%20what%20specifically%20changed." target="_blank" rel="noopener" style="display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;text-decoration:none">Open Review Session →</a>
           </div>
 
+          <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">📂 Sync Excel from Google Drive</div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Pulls the latest 2026_Family_Budget.xlsx from Google Drive and commits it to the repo. Runs automatically nightly — use this button to sync immediately after updating the file.</div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <button onclick="triggerExcelSync()" id="sync-excel-btn" style="background:var(--amber);color:#000;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;border:none;cursor:pointer">Sync Now →</button>
+              <span id="sync-excel-status" style="font-size:11px;color:var(--muted)"></span>
+            </div>
+          </div>
+
         </div>
       </div>
       </div>
     </div>
   </div>
-
-  <!-- RETIREMENT -->
   <div class="page" id="page-retire">
     <div class="two-col" style="margin-bottom:10px">
       <div>
@@ -4986,7 +5002,59 @@ function fmtBal(val) {
   return isNaN(n) ? null : n;
 }
 
-// ── SAVINGS SUB-ACCOUNT DISBURSEMENT PARSING ──────────────────────────────────
+// ── Google Drive Excel Sync Trigger ──────────────────────────────────────────
+const GITHUB_PAT        = 'PASTE_YOUR_PAT_HERE';
+const GITHUB_REPO       = 'idmartin22/dashboard';
+const SYNC_WORKFLOW     = 'sync-excel.yml';
+
+async function triggerExcelSync() {
+  const btn   = document.getElementById('sync-excel-btn');
+  const label = document.getElementById('sync-excel-label');
+
+  btn.disabled = true;
+  label.textContent = 'Triggering...';
+
+  try {
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${SYNC_WORKFLOW}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_PAT}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ref: 'main' })
+      }
+    );
+
+    if (res.status === 204) {
+      label.textContent = 'Syncing ✓';
+      btn.style.borderColor = 'var(--green)';
+      btn.style.color = 'var(--green)';
+      // Reset after 60s — workflow should be done by then, user can re-sync Excel
+      setTimeout(() => {
+        label.textContent = 'Drive Sync';
+        btn.disabled = false;
+        btn.style.borderColor = 'var(--border2)';
+        btn.style.color = 'var(--text)';
+      }, 60000);
+    } else {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || `HTTP ${res.status}`);
+    }
+  } catch(e) {
+    label.textContent = 'Drive Sync';
+    btn.disabled = false;
+    btn.style.color = 'var(--red)';
+    btn.style.borderColor = 'var(--red)';
+    setTimeout(() => {
+      btn.style.borderColor = 'var(--border2)';
+      btn.style.color = 'var(--text)';
+    }, 5000);
+    console.error('Drive sync failed:', e.message);
+  }
+}
 // Column indices (0-based) for each sub-account's DEBIT column in Savings Transaction Log
 const SAVINGS_SUB_COLS = {
   // col: [dashboard_category, need_pct, want_pct]
