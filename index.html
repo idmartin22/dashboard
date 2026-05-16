@@ -3258,12 +3258,20 @@ function renderFramework(month) {
     });
   }
 
-const hasActuals = monthsForActuals.length > 0; // show actuals even if income not yet posted
-  // Sanity check zero-sum — s39 is the plug so this should already be exact
-  // Small floating point differences absorbed here
+const hasActuals = monthsForActuals.length > 0;
+  // Any income not yet classified as N/W/S is unspent = savings by definition.
+  // Positive gap: unspent income flows into savings (mid-month timing).
+  // Negative gap: spending exceeds recorded income — flag visibly rather than hide it.
   if (hasActuals && actualIncome > 0) {
     const gap = actualIncome - aN - aW - aS;
-    if (Math.abs(gap) < 1) aS += gap; // rounding only, not structural
+    if (gap > 0) {
+      aS += gap;
+      window._frameworkDetail['S'].push({label: 'Unclassified (unspent income)', amount: gap, month: 'YTD'});
+    } else if (gap < -1) {
+      // Over-spend vs recorded income — surface it as a negative savings adjustment
+      aS += gap;
+      window._frameworkDetail['S'].push({label: '⚠️ Timing gap (spending exceeds recorded income)', amount: gap, month: 'YTD'});
+    }
   }
   // For actual display, use real income so N+W+S = actual income exactly
   const displayIncome = hasActuals ? actualIncome : Inc;
