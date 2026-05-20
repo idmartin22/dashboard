@@ -5003,7 +5003,7 @@ function fmtBal(val) {
 }
 
 // ── Google Drive Excel Sync Trigger ──────────────────────────────────────────
-const GITHUB_PAT        = 'ghp_TgsBC2iowHXiIMBGi9sI' + 'SE9FklhX9B07NINP';
+const GITHUB_PAT        = 'PASTE_YOUR_PAT_HERE';
 const GITHUB_REPO       = 'idmartin22/dashboard';
 const SYNC_WORKFLOW     = 'sync-excel.yml';
 
@@ -5100,11 +5100,16 @@ function parseSavingsDisbursements(wsStl) {
     Object.entries(SAVINGS_SUB_COLS).forEach(([col, [label, nPct, wPct]]) => {
       const val = row[parseInt(col)];
       const numVal = parseFloat(val);
-      if (val !== null && val !== undefined && val !== 0 && !isNaN(numVal) && numVal > 0) {
-        // Only count positive debits (actual outflows); negative = refunds, skip
-        const amt = numVal;
-        result[month].N += amt * nPct;
-        result[month].W += amt * wPct;
+      if (val === null || val === undefined || isNaN(numVal) || numVal === 0) return;
+
+      if (numVal > 0) {
+        // Positive debit = actual outflow — add to N/W
+        result[month].N += numVal * nPct;
+        result[month].W += numVal * wPct;
+      } else {
+        // Negative debit = refund/reversal — subtract from N/W
+        result[month].N += numVal * nPct; // numVal is negative so this subtracts
+        result[month].W += numVal * wPct;
       }
     });
 
