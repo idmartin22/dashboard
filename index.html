@@ -1561,20 +1561,20 @@
           </div>
           <div>
             <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Actual expenses paid</div>
-            <div class="row"><div class="rl">Rumpke Waste (garbage)<div class="rsub">Jan $63.12 · Apr $63.84</div></div><div class="rv red">−$126.96</div></div>
-            <div class="row"><div class="rl">Sanitation — Rental<div class="rsub">Mar $92.82 · Apr $92.82</div></div><div class="rv red">−$185.64</div></div>
-            <div class="row"><div class="rl">Property tax<div class="rsub">Feb 10 payment</div></div><div class="rv red">−$1,276.40</div></div>
-            <div class="row"><div class="rl">Water bill — Rental<div class="rsub">Checking line 43 · 8 payments</div></div><div class="rv red">−$271.96</div></div>
+            <div class="row"><div class="rl">Rumpke Waste (garbage)<div class="rsub" id="pl-garbage-sub">Jan $63.12 · Apr $63.84</div></div><div class="rv red" id="pl-garbage-val">−$126.96</div></div>
+            <div class="row"><div class="rl">Sanitation — Rental<div class="rsub" id="pl-sanitation-sub">Mar $92.82 · Apr $92.82</div></div><div class="rv red" id="pl-sanitation-val">−$185.64</div></div>
+            <div class="row"><div class="rl">Property tax<div class="rsub" id="pl-proptax-sub">Feb 10 payment</div></div><div class="rv red" id="pl-proptax-val">−$1,276.40</div></div>
+            <div class="row"><div class="rl">Water bill — Rental<div class="rsub" id="pl-water-sub">Checking line 43 · 8 payments</div></div><div class="rv red" id="pl-water-val">−$271.96</div></div>
             <div class="row"><div class="rl">Utilities (net of reimb.)<div class="rsub" id="pl-util-sub">$1,066.02 paid − $613.00 back</div></div><div class="rv red" id="pl-util-val">−$453.02</div></div>
-            <div class="row" style="opacity:0.5"><div class="rl">Rental insurance<div class="rsub">reserved — not yet disbursed</div></div><div class="rv muted">$0.00</div></div>
-            <div class="row" style="opacity:0.5"><div class="rl">Rental repairs<div class="rsub">reserved — not yet disbursed</div></div><div class="rv muted">$0.00</div></div>
-            <div class="total-row"><span>Total expenses</span><span class="rv red">−$2,313.98</span></div>
+            <div class="row" id="pl-rentins-row"><div class="rl">Rental insurance<div class="rsub" id="pl-rentins-sub">reserved — not yet disbursed</div></div><div class="rv red" id="pl-rentins-val">$0.00</div></div>
+            <div class="row" id="pl-rentrep-row"><div class="rl">Rental repairs<div class="rsub" id="pl-rentrep-sub">reserved — not yet disbursed</div></div><div class="rv red" id="pl-rentrep-val">$0.00</div></div>
+            <div class="total-row"><span>Total expenses</span><span class="rv red" id="pl-total-expenses">−$2,313.98</span></div>
           </div>
           <div>
             <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Net summary</div>
             <div class="row"><div class="rl">Rent collected</div><div class="rv green" id="pl-net-rent">$2,950.00</div></div>
-            <div class="row"><div class="rl">Total expenses (actual)</div><div class="rv red">−$2,313.98</div></div>
-            <div class="total-row"><span>Net cash (collected)</span><span class="rv green">$636.02</span></div>
+            <div class="row"><div class="rl">Total expenses (actual)</div><div class="rv red" id="pl-total-expenses-net">−$2,313.98</div></div>
+            <div class="total-row"><span>Net cash (collected)</span><span class="rv green" id="pl-net-cash">$636.02</span></div>
             <div style="margin-top:8px;padding:8px 10px;background:rgba(245,158,11,0.08);border-radius:6px;font-size:10px;color:var(--amber);line-height:1.7">
               <div>⚠ Tenant balance outstanding: <strong style="color:var(--red)" id="pl-tenant-bal">$703.02</strong></div>
               <div style="color:var(--muted);margin-top:2px">Net if fully collected: <strong style="color:var(--green)" id="pl-net-full">$1,339.04</strong></div>
@@ -3645,6 +3645,16 @@ function mergeSyncedCheckingTx(wsCtl) {
     renderTenantUtility();
     window._rentalIncomeTx = incomeTx;
     try { localStorage.setItem('mf_rental_income_tx', JSON.stringify(incomeTx)); } catch(e) {}
+
+    // Extract water bill (line 43) from checking tx for Rental P&L
+    const waterTx = newTx
+      .filter(tx => tx.line === 43 && tx.debit > 0)
+      .map(tx => ({ month: tx.month, label: 'Water Bill — Rental', amount: tx.debit, desc: tx.desc }));
+    // Merge into _rentalExpenseTx if it already exists (savings log parsed first)
+    // Otherwise store for later merge when savings log parses
+    window._rentalWaterTx = waterTx;
+    try { localStorage.setItem('mf_rental_water_tx', JSON.stringify(waterTx)); } catch(e) {}
+
     renderRentalIncome();
 
     // Persist synced tx to localStorage
@@ -4037,52 +4047,119 @@ function updateRentalPL(rentMonths, totalRentReceived, rentOutstanding) {
   const cols = plBody.querySelectorAll(':scope > div');
   if (cols[0]) cols[0].innerHTML = incomeHtml;
 
-  // Update utility net row in expenses column
-  const utilTx2 = window._utilityTx || [];
-  let uPaid = 0, uReceived = 0;
-  utilTx2.forEach(tx => { uPaid += tx.debit; uReceived += tx.credit; });
-  const uNet = uPaid - uReceived;
+  // ── Build dynamic expense rows from savings transaction log ─────────────────
+  const rentalTx = window._rentalExpenseTx || [];
+  const waterTx  = window._rentalWaterTx   || [];
+
+  // Aggregate savings-sourced expenses by label
+  const expTotals = {};
+  const expDetails = {};
+  rentalTx.forEach(tx => {
+    if (!expTotals[tx.label]) { expTotals[tx.label] = 0; expDetails[tx.label] = []; }
+    expTotals[tx.label] += tx.amount;
+    expDetails[tx.label].push(tx.month.slice(5,7) === '01' ? 'Jan' :
+      tx.month.slice(5,7) === '02' ? 'Feb' : tx.month.slice(5,7) === '03' ? 'Mar' :
+      tx.month.slice(5,7) === '04' ? 'Apr' : tx.month.slice(5,7) === '05' ? 'May' :
+      tx.month.slice(5,7) === '06' ? 'Jun' : tx.month.slice(5,7) === '07' ? 'Jul' :
+      tx.month.slice(5,7) === '08' ? 'Aug' : tx.month.slice(5,7) === '09' ? 'Sep' :
+      tx.month.slice(5,7) === '10' ? 'Oct' : tx.month.slice(5,7) === '11' ? 'Nov' : 'Dec'
+    );
+  });
+
+  // Water bill total from checking log
+  const waterTotal = waterTx.reduce((s, tx) => s + tx.amount, 0);
+  const waterPayments = waterTx.length;
+
+  // Update expense DOM elements if they exist, otherwise rebuild expense column
   const setEl = (id, val) => { const e = document.getElementById(id); if(e) e.textContent = val; };
   const fmtN = n => '$' + Math.abs(n).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-  setEl('pl-util-val', '−' + fmtN(uNet));
-  setEl('pl-util-sub', fmtN(uPaid) + ' paid − ' + fmtN(uReceived) + ' back');
 
-  // Update net summary section
+  // Update individual expense elements
+  if (expTotals['Rental Garbage (Rumpke)']) {
+    setEl('pl-garbage-val', '−' + fmtN(expTotals['Rental Garbage (Rumpke)']));
+    const sub = expDetails['Rental Garbage (Rumpke)'].map((m,i,a) => {
+      const amt = rentalTx.filter(t=>t.label==='Rental Garbage (Rumpke)')[i];
+      return m + ' ' + (amt ? fmtN(amt.amount) : '');
+    }).join(' · ');
+    setEl('pl-garbage-sub', sub);
+  }
+  if (expTotals['Rental Sanitation']) {
+    setEl('pl-sanitation-val', '−' + fmtN(expTotals['Rental Sanitation']));
+    const months = rentalTx.filter(t=>t.label==='Rental Sanitation').map(t=>{
+      const mo = t.month.slice(5,7);
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1] + ' ' + fmtN(t.amount);
+    }).join(' · ');
+    setEl('pl-sanitation-sub', months);
+  }
+  if (expTotals['Rental Property Taxes']) {
+    setEl('pl-proptax-val', '−' + fmtN(expTotals['Rental Property Taxes']));
+    const months = rentalTx.filter(t=>t.label==='Rental Property Taxes').map(t=>{
+      const mo = t.month.slice(5,7);
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1] + ' ' + fmtN(t.amount) + ' payment';
+    }).join(' · ');
+    setEl('pl-proptax-sub', months);
+  }
+  if (expTotals['Rental Insurance']) {
+    setEl('pl-rentins-val', '−' + fmtN(expTotals['Rental Insurance']));
+    const months = rentalTx.filter(t=>t.label==='Rental Insurance').map(t=>{
+      const mo = t.month.slice(5,7);
+      return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(mo)-1] + ' ' + fmtN(t.amount);
+    }).join(' · ');
+    setEl('pl-rentins-sub', months);
+    // Clear the "reserved — not yet disbursed" message if paid
+    const insEl = document.getElementById('pl-rentins-status');
+    if (insEl) insEl.textContent = '';
+  }
+  if (expTotals['Rental Repairs']) {
+    setEl('pl-rentrep-val', '−' + fmtN(expTotals['Rental Repairs']));
+  }
+
+  // Update utility net row
+  setEl('pl-util-val', '−' + fmtN(totalUtilPaid - totalUtilReceived));
+  setEl('pl-util-sub', fmtN(totalUtilPaid) + ' paid − ' + fmtN(totalUtilReceived) + ' back');
+
+  // Update water bill from checking log
+  if (waterTotal > 0) {
+    setEl('pl-water-val', '−' + fmtN(waterTotal));
+    const waterSubEl = document.getElementById('pl-water-sub');
+    if (waterSubEl) waterSubEl.textContent = 'Checking line 43 · ' + waterPayments + ' payment' + (waterPayments !== 1 ? 's' : '');
+  }
+
+  // Calculate total actual expenses from dynamic data
+  const dynamicExpenses =
+    (expTotals['Rental Garbage (Rumpke)'] || 0) +
+    (expTotals['Rental Sanitation'] || 0) +
+    (expTotals['Rental Property Taxes'] || 0) +
+    (expTotals['Rental Insurance'] || 0) +
+    (expTotals['Rental Repairs'] || 0) +
+    waterTotal +
+    (totalUtilPaid - totalUtilReceived);
+
+  // Update total expenses row
+  setEl('pl-total-expenses', '−' + fmtN(dynamicExpenses));
+
+  // Update net summary
   setEl('pl-net-rent', fmtN(totalRentReceived));
+  setEl('pl-total-expenses-net', fmtN(dynamicExpenses));
   if (rentOutstanding > 0) {
     setEl('pl-rent-owed', '−' + fmtN(rentOutstanding));
     const lbl = document.getElementById('pl-rent-owed-label');
     if (lbl) lbl.textContent = 'Rent outstanding';
   }
-  setEl('pl-util-owed', '−' + fmtN(uNet));
-  const subEl = document.getElementById('pl-util-owed-sub');
-  if (subEl) subEl.textContent = '';
+  setEl('pl-util-owed', '−' + fmtN(utilOwed));
 
-  // Update net summary box — tenant balance, net if fully collected, run-rate
-  const totalTenantOwed = rentOutstanding + uNet;
-  const netCollected = totalRentReceived - totalExpensesPaid();
+  const netCollected = totalRentReceived - dynamicExpenses;
+  const totalTenantOwed = rentOutstanding + utilOwed;
   const netIfFull = netCollected + totalTenantOwed;
-  // Run-rate: annualize based on months with actual data
   const monthsWithData = Object.keys(rentMonths).length || 1;
   const annualRunRate = (netCollected / monthsWithData) * 12;
 
   setEl('pl-tenant-bal', fmtN(totalTenantOwed));
   setEl('pl-net-full', fmtN(netIfFull));
+  setEl('pl-net-cash', fmtN(netCollected));
+  setEl('pl-total-expenses-net', '−' + fmtN(dynamicExpenses));
   const rrEl = document.getElementById('pl-run-rate');
   if (rrEl) rrEl.textContent = '~' + fmtN(Math.abs(annualRunRate)) + '/yr';
-}
-
-function totalExpensesPaid() {
-  // Sum all hardcoded expense rows — this is static until expense tracking is dynamic
-  // Read from the DOM values already rendered
-  const expEls = ['pl-util-val']; // utility net is already dynamic
-  // For now return the hardcoded total expenses from the P&L
-  const totalEl = document.querySelector('#rental-pl-body .total-row .rv');
-  if (totalEl) {
-    const val = parseFloat(totalEl.textContent.replace(/[^0-9.-]/g,''));
-    return isNaN(val) ? 2313.98 : val;
-  }
-  return 2313.98; // fallback
 }
 
 function renderTenantUtility() {
@@ -5863,6 +5940,46 @@ async function processWorkbook(wb, lastModified) {
   // Refresh transaction log with live data
   renderSavingsTx();
 
+  // Extract rental expense transactions from savings log for Rental P&L
+  // Rental columns (debit): 11=Rental Garbage, 21=Rental Repairs, 23=Rental Insurance,
+  //                          25=Rental Property Taxes, 27=Rental Sanitation
+  const RENTAL_COLS = {
+    11: 'Rental Garbage (Rumpke)',
+    21: 'Rental Repairs',
+    23: 'Rental Insurance',
+    25: 'Rental Property Taxes',
+    27: 'Rental Sanitation',
+  };
+  const rentalExpenseTx = [];
+  stlData.forEach((row, i) => {
+    if (i < 6) return;
+    const dateRaw = row[0], desc = row[2];
+    if (!dateRaw) return;
+    let d;
+    if (typeof dateRaw === 'number') {
+      d = new Date(Math.round((dateRaw - 25569) * 86400 * 1000));
+    } else {
+      d = new Date(dateRaw);
+    }
+    if (isNaN(d)) return;
+    const monthKey = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+    Object.entries(RENTAL_COLS).forEach(([col, label]) => {
+      const c = parseInt(col);
+      const val = row[c] !== null && row[c] !== undefined ? parseFloat(row[c]) : 0;
+      if (val > 0) {
+        rentalExpenseTx.push({ month: monthKey, label, amount: val, desc: desc || label });
+      }
+    });
+  });
+  window._rentalExpenseTx = rentalExpenseTx;
+  try { localStorage.setItem('mf_rental_expense_tx', JSON.stringify(rentalExpenseTx)); } catch(e) {}
+
+  // Also parse water bill from checking log for rental P&L
+  // _rentalIncomeTx is already set — trigger P&L refresh with expense data
+  if (window._rentalIncomeTx && window._rentalIncomeTx.length) {
+    renderRentalIncome();
+  }
+
   // Net worth liquid cash
   if (cb!==null||co!==null||savingsBal!==null) {
     const total=(Math.abs(cb||0)+Math.abs(co||0)+Math.abs(savingsBal||0));
@@ -6135,6 +6252,10 @@ try {
   if (ut) { window._utilityTx = JSON.parse(ut); }
   const ri = localStorage.getItem('mf_rental_income_tx');
   if (ri) { window._rentalIncomeTx = JSON.parse(ri); }
+  const rw = localStorage.getItem('mf_rental_water_tx');
+  if (rw) { window._rentalWaterTx = JSON.parse(rw); }
+  const re = localStorage.getItem('mf_rental_expense_tx');
+  if (re) { window._rentalExpenseTx = JSON.parse(re); }
   if (window._rentalIncomeTx && window._rentalIncomeTx.length) renderRentalIncome();
   else if (window._utilityTx && window._utilityTx.length) renderTenantUtility();
 } catch(e) {}
