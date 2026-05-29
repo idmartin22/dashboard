@@ -366,23 +366,14 @@
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px">
-    <button onclick="manualSync()" id="sync-btn"
-      style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
-             border:1px solid var(--border2);background:var(--surface2);color:var(--text);
-             font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s"
-      onmouseover="this.style.borderColor='var(--green)';this.style.color='var(--green)'"
-      onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">
-      <span id="sync-icon">⇅</span>
-      <span id="sync-label">Sync</span>
-    </button>
-    <button onclick="triggerExcelSync()" id="sync-excel-btn"
+    <button onclick="triggerFullSync()" id="sync-excel-btn"
       style="display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;
              border:1px solid var(--border2);background:var(--surface2);color:var(--text);
              font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s"
       onmouseover="this.style.borderColor='var(--amber)';this.style.color='var(--amber)'"
       onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text)'">
-      <span>☁</span>
-      <span id="sync-excel-label">Drive Sync</span>
+      <span id="sync-excel-icon">⇅</span>
+      <span id="sync-excel-label">Sync</span>
     </button>
     <div class="updated" id="last-updated">Updated May 2, 2026</div>
   </div>
@@ -5079,21 +5070,33 @@ function fmtBal(val) {
   return isNaN(n) ? null : n;
 }
 
-// ── Google Drive Excel Sync Trigger ──────────────────────────────────────────
+// ── Unified Sync — triggers Drive Sync + Fund Prices + Excel load ─────────────
 const GITHUB_PAT        = 'ghp_kUns8Ix7L3yvNgrTZB0L' + '84YxtCzUUo3sMACu';
 const GITHUB_REPO       = 'idmartin22/dashboard';
 const SYNC_WORKFLOW     = 'sync-excel.yml';
+const PRICES_WORKFLOW   = 'update-prices.yml';
 
-async function triggerExcelSync() {
+async function triggerFullSync() {
   const btn   = document.getElementById('sync-excel-btn');
   const label = document.getElementById('sync-excel-label');
+  const icon  = document.getElementById('sync-excel-icon');
 
   btn.disabled = true;
-  label.textContent = 'Triggering...';
 
-  try {
+  const steps = [
+    { text: 'Syncing Drive...', icon: '☁' },
+    { text: 'Updating prices...', icon: '↻' },
+    { text: 'Loading data...', icon: '⇅' },
+  ];
+
+  const setStep = (i) => {
+    label.textContent = steps[i].text;
+    icon.textContent  = steps[i].icon;
+  };
+
+  const triggerWorkflow = async (workflow) => {
     const res = await fetch(
-      `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${SYNC_WORKFLOW}/dispatches`,
+      `https://api.github.com/repos/${GITHUB_REPO}/actions/workflows/${workflow}/dispatches`,
       {
         method: 'POST',
         headers: {
@@ -5104,32 +5107,54 @@ async function triggerExcelSync() {
         body: JSON.stringify({ ref: 'main' })
       }
     );
-
-    if (res.status === 204) {
-      label.textContent = 'Syncing ✓';
-      btn.style.borderColor = 'var(--green)';
-      btn.style.color = 'var(--green)';
-      // Reset after 60s — workflow should be done by then, user can re-sync Excel
-      setTimeout(() => {
-        label.textContent = 'Drive Sync';
-        btn.disabled = false;
-        btn.style.borderColor = 'var(--border2)';
-        btn.style.color = 'var(--text)';
-      }, 60000);
-    } else {
+    if (res.status !== 204) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.message || `HTTP ${res.status}`);
     }
+  };
+
+  try {
+    // Step 1 — trigger both GitHub workflows simultaneously
+    setStep(0);
+    await Promise.all([
+      triggerWorkflow(SYNC_WORKFLOW),
+      triggerWorkflow(PRICES_WORKFLOW),
+    ]);
+
+    // Step 2 — wait 35 seconds for workflows to complete
+    setStep(1);
+    await new Promise(resolve => setTimeout(resolve, 35000));
+
+    // Step 3 — load the fresh Excel and prices.json into the dashboard
+    setStep(2);
+    await manualSync();
+
+    // Done
+    label.textContent = 'Synced ✓';
+    icon.textContent  = '✓';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+
+    // Reset after 10 seconds
+    setTimeout(() => {
+      label.textContent = 'Sync';
+      icon.textContent  = '⇅';
+      btn.disabled = false;
+      btn.style.borderColor = 'var(--border2)';
+      btn.style.color = 'var(--text)';
+    }, 10000);
+
   } catch(e) {
-    label.textContent = 'Drive Sync';
+    label.textContent = 'Sync';
+    icon.textContent  = '⇅';
     btn.disabled = false;
-    btn.style.color = 'var(--red)';
     btn.style.borderColor = 'var(--red)';
+    btn.style.color = 'var(--red)';
     setTimeout(() => {
       btn.style.borderColor = 'var(--border2)';
       btn.style.color = 'var(--text)';
     }, 5000);
-    console.error('Drive sync failed:', e.message);
+    console.error('Full sync failed:', e.message);
   }
 }
 // Column indices (0-based) for each sub-account's DEBIT column in Savings Transaction Log
