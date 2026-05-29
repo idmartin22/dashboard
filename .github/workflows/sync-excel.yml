@@ -53,18 +53,15 @@ jobs:
           with open(OUTPUT_PATH, 'wb') as f:
             f.write(buf.getvalue())
 
-          size = os.path.getsize(OUTPUT_PATH)
-          print(f'Downloaded {OUTPUT_PATH} — {size:,} bytes')
+          print(f'Downloaded {OUTPUT_PATH} — {os.path.getsize(OUTPUT_PATH):,} bytes')
           EOF
 
       - name: Commit Excel file
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull origin main --no-rebase
           git add 2026_Family_Budget.xlsx
           git diff --staged --quiet && echo "No changes to commit" && exit 0
-          git stash
-          git pull --rebase origin main
-          git stash pop
           git commit -m "Sync Excel from Google Drive $(date -u '+%Y-%m-%d')"
           git push
