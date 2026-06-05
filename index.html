@@ -385,7 +385,7 @@
     <div class="kpi-card highlight">
       <div class="kpi-label">Net worth</div>
       <div class="kpi-val" style="color:var(--green)" id="kpi-net-worth">$1.50M</div>
-      <div class="kpi-sub">May 2, 2026</div>
+      <div class="kpi-sub" id="nw-as-of-date">—</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-label">Total investable</div>
@@ -4899,13 +4899,13 @@ async function loadLastUpdated() {
     const r = await window.storage.get('last_updated');
     if (r) {
       document.getElementById('last-updated').textContent = 'Updated ' + r.value;
+      const nwDate = document.getElementById('nw-as-of-date');
+      if (nwDate) nwDate.textContent = r.value.split(' ').slice(0,3).join(' ');
     }
   } catch(e) {}
 }
 
 async function saveLastUpdated(lastModified) {
-  // Use the file's last-modified date if available (from GitHub response headers)
-  // This reflects when the Excel was last uploaded, not when page was refreshed
   let str;
   if (lastModified) {
     const d = new Date(lastModified);
@@ -4919,6 +4919,8 @@ async function saveLastUpdated(lastModified) {
   try {
     await window.storage.set('last_updated', str);
     document.getElementById('last-updated').textContent = 'Updated ' + str;
+    const nwDate = document.getElementById('nw-as-of-date');
+    if (nwDate) nwDate.textContent = str.split(' ').slice(0,3).join(' ');
   } catch(e) {}
 }
 
