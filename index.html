@@ -3748,21 +3748,73 @@ function filterSavingsTx() {
 
 function computeDeployment() {
   if (!window._closedMonth) return null;
+
   var savEl = document.getElementById('bal-savings');
   var savBal = savEl ? parseFloat(savEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
   var deployable = Math.max(0, savBal - 10000);
+
   var rows = window._debtRows || [];
   var get = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? r.bal : 0; };
-  var lowes1 = get('Aug 14');
-  var lowes2 = get('Dec 15');
-  var lowes3 = get('Mar 2027') || get('Mar 15');
-  var rav4 = get('Lormet') || get('RAV4');
-  var M1_FLOOR = 500;
-  var debtTarget = null, debtAmount = 0, debtReason = '';
-  var m1Amount = M1_FLOOR;
-  var now = new Date();
-  var aug14 = new Date('2026-08-14');
+  var getRate = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? (r.rate || 0) : 0; };
+
+  // All debt balances
+  var lowes1   = get('Aug 14');
+  var lowes2   = get('Dec 15');
+  var lowes3   = get('Mar 2027') || get('Mar 15');
+  var rav4     = get('Lormet') || get('RAV4');
+  var pool     = get('Pool');
+  var deck     = get('Deck');
+  var mortgage = get('Rocket') || get('Mortgage');
+
+  // Mortgage extra principal needed
+  var MORTGAGE_BALANCE  = mortgage || 136202;
+  var MORTGAGE_RATE     = 0.02625 / 12;
+  var MORTGAGE_PI       = 613.87;
+  var RETIREMENT_DATE   = new Date('2038-11-01');
+  var now               = new Date();
+  var monthsToRetire    = Math.max(0, Math.ceil((RETIREMENT_DATE - now) / (1000*60*60*24*30.44)));
+
+  // Calculate how much extra principal per month is needed from NOW to pay off by retirement
+  var bal = MORTGAGE_BALANCE;
+  var extraNeeded = 0;
+  if (bal > 0 && monthsToRetire > 0) {
+    var lo = 0, hi = 10000;
+    for (var i = 0; i < 60; i++) {
+      var mid = (lo + hi) / 2;
+      var b2 = bal;
+      for (var m = 0; m < monthsToRetire; m++) {
+        b2 -= (MORTGAGE_PI + mid - b2 * MORTGAGE_RATE);
+        if (b2 <= 0) break;
+      }
+      if (b2 <= 0) hi = mid; else lo = mid;
+    }
+    extraNeeded = Math.ceil(hi + 1);
+  }
+
+  // Crypto headroom vs 3-5% NW ceiling
+  var nwEl = document.getElementById('kpi-net-worth');
+  var netWorth = nwEl ? parseFloat(nwEl.textContent.replace(/[$,]/g,'')) || 1200000 : 1200000;
+  var cryptoEl = document.getElementById('val-crypto');
+  var cryptoVal = cryptoEl ? parseFloat(cryptoEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
+  var cryptoCeiling = netWorth * 0.05;
+  var cryptoHeadroom = Math.max(0, cryptoCeiling - cryptoVal);
+  var cryptoPct = netWorth > 0 ? (cryptoVal / netWorth * 100).toFixed(1) : 0;
+
+  // Portfolio values
+  var m1El = document.getElementById('val-m1');
+  var m1Val = m1El ? parseFloat(m1El.textContent.replace(/[$,]/g,'')) || 0 : 0;
+
+  // Deadline checks
+  var aug14      = new Date('2026-08-14');
+  var dec15      = new Date('2026-12-15');
+  var feb28_2028 = new Date('2028-02-28');
   var daysToAug14 = Math.ceil((aug14 - now) / 86400000);
+  var daysToFeb28 = Math.ceil((feb28_2028 - now) / 86400000);
+
+  // Priority target
+  var M1_FLOOR = 500;
+  var debtTarget = null, debtAmount = 0, debtReason = '', mortgageExtra = 0;
+
   if (lowes1 > 0 && daysToAug14 <= 90) {
     debtTarget = "Lowe's Aug 14, 2026";
     debtAmount = Math.min(lowes1, deployable - M1_FLOOR);
@@ -3770,29 +3822,139 @@ function computeDeployment() {
   } else if (lowes2 > 0) {
     debtTarget = "Lowe's Dec 15, 2026";
     debtAmount = Math.min(lowes2, deployable - M1_FLOOR);
-    debtReason = 'Promo deadline Dec 15 — redirect Silverado $655/mo here as primary engine';
+    debtReason = 'Promo deadline Dec 15 — primary paydown target';
   } else if (lowes3 > 0) {
     debtTarget = "Lowe's Mar 2027";
     debtAmount = Math.min(lowes3, deployable - M1_FLOOR);
-    debtReason = 'Final Lowes balance — knock out quickly after Dec deadline met';
+    debtReason = 'Final Lowe\'s balance — clear quickly';
+  } else if (deck > 0 && daysToFeb28 <= 365) {
+    debtTarget = 'WF Deck';
+    debtAmount = Math.min(deck, deployable - M1_FLOOR);
+    debtReason = 'Promo deadline Feb 2028 — ' + Math.ceil(daysToFeb28/30) + ' months remaining';
   } else if (rav4 > 0) {
-    debtAmount = Math.min(deployable - M1_FLOOR, deployable * 0.70);
     debtTarget = 'RAV4 — Toyota Financial';
-    debtReason = '>5% rate — highest real cost remaining';
+    debtAmount = Math.min(deployable * 0.70, deployable - M1_FLOOR);
+    debtReason = 'Highest rate remaining — payoff by May 2028 frees $530/mo for mortgage';
+  } else if (mortgage > 0 && extraNeeded > 0) {
+    // Post consumer-debt: mortgage extra principal
+    mortgageExtra = Math.min(extraNeeded, deployable - M1_FLOOR);
+    debtTarget = 'Mortgage extra principal';
+    debtAmount = mortgageExtra;
+    debtReason = 'Need $' + extraNeeded + '/mo extra to pay off by Nov 2038 retirement';
+  }
+
+  var m1Amount = M1_FLOOR;
+  if (debtAmount > 0) {
+    m1Amount = Math.max(M1_FLOOR, deployable - debtAmount);
+    debtAmount = deployable - m1Amount;
   } else {
     m1Amount = Math.round(deployable * 0.85);
-    debtReason = 'No urgent debt — maximize investment deployment';
   }
-  if (debtAmount > 0) { m1Amount = Math.max(M1_FLOOR, deployable - debtAmount); debtAmount = deployable - m1Amount; }
+
   var projBal = null;
   if (debtTarget && debtAmount > 0) {
-    var cur = debtTarget.includes('Aug') ? lowes1 : debtTarget.includes('Dec') ? lowes2 : debtTarget.includes('Mar') ? lowes3 : rav4;
+    var cur = debtTarget.includes('Aug') ? lowes1 :
+              debtTarget.includes('Dec') ? lowes2 :
+              debtTarget.includes('Mar') ? lowes3 :
+              debtTarget.includes('Deck') ? deck :
+              debtTarget.includes('RAV4') ? rav4 :
+              debtTarget.includes('Mortgage') ? mortgage : 0;
     projBal = Math.max(0, cur - debtAmount);
   }
-  return { closedMonth: window._closedMonth, income: window._closedIncome || 0,
-           deployable: deployable, savBal: savBal,
-           debtTarget: debtTarget, debtAmount: Math.max(0, debtAmount), debtReason: debtReason,
-           m1Amount: Math.max(M1_FLOOR, m1Amount), projBal: projBal };
+
+  return {
+    closedMonth: window._closedMonth,
+    income: window._closedIncome || 0,
+    deployable: deployable,
+    savBal: savBal,
+    debtTarget: debtTarget,
+    debtAmount: Math.max(0, debtAmount),
+    debtReason: debtReason,
+    m1Amount: Math.max(M1_FLOOR, m1Amount),
+    projBal: projBal,
+    // Full context for monthly review prompt
+    debts: { lowes1, lowes2, lowes3, rav4, pool, deck, mortgage },
+    mortgage: { balance: MORTGAGE_BALANCE, extraNeeded, monthsToRetire, pi: MORTGAGE_PI },
+    crypto: { value: cryptoVal, pct: cryptoPct, headroom: cryptoHeadroom, ceiling: cryptoCeiling },
+    m1: { value: m1Val },
+    netWorth: netWorth,
+  };
+}
+
+function buildMonthlyReviewPrompt(plan) {
+  if (!plan) return 'https://claude.ai';
+
+  var fmt = function(n){ return '$' + Math.round(n).toLocaleString(); };
+  var d = plan.debts;
+  var mo = plan.mortgage;
+  var cr = plan.crypto;
+
+  var MLABELS = {
+    '2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026',
+    '2026-04':'April 2026','2026-05':'May 2026','2026-06':'June 2026',
+    '2026-07':'July 2026','2026-08':'August 2026','2026-09':'September 2026',
+    '2026-10':'October 2026','2026-11':'November 2026','2026-12':'December 2026'
+  };
+  var ml = MLABELS[plan.closedMonth] || plan.closedMonth;
+
+  var debtLines = '';
+  if (d.lowes1 > 0) debtLines += '\n- Lowe\'s Aug 14 deferred interest: ' + fmt(d.lowes1) + ' (DEADLINE: Aug 14, 2026 — retroactive interest fires if unpaid)';
+  if (d.lowes2 > 0) debtLines += '\n- Lowe\'s Dec 15 deferred interest: ' + fmt(d.lowes2) + ' (deadline Dec 15, 2026)';
+  if (d.lowes3 > 0) debtLines += '\n- Lowe\'s Mar 2027: ' + fmt(d.lowes3);
+  if (d.rav4   > 0) debtLines += '\n- RAV4 Toyota Financial: ' + fmt(d.rav4) + ' (~7% rate)';
+  if (d.pool   > 0) debtLines += '\n- WF Pool: ' + fmt(d.pool) + ' (0% promo, $200/mo minimum, expires Aug 2030)';
+  if (d.deck   > 0) debtLines += '\n- WF Deck: ' + fmt(d.deck) + ' (0% promo, expires Feb 2028)';
+  if (d.mortgage > 0) debtLines += '\n- Rocket Mortgage: ' + fmt(d.mortgage) + ' @ 2.625% (P&I $613.87/mo, need $' + mo.extraNeeded + '/mo extra to pay off by Nov 2038 retirement — ' + mo.monthsToRetire + ' months away)';
+
+  var prompt =
+    'You are reviewing the Martin family monthly financial deployment for ' + ml + '.\n\n' +
+    'DEPLOYABLE CASH THIS MONTH: ' + fmt(plan.deployable) + '\n' +
+    '(Savings balance ' + fmt(plan.savBal) + ' minus $10,000 floor)\n\n' +
+    'DEBT STACK:' + (debtLines || '\n- No consumer debt remaining') + '\n\n' +
+    'INVESTMENT ACCOUNTS:\n' +
+    '- M1 Finance (factor-tilted): ' + fmt(plan.m1.value) + ' · 20% VTI / 10% QQQM / 30% AVUV / 25% AVDV / 15% AVES · $500/mo floor\n' +
+    '- Kraken crypto: ' + fmt(cr.value) + ' (' + cr.pct + '% of net worth · 3-5% NW ceiling · headroom: ' + fmt(cr.headroom) + ')\n' +
+    '- TSP/Fidelity contributions continue automatically — not part of deployment\n\n' +
+    'NET WORTH: ' + fmt(plan.netWorth) + '\n\n' +
+    'RETIREMENT TARGET: Isaac age 57, November 2038 (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
+    'MORTGAGE PAYDOWN NOTE: At minimum P&I only ($613.87/mo), mortgage pays off Oct 2051 — 13 years past retirement. ' +
+    'Need approximately $' + mo.extraNeeded + '/mo in extra principal from now to clear by Nov 2038. ' +
+    'RAV4 payoff (~May 2028) will free $530/mo which nearly covers this.\n\n' +
+    'YOUR TASK:\n' +
+    '1. Search for current market conditions, Fed rate environment, and any relevant economic context for this month.\n' +
+    '2. Given the deployable amount of ' + fmt(plan.deployable) + ', provide a SPECIFIC dollar allocation recommendation across: debt paydown, M1 Finance, Kraken crypto, and mortgage extra principal.\n' +
+    '3. Consider whether this month\'s amount has enough excess to address multiple areas simultaneously.\n' +
+    '4. Factor in the debt cascade priority: deferred interest deadlines first, then highest rate, then mortgage paydown, then investments.\n' +
+    '5. Give your reasoning for each allocation.\n\n' +
+    'Be specific with dollar amounts. Format as: Debt paydown: $X to [target] | M1: $X | Crypto: $X | Mortgage extra: $X | Reasoning: [explanation]';
+
+  return 'https://claude.ai/new?q=' + encodeURIComponent(prompt);
+}
+
+function buildCryptoReviewPrompt(plan) {
+  if (!plan) return 'https://claude.ai';
+
+  var fmt = function(n){ return '$' + Math.round(n).toLocaleString(); };
+  var cr = plan.crypto;
+
+  var prompt =
+    'You are doing a monthly crypto deployment review for the Martin family.\n\n' +
+    'CURRENT CRYPTO PORTFOLIO (Kraken):\n' +
+    'Total value: ' + fmt(cr.value) + '\n' +
+    'As % of net worth (' + fmt(plan.netWorth) + '): ' + cr.pct + '%\n' +
+    'Target ceiling: 3-5% of net worth = ' + fmt(cr.value > 0 ? plan.netWorth * 0.03 : 0) + ' floor / ' + fmt(cr.ceiling) + ' ceiling\n' +
+    'Headroom before hitting 5% ceiling: ' + fmt(cr.headroom) + '\n\n' +
+    'TARGET ALLOCATION: BTC 45% · ETH 20% · SOL 10% · TAO 8% · HYPE 7% · LINK 7% · XRP 3%\n\n' +
+    'DEPLOYABLE THIS MONTH: ' + fmt(plan.deployable) + ' total (crypto is discretionary portion after debt/M1 allocation)\n\n' +
+    'YOUR TASK:\n' +
+    '1. Search for current crypto market conditions — BTC dominance, market sentiment, any major developments for BTC, ETH, SOL, TAO, HYPE, LINK, XRP.\n' +
+    '2. Assess whether now is a good time to add to the portfolio given current market conditions.\n' +
+    '3. Check current prices and calculate what a deposit would do to the allocation percentages vs targets.\n' +
+    '4. If a deposit is warranted, recommend a specific dollar amount and which coins to buy to rebalance toward targets.\n' +
+    '5. Flag if any position has drifted significantly from its target allocation.\n\n' +
+    'Be specific. If you recommend deploying, give exact dollar amounts per coin.';
+
+  return 'https://claude.ai/new?q=' + encodeURIComponent(prompt);
 }
 
 function renderDeploymentCard() {
@@ -3804,34 +3966,59 @@ function renderDeploymentCard() {
   var fmt = function(n){return '$'+Math.round(n).toLocaleString();};
   var fmt2 = function(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
   var ml = MLABELS[plan.closedMonth] || plan.closedMonth;
+  var monthlyUrl = buildMonthlyReviewPrompt(plan);
+  var cryptoUrl  = buildCryptoReviewPrompt(plan);
   var h = '';
+
+  // Header
   h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">';
   h += '<div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Closed month</div><div style="font-size:16px;font-weight:600;color:var(--text)">'+ml+'</div>';
   h += '<div style="font-size:11px;color:var(--muted);margin-top:2px">Actual income: <span style="color:var(--green)">'+fmt2(plan.income)+'</span></div></div>';
   h += '<div style="text-align:right"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Deployable cash</div>';
   h += '<div style="font-size:20px;font-weight:700;color:var(--green)">'+fmt(plan.deployable)+'</div>';
   h += '<div style="font-size:10px;color:var(--hint)">savings '+fmt2(plan.savBal)+' − $10,000 floor</div></div></div>';
+
+  // 3-column deployment grid
   h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px">';
+
+  // Debt card
   h += '<div style="background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.2);border-radius:8px;padding:12px">';
-  h += '<div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Debt Attack</div>';
+  h += '<div style="font-size:10px;font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Debt Priority</div>';
   h += '<div style="font-size:18px;font-weight:700;color:var(--text)">'+fmt(plan.debtAmount)+'</div>';
   h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">'+(plan.debtTarget||'No urgent debt')+'</div>';
   h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">'+plan.debtReason+'</div>';
   if (plan.projBal !== null) h += '<div style="margin-top:8px;padding:5px 8px;background:rgba(255,255,255,0.04);border-radius:4px;font-size:10px;color:var(--muted)">Projected remaining: <span style="color:var(--amber);font-weight:600">'+fmt2(plan.projBal)+'</span></div>';
   h += '</div>';
+
+  // M1 card
   h += '<div style="background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.2);border-radius:8px;padding:12px">';
   h += '<div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">M1 Finance</div>';
   h += '<div style="font-size:18px;font-weight:700;color:var(--text)">'+fmt(plan.m1Amount)+'</div>';
   h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">Factor-tilted allocation</div>';
   h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">20% VTI · 10% QQQM · 30% AVUV · 25% AVDV · 15% AVES · $500/mo floor</div></div>';
+
+  // Crypto card
   h += '<div style="background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:12px">';
-  h += '<div style="font-size:10px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Crypto</div>';
+  h += '<div style="font-size:10px;font-weight:600;color:var(--purple);text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Crypto (Kraken)</div>';
   h += '<div style="font-size:18px;font-weight:700;color:var(--text)">Discretionary</div>';
-  h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">Market review required</div>';
-  h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">Amount set after monthly assessment</div>';
-  h += '<a href="https://claude.ai" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
+  h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">'+fmt(plan.crypto.value)+' · '+plan.crypto.pct+'% of NW</div>';
+  h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">'+fmt(plan.crypto.headroom)+' headroom to 5% ceiling</div>';
+  h += '<a href="'+cryptoUrl+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
   h += '</div>';
-  h += '<div style="display:flex;justify-content:flex-end"><a href="https://claude.ai" target="_blank" rel="noopener" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a></div>';
+
+  // Mortgage context strip
+  if (plan.mortgage.balance > 0) {
+    var mo = plan.mortgage;
+    h += '<div style="background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);border-radius:8px;padding:10px 12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
+    h += '<div><div style="font-size:10px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Mortgage Paydown Target — 2038</div>';
+    h += '<div style="font-size:11px;color:var(--muted)">Balance: <span style="color:var(--text)">'+fmt(mo.balance)+'</span> @ 2.625% · P&I $613.87/mo · <span style="color:'+( mo.extraNeeded > 0 ? 'var(--red)' : 'var(--green)')+'">'+(mo.extraNeeded > 0 ? '$'+mo.extraNeeded+'/mo extra needed to clear by retirement' : 'On track')+'</span></div></div>';
+    h += '<div style="font-size:11px;color:var(--hint)">'+mo.monthsToRetire+' months to retirement</div></div>';
+  }
+
+  // Full review button
+  h += '<div style="display:flex;justify-content:flex-end">';
+  h += '<a href="'+monthlyUrl+'" target="_blank" rel="noopener" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a></div>';
+
   el.innerHTML = h;
 }
 
