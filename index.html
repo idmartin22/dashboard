@@ -453,7 +453,7 @@
           <div class="alloc-row"><span class="alloc-label">Retirement accounts</span><div class="alloc-track"><div class="alloc-fill" style="width:63%;background:#60a5fa"></div></div><span class="alloc-pct" style="color:var(--blue)">63%</span><span class="alloc-val" id="nw-alloc-retire">$1,063,117</span></div>
           <div class="alloc-row"><span class="alloc-label">Real estate</span><div class="alloc-track"><div class="alloc-fill" style="width:24%;background:#22c55e"></div></div><span class="alloc-pct" style="color:var(--green)">24%</span><span class="alloc-val" id="nw-alloc-realestate">$407,000</span></div>
           <div class="alloc-row"><span class="alloc-label">M1 Finance</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#fb923c"></div></div><span class="alloc-pct" style="color:var(--coral)" id="nw-alloc-m1-pct">5%</span><span class="alloc-val" id="nw-alloc-m1">$89,587</span></div>
-          <div class="alloc-row"><span class="alloc-label">Vehicles + recreation</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#6b7280"></div></div><span class="alloc-pct" style="color:var(--muted)">5%</span><span class="alloc-val">$77,000</span></div>
+          <div class="alloc-row"><span class="alloc-label">Vehicles + recreation</span><div class="alloc-track"><div class="alloc-fill" style="width:5%;background:#6b7280"></div></div><span class="alloc-pct" style="color:var(--muted)">5%</span><span class="alloc-val" id="nw-alloc-vehicles">$71,500</span></div>
           <div class="alloc-row"><span class="alloc-label">Crypto</span><div class="alloc-track"><div class="alloc-fill" style="width:1%;background:#a78bfa"></div></div><span class="alloc-pct" style="color:var(--purple)">1%</span><span class="alloc-val" id="nw-alloc-crypto">$19,014</span></div>
           <div class="alloc-row"><span class="alloc-label">Cash</span><div class="alloc-track"><div class="alloc-fill" id="nw-alloc-cash-fill" style="width:2%;background:#f59e0b"></div></div><span class="alloc-pct" style="color:var(--amber)" id="nw-alloc-cash-pct">2%</span><span class="alloc-val" id="nw-alloc-cash">$25,600</span></div>
         </div>
@@ -5459,9 +5459,9 @@ function updateInvestmentDOM(vals) {
   try { localStorage.setItem('mf_live_portfolio', JSON.stringify({vals, ts: Date.now()})); } catch(e) {}
   // ── Issue 1: Update NW summary card ──────────────────────────────────────
   const nwLiquidVal2 = nwLiq; // nwLiq already computed above
-  const nwRealestate = 407000;
-  const nwVehicles   = 77000;
-  const nwDebtTotal  = 185424;
+  const nwRealestate = parseFloat(localStorage.getItem('mf_nw_props') || '407000');
+  const nwVehicles   = parseFloat(localStorage.getItem('mf_nw_veh')   || '71500');
+  const nwDebtTotal  = window._liveDebtTotal || parseFloat(localStorage.getItem('mf_debt_total') || '184020');
   const totalGross   = nwLiquidVal2 + nwRealestate + nwVehicles + vals.total; // Regan excluded — standalone account
   const nwFull       = totalGross - nwDebtTotal;
   if (!isNaN(nwFull)) {
@@ -5474,6 +5474,8 @@ function updateInvestmentDOM(vals) {
     set('nw-alloc-m1',     fmt(vals.m1));
     set('nw-alloc-crypto', fmt(vals.crypto));
     set('nw-alloc-cash',   fmt(nwLiquidVal2));
+    set('nw-alloc-realestate', fmt(nwRealestate));
+    set('nw-alloc-vehicles',   fmt(nwVehicles));
     // Update cash allocation % and bar width
     const cashPct = totalGross > 0 ? Math.round(nwLiquidVal2/totalGross*100) : 2;
     const cashPctEl = document.getElementById('nw-alloc-cash-pct');
@@ -5484,11 +5486,10 @@ function updateInvestmentDOM(vals) {
     if (pctEl) pctEl.textContent = Math.round(vals.m1/totalGross*100) + '%';
     const nwLcEl = document.getElementById('nw-liquid-cash');
     if (nwLcEl) nwLcEl.textContent = fmt(nwLiquidVal2);
-    // Debt-to-asset ratio (uses live debt total if available)
-    const liveDebt = window._liveDebtTotal || 185424;
+    // Debt-to-asset ratio
     const debtRatioEl = document.getElementById('nw-debt-ratio');
     if (debtRatioEl && totalGross > 0) {
-      debtRatioEl.textContent = (liveDebt / totalGross * 100).toFixed(1) + '%';
+      debtRatioEl.textContent = (nwDebtTotal / totalGross * 100).toFixed(1) + '%';
     }
     // Crypto % of net worth
     const cryptoPctEl = document.getElementById('nw-crypto-pct');
