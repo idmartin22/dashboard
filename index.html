@@ -467,16 +467,15 @@
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="card-title" style="margin:0">Physical assets</div>
-            <div style="font-size:9px;color:var(--hint)">Last valued: <span style="color:var(--muted)" id="phys-last-valued">May 2, 2026</span></div>
+            <div style="font-size:9px;color:var(--hint)">Last valued: <span style="color:var(--muted)" id="phys-last-valued">—</span></div>
           </div>
-          <div class="row"><div class="rl">Primary — 41377 Elmwood St<div class="rsub">3/2 · 1,942sqft · pole barn · Zillow est.</div></div><div class="rv green">$315,000</div></div>
-          <div class="row"><div class="rl">Rental — 41403 Elmwood St<div class="rsub">1/1 · $800/mo gross · Zillow est.</div></div><div class="rv green">$92,000</div></div>
-          <div class="row"><div class="rl">2019 Silverado Custom Trail Boss<div class="rsub">5.3L V8 · 99k mi · KBB est.</div></div><div class="rv">$17,500</div></div>
-          <div class="row"><div class="rl">2019 Toyota RAV4 XLE AWD<div class="rsub">70k mi · $19,392 loan · KBB est.</div></div><div class="rv">$18,000</div></div>
-          <div class="row"><div class="rl">2013 Toyota Corolla LE<div class="rsub">100k mi · KBB est.</div></div><div class="rv">$5,500</div></div>
-          <div class="row"><div class="rl">2003 Toyota Corolla LE<div class="rsub">135k mi</div></div><div class="rv">$1,500</div></div>
-          <div class="row"><div class="rl">2005 Gulf Stream Sun Voyager 8368<div class="rsub">Class A · 60k mi · private sale $40-50k</div></div><div class="rv">$28,000</div></div>
-          <div class="row"><div class="rl">Pontoon boat + golf cart</div><div class="rv">$6,500</div></div>
+          <div class="row"><div class="rl">Primary — 41377 Elmwood St<div class="rsub">3/2 · 1,942sqft · pole barn · Redfin est.</div></div><div class="rv green" id="pa-main-home">$315,000</div></div>
+          <div class="row"><div class="rl">Rental — 41403 Elmwood St<div class="rsub">1/1 · $800/mo gross · Redfin est.</div></div><div class="rv green" id="pa-rental">$92,000</div></div>
+          <div class="row"><div class="rl">2019 Silverado Custom Trail Boss<div class="rsub">5.3L V8 · KBB est.</div></div><div class="rv" id="pa-silverado">$18,500</div></div>
+          <div class="row"><div class="rl">2019 Toyota RAV4 XLE AWD<div class="rsub">KBB est.</div></div><div class="rv" id="pa-rav4">$19,000</div></div>
+          <div class="row"><div class="rl">2013 Toyota Corolla LE<div class="rsub">KBB est.</div></div><div class="rv" id="pa-corolla13">$7,000</div></div>
+          <div class="row"><div class="rl">2003 Toyota Corolla<div class="rsub">KBB est.</div></div><div class="rv" id="pa-corolla03">$2,000</div></div>
+          <div class="row"><div class="rl">2005 Gulf Stream Sun Voyager 8368<div class="rsub">Class A · KBB est.</div></div><div class="rv" id="pa-gulfstream">$25,000</div></div>
           <div class="row"><div class="rl">Cash (checking + savings)</div><div class="rv" id="nw-liquid-cash">$25,157</div></div>
         </div>
       </div>
@@ -2171,7 +2170,7 @@ function calcNetWorth(growthRate, retireRate, lorriRetireYear, yearlyPortfolio, 
 
   const INVEST_START   = 1152704;
   const RE_START       = 407000;
-  const PHYSICAL_START = 77000;
+  const PHYSICAL_START = window._physicalAssetsTotal || 71500;
   const CASH           = 15000;
 
   const debtByYear = {
@@ -5433,8 +5432,8 @@ function updateInvestmentDOM(vals) {
   // Read liquid cash directly from the KPI banner (source of truth — set by sync)
   const kpiLiqEl = document.getElementById('kpi-liquid-cash');
   const nwLiq = kpiLiqEl ? parseFloat(kpiLiqEl.textContent.replace(/[$,]/g,'')) || 25107 : 25107;
-  const nwProps = parseFloat(localStorage.getItem('mf_nw_props') || '457725');
-  const nwVeh  = parseFloat(localStorage.getItem('mf_nw_veh')   || '57000');
+  const nwProps = parseFloat(localStorage.getItem('mf_nw_props') || '407000');
+  const nwVeh  = parseFloat(localStorage.getItem('mf_nw_veh')   || '71500');
   const nwDebt = parseFloat(localStorage.getItem('mf_nw_debt')  || '157154');
   const nwRegan = vals.regan; // tracked separately — not part of household net worth
   const totalAssets = nwLiq + nwProps + nwVeh + vals.total;
@@ -6143,6 +6142,59 @@ async function processWorkbook(wb, lastModified) {
         if (dl1 && el1) el1.textContent = '$' + dl1.bal.toFixed(2);
         if (dsv && el2) el2.textContent = '$' + dsv.bal.toFixed(2);
       } catch(e) {}
+
+      // ── Parse physical assets from Net Worth sheet (rows 29-38, 0-indexed 28-37) ──
+      try {
+        const fmt = n => '$' + Math.round(n).toLocaleString();
+        const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+
+        const parseDate = (v) => {
+          if (!v) return null;
+          let d = null;
+          if (typeof v === 'number') d = new Date(Math.round((v - 25569) * 86400 * 1000));
+          else if (v instanceof Date) d = v;
+          else d = new Date(v);
+          if (!d || isNaN(d)) return null;
+          return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        };
+
+        // Row indices (0-based): 28=Main Home, 29=Rental, 33=Silverado,
+        //   34=RAV4, 35=2013Corolla, 36=2003Corolla, 37=GulfStream
+        const PA_ROWS = [
+          { row: 28, id: 'pa-main-home' },
+          { row: 29, id: 'pa-rental'    },
+          { row: 33, id: 'pa-silverado' },
+          { row: 34, id: 'pa-rav4'      },
+          { row: 35, id: 'pa-corolla13' },
+          { row: 36, id: 'pa-corolla03' },
+          { row: 37, id: 'pa-gulfstream'},
+        ];
+
+        let totalProps = 0, totalVeh = 0, latestAssetDate = null;
+
+        PA_ROWS.forEach(({ row, id }) => {
+          const r = nwData[row] || [];
+          const val = typeof r[1] === 'number' ? r[1] : parseFloat(r[1]);
+          if (isNaN(val) || val <= 0) return;
+          set(id, fmt(val));
+          const dateStr = parseDate(r[2]);
+          if (dateStr && !latestAssetDate) latestAssetDate = dateStr;
+          if (id === 'pa-main-home' || id === 'pa-rental') totalProps += val;
+          else totalVeh += val;
+        });
+
+        // Update net worth calculations with live property/vehicle values
+        if (totalProps > 0) localStorage.setItem('mf_nw_props', String(totalProps));
+        if (totalVeh  > 0) localStorage.setItem('mf_nw_veh',   String(totalVeh));
+
+        // Update "last valued" date
+        if (latestAssetDate) set('phys-last-valued', latestAssetDate);
+
+        // Update PHYSICAL_START for retirement projections
+        window._physicalAssetsTotal = totalVeh + totalProps;
+
+        console.log('Physical assets parsed — props:', totalProps, 'vehicles:', totalVeh);
+      } catch(e) { console.warn('Physical asset parse error:', e.message); }
     }
   } catch(e) { console.warn('Debt parse error:', e.message); }
 
