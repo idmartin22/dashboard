@@ -677,14 +677,14 @@
         <div class="card">
           <div class="card-title">Debt payoff cascade</div>
           <div class="row"><div class="rl">① Silverado final payment<div class="rsub">Frees $655/mo — redirect immediately to Lowe's Dec deadline</div></div><div class="rv green">~June 2026 · +$655/mo</div></div>
-          <div class="row"><div class="rl">② Lowe's Aug 14 cleared<div class="rsub">$1,441 · urgent — clear before Aug 14 or retroactive interest fires</div></div><div class="rv red">Before Aug 14, 2026</div></div>
-          <div class="row"><div class="rl">③ Lowe's Dec 15 cleared<div class="rsub">$3,944 · redirect $655 Silverado payment · clears in ~6 months</div></div><div class="rv amber">~Nov 2026</div></div>
-          <div class="row"><div class="rl">④ Lowe's Mar 2027 cleared<div class="rsub">$815 · knocked out in ~1 month after Dec deadline met</div></div><div class="rv amber">~Dec 2026</div></div>
-          <div class="row"><div class="rl">⑤ Full $655 → RAV4 attack<div class="rsub">$18,968 · $655 + minimum $530 = ~$1,185/mo attack · >5% rate</div></div><div class="rv amber">Jan 2027 start · ~May 2028 done · +$530/mo</div></div>
-          <div class="row"><div class="rl">⑥ WF Deck cleared before promo<div class="rsub">$11,965 · 29.49% deferred APR · promo expires Feb 3, 2028 · redirect freed Silverado payment here</div></div><div class="rv amber">Before Feb 2028 · +$600/mo</div></div>
+          <div class="row"><div class="rl">② Lowe's Aug 14 cleared<div class="rsub">Clear before Aug 14 or retroactive interest fires</div></div><div class="rv red">Before Aug 14, 2026 · <span id="cascade-lowes1">$1,441</span></div></div>
+          <div class="row"><div class="rl">③ Lowe's Dec 15 cleared<div class="rsub">Redirect $655 Silverado payment · clears in ~6 months</div></div><div class="rv amber">~Nov 2026 · <span id="cascade-lowes2">$3,944</span></div></div>
+          <div class="row"><div class="rl">④ Lowe's Mar 2027 cleared<div class="rsub">Knocked out in ~1 month after Dec deadline met</div></div><div class="rv amber">~Dec 2026 · <span id="cascade-lowes3">$815</span></div></div>
+          <div class="row"><div class="rl">⑤ Full $655 → RAV4 attack<div class="rsub">$655 + minimum $530 = ~$1,185/mo attack · >5% rate</div></div><div class="rv amber">Jan 2027 start · ~May 2028 done · <span id="cascade-rav4">$18,968</span></div></div>
+          <div class="row"><div class="rl">⑥ WF Deck cleared before promo<div class="rsub">29.49% deferred APR · promo expires Feb 3, 2028 · redirect freed Silverado payment here</div></div><div class="rv amber">Before Feb 2028 · <span id="cascade-deck">$11,965</span></div></div>
           <div class="row"><div class="rl">⑦ Redirect freed RAV4 $530 → Mortgage extra principal<div class="rsub">RAV4 payoff frees $530/mo · need ~$557/mo extra total to clear mortgage by Nov 2038 · covers nearly all of requirement</div></div><div class="rv blue">May 2028 start · $557/mo extra</div></div>
-          <div class="row"><div class="rl">⑧ WF Pool coasting to promo end<div class="rsub">$10,040 · 28.99% deferred APR · $200/mo minimum · promo Aug 2030</div></div><div class="rv green">Aug 2030 · +$200/mo</div></div>
-          <div class="row"><div class="rl">⑨ Mortgage — extra principal to retirement<div class="rsub">$136,517 @ 2.625% · $557/mo extra starting May 2028 · without extra, payoff Oct 2051 — 13 yrs past retirement</div></div><div class="rv blue">Nov 2038 · zero debt</div></div>
+          <div class="row"><div class="rl">⑧ WF Pool coasting to promo end<div class="rsub">28.99% deferred APR · $200/mo minimum · promo Aug 2030</div></div><div class="rv green">Aug 2030 · <span id="cascade-pool">$10,040</span></div></div>
+          <div class="row"><div class="rl">⑨ Mortgage — extra principal to retirement<div class="rsub">@ 2.625% · $557/mo extra starting May 2028 · without extra, payoff Oct 2051 — 13 yrs past retirement</div></div><div class="rv blue">Nov 2038 · <span id="cascade-mortgage">$136,517</span></div></div>
           <div class="total-row"><span>Target</span><span class="rv green">Age 57 — debt free</span></div>
         </div>
         <div class="card">
@@ -4081,6 +4081,23 @@ function renderDebts(debtRows, debtTotal, lastVerified) {
 
   // Update debt total in master list
   if (debtTotal > 0) setEl('debt-total', fmt(debtTotal));
+
+  // Update live balances in debt payoff cascade
+  const cascadeMap = [
+    { key: 'Aug 14',   id: 'cascade-lowes1'   },
+    { key: 'Dec 15',   id: 'cascade-lowes2'   },
+    { key: 'Mar 2027', id: 'cascade-lowes3'   },
+    { key: 'Mar 15',   id: 'cascade-lowes3'   },
+    { key: 'Lormet',   id: 'cascade-rav4'     },
+    { key: 'RAV4',     id: 'cascade-rav4'     },
+    { key: 'Deck',     id: 'cascade-deck'     },
+    { key: 'Pool',     id: 'cascade-pool'     },
+    { key: 'Rocket',   id: 'cascade-mortgage' },
+  ];
+  debtRows.forEach(row => {
+    const match = cascadeMap.find(m => row.desc.includes(m.key));
+    if (match) setEl(match.id, fmt(row.bal));
+  });
 
   // Update last verified date
   // Update physical assets last valued date (use most recent debt verification as proxy)
