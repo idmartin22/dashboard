@@ -3100,7 +3100,7 @@ const hasActuals = monthsForActuals.length > 0;
       : cat.label === 'Savings'
         ? (cat.health === 'green' ? 'var(--green)' : cat.health === 'amber' ? 'var(--amber)' : 'var(--red)')
         : (onTarget ? 'var(--green)' : 'var(--red)');
-    const borderColor = !hasAct ? 'var(--border)'
+    const borderColor = !hasAct ? 'var(--border2)'
       : cat.label === 'Savings'
         ? (cat.health === 'green' ? 'rgba(52,211,153,0.25)' : cat.health === 'amber' ? 'rgba(251,191,36,0.25)' : 'rgba(252,129,129,0.25)')
         : (onTarget ? 'rgba(52,211,153,0.2)' : 'rgba(252,129,129,0.2)');
