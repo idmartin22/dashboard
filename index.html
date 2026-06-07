@@ -5573,7 +5573,6 @@ function updateInvestmentDOM(vals) {
   const kpiInv = document.getElementById('kpi-total-investable');
   if (kpiNW && !isNaN(netWorth)) {
     kpiNW.textContent = '$' + (netWorth/1000000).toFixed(2) + 'M';
-    window._liveNetWorth = netWorth; // store for prompt builders
   }
   if (kpiInv && !isNaN(vals.total)) kpiInv.textContent = fmt(vals.total);
 
@@ -5598,6 +5597,7 @@ function updateInvestmentDOM(vals) {
   if (!isNaN(nwFull)) {
     set('nw-big-val',      '$' + (nwFull/1000000).toFixed(2) + 'M');
     set('nw-total-val',    fmt(nwFull));
+    window._liveNetWorth = nwFull; // authoritative net worth for all prompt builders
     set('nw-gross-assets', fmt(totalGross));
     if (kpiNW) kpiNW.textContent = '$' + (nwFull/1000000).toFixed(2) + 'M';
     const retireTotal = vals.tspCiv + vals.tspUni + vals.fid403b + vals.fid401a;
