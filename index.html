@@ -1100,13 +1100,72 @@
       <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
           <div style="font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">
-            🔥 Natural gas — Columbia Gas · 41377 Elmwood
+            🔥 Natural gas — Columbia Gas · 41377 &amp; 41403 Elmwood
           </div>
-          <div style="font-size:10px;color:var(--muted);font-style:italic" id="gas-reviewed">Not yet configured</div>
+          <div style="font-size:10px;color:var(--muted)" id="gas-reviewed">Reviewed —</div>
         </div>
-        <div id="gas-body">
-          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Upload your Columbia Gas bill and drop the gas CSV into the energy-rates Google Drive folder to configure gas monitoring.</div>
-          <button onclick="openGasRateReview()" style="padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;opacity:0.5" disabled>Open Rate Review →</button>
+
+        <!-- Current contract metrics -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px">
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Current supplier</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Ohio Gas &amp; Electric</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">76.89¢/ccf · unknown term</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Contract expiry</div>
+            <div style="font-size:13px;font-weight:600;color:var(--red)">Unknown</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">Call OGE: 1-866-706-7360</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Columbia Gas SCO</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="gas-sco">52.9¢/ccf</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">variable monthly · Jun 2026</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Combined avg usage</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">111 ccf/mo</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">41377 (56) + 41403 (55)</div>
+          </div>
+        </div>
+
+        <!-- Best available by term -->
+        <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Best available — fixed · $0 cancel · $0 fees</div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:12px">
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">3 month</div>
+            <div style="font-size:13px;font-weight:600" id="gas-best-3">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-sup-3">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">6 month</div>
+            <div style="font-size:13px;font-weight:600" id="gas-best-6">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-sup-6">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">12 month</div>
+            <div style="font-size:13px;font-weight:600" id="gas-best-12">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-sup-12">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">18–24 month</div>
+            <div style="font-size:13px;font-weight:600" id="gas-best-18">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-sup-18">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">36+ month</div>
+            <div style="font-size:13px;font-weight:600" id="gas-best-36">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-sup-36">—</div>
+          </div>
+        </div>
+
+        <!-- Status badges + recommendation + button -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px" id="gas-badges"></div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.5" id="gas-rec">Load prices.json to see recommendation.</div>
+          </div>
+          <button onclick="openGasRateReview()" style="flex-shrink:0;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">Open Rate Review →</button>
         </div>
       </div>
 
@@ -5370,10 +5429,51 @@ function initEnergyMonitoring(pricesData) {
   }
   const gas = energy.gas;
   if (gas && gas.reviewed) {
-    const el = document.getElementById('gas-reviewed');
-    if (el) el.textContent = 'Reviewed ' + gas.reviewed;
-    const btn = document.querySelector('#gas-body button');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.color = 'var(--text)'; }
+    const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    set('gas-reviewed', 'Reviewed ' + gas.reviewed);
+    if (gas.sco) set('gas-sco', gas.sco.toFixed(2) + '¢/ccf');
+    const GAS_CURRENT_RATE = 76.89;
+    const GAS_AVG_USAGE    = 111;
+    const sco = gas.sco || 52.9;
+    const bucketMap = { '3':'3','6':'6','12':'12','18_24':'18','36plus':'36' };
+    const best = gas.best || {};
+    let lowestRate = null;
+    Object.entries(bucketMap).forEach(([key, suffix]) => {
+      const b = best[key];
+      const rateEl = document.getElementById('gas-best-' + suffix);
+      const supEl  = document.getElementById('gas-sup-'  + suffix);
+      if (b && rateEl && supEl) {
+        rateEl.textContent = b.rate.toFixed(4) + '¢';
+        supEl.textContent  = b.supplier.length > 14 ? b.supplier.substring(0,14) + '…' : b.supplier;
+        if (b.rate < GAS_CURRENT_RATE) {
+          rateEl.style.color = 'var(--green)';
+          if (!lowestRate || b.rate < lowestRate) lowestRate = b.rate;
+        } else { rateEl.style.color = 'var(--muted)'; }
+      } else if (rateEl) { rateEl.textContent = 'N/A'; rateEl.style.color = 'var(--muted)'; }
+    });
+    const badgesEl = document.getElementById('gas-badges');
+    if (badgesEl) {
+      const pill = (text, color) => `<span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:${color==='green'?'rgba(34,197,94,0.12)':color==='amber'?'rgba(251,146,60,0.12)':'rgba(248,113,113,0.12)'};color:var(--${color})">${text}</span>`;
+      const overSCO = ((GAS_CURRENT_RATE - sco) * GAS_AVG_USAGE / 100).toFixed(2);
+      let html = pill(`Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO · $${overSCO}/mo combined`, 'red');
+      if (lowestRate) {
+        const savings = ((GAS_CURRENT_RATE - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
+        html += ' ' + pill(`Switch to ${lowestRate.toFixed(4)}¢ — saves $${savings}/mo`, 'green');
+      }
+      html += ' ' + pill('Confirm OGE cancellation terms before switching', 'amber');
+      badgesEl.innerHTML = html;
+    }
+    const recEl = document.getElementById('gas-rec');
+    if (recEl) {
+      const scoSavings = ((GAS_CURRENT_RATE - sco) * GAS_AVG_USAGE / 100).toFixed(2);
+      if (lowestRate) {
+        const savings = ((GAS_CURRENT_RATE - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
+        const scoVsBest = ((sco - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
+        recEl.textContent = `Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO ($${scoSavings}/mo wasted across both accounts). Best fixed offer: ${lowestRate.toFixed(4)}¢ — saves $${savings}/mo vs current, $${scoVsBest}/mo vs SCO. Switch immediately after confirming OGE cancellation terms. Alternative: cancel OGE → SCO at ${sco.toFixed(2)}¢ (saves $${scoSavings}/mo, no enrollment needed — call OGE 1-866-706-7360).`;
+      } else {
+        recEl.textContent = `Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO ($${scoSavings}/mo combined). Cancel OGE and revert to SCO at ${sco.toFixed(2)}¢ — no new supplier needed, just a cancellation call to OGE at 1-866-706-7360.`;
+      }
+    }
   }
 }
 
@@ -5410,15 +5510,31 @@ function openElectricRateReview() {
 }
 
 function openGasRateReview() {
+  const getEl = (id) => { const e = document.getElementById(id); return e ? e.textContent : 'N/A'; };
   const prompt =
-    'You are conducting a natural gas rate review for the Martin household (Columbia Gas, zip 44035, Elyria OH).\n\n' +
+    'You are conducting a natural gas rate review for the Martin household in Elyria, Ohio.\n\n' +
+    'CURRENT GAS CONTRACT:\n' +
+    '- Supplier: Ohio Gas & Electric at 76.89¢/ccf (term/expiry unknown — call OGE 1-866-706-7360)\n' +
+    '- Properties: 41377 Elmwood (main home) + 41403 Elmwood (rental)\n' +
+    '- Combined avg usage: 111 ccf/month (56 + 55)\n' +
+    `- Columbia Gas SCO: ${getEl('gas-sco')} (variable monthly — cancel OGE to revert to this automatically)\n\n` +
+    'BEST AVAILABLE RATES (from last CSV upload):\n' +
+    `- 3 month: ${getEl('gas-best-3')} (${getEl('gas-sup-3')})\n` +
+    `- 6 month: ${getEl('gas-best-6')} (${getEl('gas-sup-6')})\n` +
+    `- 12 month: ${getEl('gas-best-12')} (${getEl('gas-sup-12')})\n` +
+    `- 18-24 month: ${getEl('gas-best-18')} (${getEl('gas-sup-18')})\n` +
+    `- 36+ month: ${getEl('gas-best-36')} (${getEl('gas-sup-36')})\n\n` +
     'FILTER CRITERIA: Fixed rate · $0 cancellation fee · $0 monthly fees · any term length\n\n' +
+    'SWITCHING OPTIONS:\n' +
+    '- Option A: Switch to best fixed-rate supplier (must switch both accounts)\n' +
+    '- Option B: Cancel OGE → revert to SCO variable rate (one call, no enrollment)\n' +
+    '- OGE cancellation line: 1-866-706-7360\n\n' +
     'YOUR TASK:\n' +
-    '1. Ask me to upload the Columbia Gas Apples to Apples CSV (energychoice.ohio.gov → Columbia Gas of Ohio Residential → Export CSV).\n' +
-    '2. Research current Henry Hub natural gas futures and market outlook.\n' +
-    '3. Apply filter criteria and rank top qualifying offers by term.\n' +
-    '4. Compare against current Columbia Gas SCO rate.\n' +
-    '5. Provide a specific recommendation with supplier, rate, term, and estimated savings.';
+    '1. Ask me to upload the most current Columbia Gas Apples to Apples CSV (energychoice.ohio.gov → Columbia Gas of Ohio Residential → Export CSV).\n' +
+    '2. Research current Henry Hub natural gas futures and market outlook — does trend favor locking in a fixed rate or staying on SCO variable?\n' +
+    '3. Apply filter criteria and rank top 5 qualifying offers.\n' +
+    '4. Compare best fixed offer vs SCO — which is better given market outlook?\n' +
+    '5. Provide a specific recommendation: which option (A or B), which supplier/rate if A, and estimated monthly savings across both accounts.';
   window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank');
 }
 
