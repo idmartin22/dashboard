@@ -3723,7 +3723,7 @@ function buildMonthlyReviewPrompt(plan) {
   var cr = plan.crypto;
 
   // Always use the freshest net worth available at click time
-  var netWorth = window._liveNetWorth || plan.netWorth;
+  var netWorth = window._liveNetWorth || parseFloat((document.getElementById("nw-total-val")||{}).textContent.replace(/[$,]/g,"")) || 1545345;
 
   var MLABELS = {
     '2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026',
@@ -3865,7 +3865,7 @@ function buildCryptoReviewPrompt(plan) {
   var cr = plan.crypto;
 
   // Always use the freshest net worth available at click time
-  var netWorth = window._liveNetWorth || plan.netWorth;
+  var netWorth = window._liveNetWorth || parseFloat((document.getElementById("nw-total-val")||{}).textContent.replace(/[$,]/g,"")) || 1545345;
 
   var prompt =
     'You are doing a monthly crypto deployment review for the Martin family.\n\n' +
@@ -3896,8 +3896,7 @@ function renderDeploymentCard() {
   var fmt = function(n){return '$'+Math.round(n).toLocaleString();};
   var fmt2 = function(n){return '$'+n.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});};
   var ml = MLABELS[plan.closedMonth] || plan.closedMonth;
-  var monthlyUrl = buildMonthlyReviewPrompt(plan);
-  var cryptoUrl  = buildCryptoReviewPrompt(plan);
+  window._lastDeployPlan = plan; // store for click-time URL building
   var h = '';
 
   // Header
@@ -3933,7 +3932,7 @@ function renderDeploymentCard() {
   h += '<div style="font-size:18px;font-weight:700;color:var(--text)">Discretionary</div>';
   h += '<div style="font-size:11px;color:var(--muted);margin-top:4px">'+fmt(plan.crypto.value)+' · '+plan.crypto.pct+'% of NW</div>';
   h += '<div style="font-size:10px;color:var(--hint);margin-top:4px;line-height:1.4">'+fmt(plan.crypto.headroom)+' headroom to 5% ceiling</div>';
-  h += '<a href="'+cryptoUrl+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
+  h += '<a href="#" onclick="var p=window._lastDeployPlan;if(p)window.open(buildCryptoReviewPrompt(p),\'_blank\');return false;" style="display:inline-block;margin-top:8px;background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:5px 10px;border-radius:5px;text-decoration:none">Open Crypto Review →</a></div>';
   h += '</div>';
 
   // Mortgage context strip
@@ -3947,7 +3946,7 @@ function renderDeploymentCard() {
 
   // Full review button
   h += '<div style="display:flex;justify-content:flex-end">';
-  h += '<a href="'+monthlyUrl+'" target="_blank" rel="noopener" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a></div>';
+  h += '<a href="#" onclick="var p=window._lastDeployPlan;if(p)window.open(buildMonthlyReviewPrompt(p),\'_blank\');return false;" style="background:var(--green);color:#0d1117;font-size:12px;font-weight:700;padding:8px 18px;border-radius:7px;text-decoration:none">Open Full Monthly Review →</a></div>';
 
   el.innerHTML = h;
 }
