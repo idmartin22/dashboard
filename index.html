@@ -412,8 +412,7 @@
     <button class="nav-btn" onclick="showPage('debt',this)">Debts</button>
     <button class="nav-btn" onclick="showPage('income',this)">Income</button>
     <button class="nav-btn" onclick="showPage('retire',this)">Retirement</button>
-    <button class="nav-btn" onclick="showPage('actions',this)">Actions</button>
-    <button class="nav-btn" onclick="showPage('afford',this)">Can I Afford It?</button>
+    <button class="nav-btn" onclick="showPage('actions',this)">Review</button>
     <button class="nav-btn" onclick="showPage('kids',this)">Regan Investments</button>
   </div>
 
@@ -1007,10 +1006,21 @@
           <button onclick="openAllocationReview()" style="display:inline-block;background:var(--green);color:#fff;font-size:11px;font-weight:600;padding:6px 14px;border-radius:6px;border:none;cursor:pointer">Open Review Session →</button>
         </div>
 
+        <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+          <div style="font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px">💰 Can I Afford It?</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Describe any purchase or expense — opens a Claude.ai session with your full financial context pre-loaded for a personalized analysis.</div>
+          <textarea id="afford-input" placeholder='Example: "Can we afford a $42,000 travel trailer financed over 10 years?" or "Lorri wants to upgrade her car when the RAV4 is paid off — $38,000 new. Good idea?"' style="width:100%;box-sizing:border-box;background:var(--surface2);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:8px;resize:vertical;min-height:70px;font-family:inherit;margin-bottom:8px"></textarea>
+          <div style="display:flex;gap:8px">
+            <button onclick="document.getElementById('afford-input').value=''" style="padding:5px 12px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;cursor:pointer">Clear</button>
+            <button onclick="openAffordabilityReview()" style="padding:5px 14px;border-radius:6px;border:none;background:var(--green);color:#0d1117;font-size:11px;font-weight:600;cursor:pointer">Analyze →</button>
+          </div>
+        </div>
+
       </div>
     </div>
 
   </div>
+
   <div class="page" id="page-retire">
     <div class="two-col" style="margin-bottom:10px">
       <div>
@@ -1533,79 +1543,6 @@
 
   </div>
   <!-- AFFORD IT -->
-  <div class="page" id="page-afford">
-
-    <div style="margin-bottom:16px">
-      <div style="font-size:20px;font-weight:500;color:var(--text);margin-bottom:4px">Can I Afford It?</div>
-      <div style="font-size:12px;color:var(--muted)">Describe any purchase or expense — get a full financial analysis against your actual numbers.</div>
-    </div>
-
-    <!-- Input area -->
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <textarea id="afford-question" placeholder='Example: "Can we afford a camper? Looking at a $42,000 travel trailer, would finance it over 10 years." or "Lorri wants to upgrade her car when the RAV4 is paid off — $38,000 new. Good idea?"'
-          style="width:100%;min-height:90px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-                 color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:12px 14px;
-                 resize:vertical;line-height:1.6;outline:none"
-          onkeydown="if(event.key==='Enter'&&(event.metaKey||event.ctrlKey))analyzeAffordability()"></textarea>
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-          <div style="font-size:10px;color:var(--muted)">The more detail you provide (cost, financing terms, timeline), the more precise the analysis. Opens a full Claude.ai conversation with your live financial context pre-loaded.</div>
-          <div style="display:flex;gap:8px">
-            <button onclick="clearAfford()" style="padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">Clear</button>
-            <button onclick="analyzeAffordability()" id="afford-btn"
-              style="padding:8px 20px;border-radius:8px;border:none;background:var(--green);color:#0d1117;
-                     font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;
-                     display:flex;align-items:center;gap:8px;transition:opacity .15s">
-              <span id="afford-btn-text">Analyze</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick prompts -->
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px" id="afford-prompts">
-      <div style="font-size:10px;color:var(--muted);align-self:center;margin-right:4px;white-space:nowrap">Try:</div>
-      <button onclick="setAffordPrompt('The Silverado is almost paid off in June 2026, freeing up ~$655/month. The RAV4 loan is ~$530/month and slightly underwater at $19,392 owed. Should we redirect the Silverado payment to aggressively pay off the RAV4, or is there a better use of that cash given our current debt picture and savings goals?')" class="prompt-chip">🚗 Silverado payoff → what next?</button>
-      <button onclick="setAffordPrompt('We have a Lowe&apos;s deferred interest balance that must be paid by August 14, 2026 to avoid back-interest charges. The balance is approximately $1,441. Walk me through the best way to handle this given our current checking and savings balances — should we pay it all now, or is there a smarter approach?')" class="prompt-chip">⚠️ Lowe's deadline Aug 14</button>
-      <button onclick="setAffordPrompt('Can we afford a camper or travel trailer compatible with the Silverado 1500? We have been researching options in the $35,000-$50,000 range, would finance it. The truck has a tow capacity of ~9,000 lbs. How does this fit into our monthly cash flow, debt picture, and retirement timeline?')" class="prompt-chip">🚐 Camper / travel trailer</button>
-      <button onclick="setAffordPrompt('Lorri turns 40 on June 27, 2026. We want to do something meaningful to celebrate — could be a trip, an experience, or a gift. What can we realistically spend without disrupting our savings plan or June cash flow? We have the Silverado payoff happening around the same time which helps.')" class="prompt-chip">🎂 Lorri&apos;s 40th celebration</button>
-      <button onclick="setAffordPrompt('We have talked about setting up a revocable living trust and updating our estate planning documents — wills, POA, beneficiary designations across TSP, Fidelity, M1, and Kraken. What is the realistic cost of doing this properly in Ohio, and how should we prioritize and fund it given everything else on our financial plate?')" class="prompt-chip">📋 Estate planning / living trust</button>
-      <button onclick="setAffordPrompt('I am thinking about increasing my TSP contribution above the current 5% — potentially pushing toward the 2026 IRS max of $23,500. What is the monthly take-home impact, and does it make sense to do this now given our current cash flow, debt payoffs coming up, and the dual pension floor we already have?')" class="prompt-chip">📈 Increase TSP contributions</button>
-      <button onclick="setAffordPrompt('The rental property at 41403 Elmwood is generating $800/month gross but the tenant is currently behind. What is our true net rental income after expenses — property tax, insurance, sanitation, maintenance reserves — and does it make sense to continue holding this property versus selling it and redeploying the equity?')" class="prompt-chip">🏠 Rental property ROI</button>
-    </div>
-
-    <!-- Analysis output -->
-    <div id="afford-output" style="display:none">
-      <div id="afford-result" class="card" style="line-height:1.8;overflow-y:auto;max-height:75vh;scroll-behavior:smooth"></div>
-
-      <!-- History -->
-      <div id="afford-history" style="margin-top:10px"></div>
-    </div>
-
-    <!-- Empty state -->
-    <div id="afford-empty" style="text-align:center;padding:48px 24px;color:var(--muted)">
-      <div style="font-size:36px;margin-bottom:12px">🔍</div>
-      <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:6px">Your financial picture is loaded</div>
-      <div style="font-size:12px;line-height:1.7">Ask about any purchase — a vehicle, vacation, renovation, property,<br>equipment, or any major expense. Get an honest analysis against your actual numbers.</div>
-      <div style="margin-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:500px;margin-left:auto;margin-right:auto;text-align:left">
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px">
-          <div style="color:var(--green);font-weight:500;margin-bottom:3px">✓ Affordability</div>
-          <div style="color:var(--muted)">Cash vs monthly budget impact</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px">
-          <div style="color:var(--blue);font-weight:500;margin-bottom:3px">📊 Retirement impact</div>
-          <div style="color:var(--muted)">Effect on 2039 target</div>
-        </div>
-        <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;font-size:11px">
-          <div style="color:var(--amber);font-weight:500;margin-bottom:3px">⚡ Opportunity cost</div>
-          <div style="color:var(--muted)">What it costs long-term</div>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
   <!-- REGAN INVESTMENTS -->
   <div class="page" id="page-kids">
     <div style="background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:11px;color:var(--purple);line-height:1.6">
@@ -3783,6 +3720,62 @@ function buildMonthlyReviewPrompt(plan) {
     'Be specific with dollar amounts. Format as: Debt paydown: $X to [target] | M1: $X | Crypto: $X | Mortgage extra: $X | Reasoning: [explanation]';
 
   return 'https://claude.ai/new?q=' + encodeURIComponent(prompt);
+}
+
+function openAffordabilityReview() {
+  var question = (document.getElementById('afford-input') || {}).value || '';
+  if (!question.trim()) { alert('Please describe the purchase or expense first.'); return; }
+
+  var fmt = function(n) { return '$' + Math.round(n).toLocaleString(); };
+  var netWorth   = getLiveNetWorth();
+  var deployable = window._lastDeployPlan ? window._lastDeployPlan.deployable : 0;
+  var savBal     = window._lastDeployPlan ? window._lastDeployPlan.savBal : 0;
+
+  var tspCiv  = (document.getElementById('val-tsp-civ')  || {}).textContent || '~$416K';
+  var tspUni  = (document.getElementById('val-tsp-uni')  || {}).textContent || '~$134K';
+  var fid403b = (document.getElementById('val-fid-403b') || {}).textContent || '~$392K';
+  var fid401a = (document.getElementById('val-fid-401a') || {}).textContent || '~$120K';
+  var m1      = (document.getElementById('val-m1')       || {}).textContent || '~$90K';
+  var crypto  = (document.getElementById('val-crypto')   || {}).textContent || '~$19K';
+  var totalInvest = (document.getElementById('kpi-total-investable') || {}).textContent || '~$1.15M';
+
+  var rows = window._debtRows || [];
+  var getDebt = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? fmt(r.bal) : null; };
+  var mortgage = getDebt('Rocket') || '$136,202';
+  var rav4     = getDebt('Lormet') || getDebt('RAV4') || '$19,000';
+  var pool     = getDebt('Pool');
+  var deck     = getDebt('Deck');
+  var liveDebt = window._liveDebtTotal ? fmt(window._liveDebtTotal) : '$181,000';
+
+  var prompt =
+    'You are providing a financial affordability analysis for Isaac and Lorri Martin in Elyria, Ohio.\n\n' +
+    'QUESTION: ' + question.trim() + '\n\n' +
+    'CURRENT FINANCIAL SNAPSHOT:\n' +
+    '- Net worth: ' + fmt(netWorth) + '\n' +
+    '- Total investable assets: ' + totalInvest + '\n' +
+    '- Savings balance: ' + fmt(savBal) + ' (deployable after $10K floor: ' + fmt(deployable) + ')\n' +
+    '- Total debt: ' + liveDebt + '\n' +
+    '  · Mortgage: ' + mortgage + ' @ 2.625% (target payoff Nov 2038)\n' +
+    '  · RAV4: ' + rav4 + ' (>5% rate, attack target)\n' +
+    (pool ? '  · WF Pool: ' + pool + ' (0% promo, Aug 2030)\n' : '') +
+    (deck ? '  · WF Deck: ' + deck + ' (0% promo, Feb 2028)\n' : '') +
+    '\nINVESTMENT ACCOUNTS:\n' +
+    '- TSP Civilian: ' + tspCiv + ' · TSP Uniformed: ' + tspUni + '\n' +
+    '- Fidelity 403b: ' + fid403b + ' · Fidelity 401a: ' + fid401a + '\n' +
+    '- M1 Finance: ' + m1 + ' · Kraken crypto: ' + crypto + '\n\n' +
+    'HOUSEHOLD CONTEXT:\n' +
+    '- Isaac: federal civilian WS-10, National Guard CW4 · retirement target age 57, November 2038\n' +
+    '- Lorri: Cleveland Clinic RN · continues working post-Isaac retirement (Phase 1)\n' +
+    '- Dual pension floor at retirement: FERS ~$34K + Guard ~$43K/yr · zero debt goal at retirement\n' +
+    '- Monthly contributions: Isaac TSP ~$990, Lorri 403b/401a ~$2,153, M1 surplus ~$500\n\n' +
+    'YOUR TASK:\n' +
+    '1. Analyze whether this purchase is affordable given the current financial picture.\n' +
+    '2. Consider impact on debt payoff cascade, retirement timeline, and monthly cash flow.\n' +
+    '3. If financing is involved, model the payment and its effect on deployable surplus.\n' +
+    '4. Give a clear recommendation: yes, no, or yes with conditions — and explain why.\n' +
+    '5. If relevant, suggest a better timing or alternative approach.';
+
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank');
 }
 
 function openPhysicalAssetReview() {
