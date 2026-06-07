@@ -3617,9 +3617,16 @@ function computeDeployment() {
     extraNeeded = Math.ceil(hi + 1);
   }
 
-  // Crypto headroom vs 3-5% NW ceiling
+  // Parse net worth — handles both $1.50M and $1,234,567 formats
+  var parseNW = function(el) {
+    if (!el) return 1200000;
+    var txt = el.textContent.replace(/[$,]/g,'').trim();
+    if (txt.endsWith('M')) return parseFloat(txt) * 1000000;
+    if (txt.endsWith('K')) return parseFloat(txt) * 1000;
+    return parseFloat(txt) || 1200000;
+  };
   var nwEl = document.getElementById('kpi-net-worth');
-  var netWorth = nwEl ? parseFloat(nwEl.textContent.replace(/[$,]/g,'')) || 1200000 : 1200000;
+  var netWorth = parseNW(nwEl);
   var cryptoEl = document.getElementById('val-crypto');
   var cryptoVal = cryptoEl ? parseFloat(cryptoEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
   var cryptoCeiling = netWorth * 0.05;
@@ -3758,7 +3765,15 @@ function buildMonthlyReviewPrompt(plan) {
 }
 
 function openPhysicalAssetReview() {
-  var fmt = function(n) { return '$' + Math.round(n).toLocaleString(); };
+  var parseNW = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var txt = el.textContent.replace(/[$,]/g,'').trim();
+    if (txt.endsWith('M')) return '$' + (parseFloat(txt) * 1000000).toLocaleString();
+    if (txt.endsWith('K')) return '$' + (parseFloat(txt) * 1000).toLocaleString();
+    return el.textContent.trim();
+  };
+  var getEl = function(id) { var e = document.getElementById(id); return e ? e.textContent.trim() : null; };
 
   // Pull current values from dashboard DOM
   var mainHome   = document.getElementById('pa-main-home')   ? document.getElementById('pa-main-home').textContent   : '$315,000';
@@ -3769,7 +3784,7 @@ function openPhysicalAssetReview() {
   var corolla03  = document.getElementById('pa-corolla03')   ? document.getElementById('pa-corolla03').textContent   : '$2,000';
   var gulfstream = document.getElementById('pa-gulfstream')  ? document.getElementById('pa-gulfstream').textContent  : '$25,000';
   var lastValued = document.getElementById('phys-last-valued') ? document.getElementById('phys-last-valued').textContent : 'unknown';
-  var nw         = document.getElementById('kpi-net-worth')  ? document.getElementById('kpi-net-worth').textContent  : '~$1.2M';
+  var nw         = parseNW('kpi-net-worth') || '~$1.2M';
 
   var prompt =
     'You are conducting a physical asset valuation review for the Martin family in Elyria, Ohio.\n\n' +
@@ -3792,7 +3807,14 @@ function openPhysicalAssetReview() {
 }
 
 function openAllocationReview() {
-  var fmt = function(n) { return '$' + Math.round(n).toLocaleString(); };
+  var parseNW = function(id) {
+    var el = document.getElementById(id);
+    if (!el) return null;
+    var txt = el.textContent.replace(/[$,]/g,'').trim();
+    if (txt.endsWith('M')) return '$' + (parseFloat(txt) * 1000000).toLocaleString();
+    if (txt.endsWith('K')) return '$' + (parseFloat(txt) * 1000).toLocaleString();
+    return el.textContent.trim();
+  };
 
   // Pull live account values
   var tspCiv  = document.getElementById('val-tsp-civ')  ? document.getElementById('val-tsp-civ').textContent  : '~$416K';
@@ -3802,8 +3824,8 @@ function openAllocationReview() {
   var m1      = document.getElementById('val-m1')       ? document.getElementById('val-m1').textContent       : '~$90K';
   var crypto  = document.getElementById('val-crypto')   ? document.getElementById('val-crypto').textContent   : '~$19K';
   var cryptoPct = document.getElementById('val-crypto-pct') ? document.getElementById('val-crypto-pct').textContent : '~1.6%';
-  var nw      = document.getElementById('kpi-net-worth') ? document.getElementById('kpi-net-worth').textContent : '~$1.2M';
-  var total   = document.getElementById('kpi-total-investable') ? document.getElementById('kpi-total-investable').textContent : '~$1.15M';
+  var nw      = parseNW('kpi-net-worth') || '~$1.2M';
+  var total   = parseNW('kpi-total-investable') || '~$1.15M';
 
   var prompt =
     'You are conducting an investment allocation review for the Martin household.\n\n' +
