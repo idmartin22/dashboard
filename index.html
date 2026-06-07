@@ -1019,6 +1019,99 @@
       </div>
     </div>
 
+    <!-- Energy Monitoring -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">Energy monitoring</div>
+
+      <!-- Electric section -->
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div style="font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">
+            ⚡ Electric — Ohio Edison · 41377 &amp; 41403 Elmwood
+          </div>
+          <div style="font-size:10px;color:var(--muted)" id="elec-reviewed">Reviewed —</div>
+        </div>
+
+        <!-- Current contract metrics -->
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px">
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Current supplier</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Better Buy Energy</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">8.29¢/kWh · fixed · 12 mo.</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Contract expires</div>
+            <div style="font-size:13px;font-weight:600;color:var(--amber)" id="elec-expiry">~Sep 14, 2026</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-days">— days away</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Ohio Edison PTC</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-ptc">10.83¢/kWh</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">roll-off risk if no action</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Combined avg usage</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">1,371 kWh/mo</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">41377 (1,051) + 41403 (320)</div>
+          </div>
+        </div>
+
+        <!-- Best available by term -->
+        <div style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Best available — fixed · $0 cancel · $0 fees</div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-bottom:12px" id="elec-term-grid">
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">3 month</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-best-3">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-sup-3">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">6 month</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-best-6">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-sup-6">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">12 month</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-best-12">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-sup-12">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">18–24 month</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-best-18">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-sup-18">—</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:6px;padding:7px 8px;text-align:center">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">36+ month</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)" id="elec-best-36">—</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-sup-36">—</div>
+          </div>
+        </div>
+
+        <!-- Status badges + recommendation + button -->
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px" id="elec-badges"></div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.5" id="elec-rec">Load prices.json to see recommendation.</div>
+          </div>
+          <button onclick="openElectricRateReview()" style="flex-shrink:0;padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap">Open Rate Review →</button>
+        </div>
+      </div>
+
+      <!-- Gas section -->
+      <div style="border:1px solid var(--border);border-radius:8px;padding:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">
+          <div style="font-size:12px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px">
+            🔥 Natural gas — Columbia Gas · 41377 Elmwood
+          </div>
+          <div style="font-size:10px;color:var(--muted);font-style:italic" id="gas-reviewed">Not yet configured</div>
+        </div>
+        <div id="gas-body">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Upload your Columbia Gas bill and drop the gas CSV into the energy-rates Google Drive folder to configure gas monitoring.</div>
+          <button onclick="openGasRateReview()" style="padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;opacity:0.5" disabled>Open Rate Review →</button>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 
   <div class="page" id="page-retire">
@@ -5216,10 +5309,124 @@ function fmtBal(val) {
 }
 
 // ── Unified Sync — triggers Drive Sync + Fund Prices + Excel load ─────────────
+// ── Energy Monitoring ────────────────────────────────────────────────────────
+const ELEC_CURRENT_RATE   = 8.29;
+const ELEC_EXPIRY_DATE    = '2026-09-14';
+const ELEC_AVG_USAGE      = 1371;
+const ELEC_SUPPLIER       = 'Better Buy Energy';
+
+function initEnergyMonitoring(pricesData) {
+  const energy = pricesData?.energy;
+  if (!energy) return;
+  const elec = energy.electric;
+  if (elec) {
+    const set = (id, val) => { const e = document.getElementById(id); if (e) e.textContent = val; };
+    set('elec-reviewed', 'Reviewed ' + elec.reviewed);
+    if (elec.ptc) set('elec-ptc', elec.ptc.toFixed(2) + '¢/kWh');
+    const expiry = new Date(ELEC_EXPIRY_DATE);
+    const days = Math.ceil((expiry - new Date()) / 86400000);
+    set('elec-days', days + ' days away');
+    const expiryEl = document.getElementById('elec-expiry');
+    if (expiryEl) expiryEl.style.color = days <= 60 ? 'var(--red)' : 'var(--amber)';
+    const bucketMap = { '3':'3','6':'6','12':'12','18_24':'18','36plus':'36' };
+    const best = elec.best || {};
+    let lowestRate = null;
+    Object.entries(bucketMap).forEach(([key, suffix]) => {
+      const b = best[key];
+      const rateEl = document.getElementById('elec-best-' + suffix);
+      const supEl  = document.getElementById('elec-sup-'  + suffix);
+      if (b && rateEl && supEl) {
+        rateEl.textContent = b.rate.toFixed(3) + '¢';
+        supEl.textContent  = b.supplier.length > 14 ? b.supplier.substring(0,14) + '…' : b.supplier;
+        if (b.rate < ELEC_CURRENT_RATE) {
+          rateEl.style.color = 'var(--green)';
+          if (!lowestRate || b.rate < lowestRate) lowestRate = b.rate;
+        } else {
+          rateEl.style.color = 'var(--muted)';
+        }
+      } else if (rateEl) { rateEl.textContent = 'N/A'; rateEl.style.color = 'var(--muted)'; }
+    });
+    const badgesEl = document.getElementById('elec-badges');
+    if (badgesEl && elec.ptc) {
+      const savingVsPtc = ((elec.ptc - ELEC_CURRENT_RATE) * ELEC_AVG_USAGE / 100).toFixed(2);
+      const pill = (text, color) => `<span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:${color==='green'?'rgba(34,197,94,0.12)':color==='amber'?'rgba(251,146,60,0.12)':'rgba(248,113,113,0.12)'};color:var(--${color})">${text}</span>`;
+      let html = pill(`Saving ${(elec.ptc-ELEC_CURRENT_RATE).toFixed(2)}¢ vs PTC · $${savingVsPtc}/mo`, 'green');
+      if (lowestRate) {
+        const savingVsCurrent = ((ELEC_CURRENT_RATE - lowestRate) * ELEC_AVG_USAGE / 100).toFixed(2);
+        html += ' ' + pill(`Best available ${lowestRate.toFixed(3)}¢ — saves $${savingVsCurrent}/mo`, 'green');
+      }
+      html += ' ' + pill(days<=30?`${days} days — ACT NOW`:days<=60?`${days} days — shop now`:`${days} days to expiry`, days<=60?'red':'amber');
+      badgesEl.innerHTML = html;
+    }
+    const recEl = document.getElementById('elec-rec');
+    if (recEl) {
+      if (lowestRate) {
+        const savings = ((ELEC_CURRENT_RATE - lowestRate) * ELEC_AVG_USAGE / 100).toFixed(2);
+        recEl.textContent = `A rate of ${lowestRate.toFixed(3)}¢ is available — beats current 8.29¢ by $${savings}/mo across both accounts. Open Rate Review for full analysis. ⚠️ Do not let contract expire without action — auto-rollover to variable rate likely.`;
+      } else {
+        recEl.textContent = `No qualifying offers currently beat your 8.29¢ rate. Stay put and re-check as expiry approaches. ⚠️ Do not let contract expire without action — auto-rollover to variable rate likely.`;
+      }
+    }
+  }
+  const gas = energy.gas;
+  if (gas && gas.reviewed) {
+    const el = document.getElementById('gas-reviewed');
+    if (el) el.textContent = 'Reviewed ' + gas.reviewed;
+    const btn = document.querySelector('#gas-body button');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; btn.style.color = 'var(--text)'; }
+  }
+}
+
+function openElectricRateReview() {
+  const expiry = new Date(ELEC_EXPIRY_DATE);
+  const days = Math.ceil((expiry - new Date()) / 86400000);
+  const getEl = (id) => { const e = document.getElementById(id); return e ? e.textContent : 'N/A'; };
+  const prompt =
+    'You are conducting an electric rate review for the Martin household in Elyria, Ohio.\n\n' +
+    'CURRENT ELECTRIC CONTRACT:\n' +
+    `- Supplier: ${ELEC_SUPPLIER} at ${ELEC_CURRENT_RATE}¢/kWh (fixed, 12-month)\n` +
+    `- Contract expires: ~${ELEC_EXPIRY_DATE} (${days} days away)\n` +
+    `- Properties: 41377 Elmwood (main home) + 41403 Elmwood (rental)\n` +
+    `- Combined avg usage: ${ELEC_AVG_USAGE.toLocaleString()} kWh/month\n` +
+    `- Ohio Edison PTC: ${getEl('elec-ptc')}\n\n` +
+    'BEST AVAILABLE RATES (from last CSV upload):\n' +
+    `- 3 month: ${getEl('elec-best-3')} (${getEl('elec-sup-3')})\n` +
+    `- 6 month: ${getEl('elec-best-6')} (${getEl('elec-sup-6')})\n` +
+    `- 12 month: ${getEl('elec-best-12')} (${getEl('elec-sup-12')})\n` +
+    `- 18-24 month: ${getEl('elec-best-18')} (${getEl('elec-sup-18')})\n` +
+    `- 36+ month: ${getEl('elec-best-36')} (${getEl('elec-sup-36')})\n\n` +
+    'FILTER CRITERIA: Fixed rate · $0 cancellation fee · $0 monthly fees · any term length\n\n' +
+    'SWITCHING RULES:\n' +
+    '- $0 cancellation fee — can switch anytime without penalty\n' +
+    '- Contract expiry without action = auto-rollover to variable rate (no ceiling)\n' +
+    '- Must switch BOTH accounts when switching\n\n' +
+    'YOUR TASK:\n' +
+    '1. Ask me to upload the most current Apples to Apples CSV (energychoice.ohio.gov → Ohio Edison Residential → Export CSV) for live rates.\n' +
+    '2. Research current natural gas futures and Ohio electricity market outlook.\n' +
+    '3. Apply filter criteria and rank top 5 qualifying offers.\n' +
+    '4. Provide a specific recommendation: stay, switch now, or wait until when.\n' +
+    '5. Flag longer-term offers worth considering based on market direction.';
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank');
+}
+
+function openGasRateReview() {
+  const prompt =
+    'You are conducting a natural gas rate review for the Martin household (Columbia Gas, zip 44035, Elyria OH).\n\n' +
+    'FILTER CRITERIA: Fixed rate · $0 cancellation fee · $0 monthly fees · any term length\n\n' +
+    'YOUR TASK:\n' +
+    '1. Ask me to upload the Columbia Gas Apples to Apples CSV (energychoice.ohio.gov → Columbia Gas of Ohio Residential → Export CSV).\n' +
+    '2. Research current Henry Hub natural gas futures and market outlook.\n' +
+    '3. Apply filter criteria and rank top qualifying offers by term.\n' +
+    '4. Compare against current Columbia Gas SCO rate.\n' +
+    '5. Provide a specific recommendation with supplier, rate, term, and estimated savings.';
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank');
+}
+
 const GITHUB_PAT        = 'ghp_kUns8Ix7L3yvNgrTZB0L' + '84YxtCzUUo3sMACu';
 const GITHUB_REPO       = 'idmartin22/dashboard';
 const SYNC_WORKFLOW     = 'sync-excel.yml';
 const PRICES_WORKFLOW   = 'update-prices.yml';
+const ENERGY_WORKFLOW   = 'update-energy.yml';
 
 async function triggerFullSync() {
   const btn   = document.getElementById('sync-excel-btn');
@@ -5259,11 +5466,12 @@ async function triggerFullSync() {
   };
 
   try {
-    // Step 1 — trigger both GitHub workflows simultaneously
+    // Step 1 — trigger all GitHub workflows simultaneously
     setStep(0);
     await Promise.all([
       triggerWorkflow(SYNC_WORKFLOW),
       triggerWorkflow(PRICES_WORKFLOW),
+      triggerWorkflow(ENERGY_WORKFLOW),
     ]);
 
     // Step 2 — wait 35 seconds for workflows to complete
@@ -5475,6 +5683,9 @@ async function fetchLivePrices() {
   // Log data source
   const source = pricesData ? ('prices.json · updated ' + pricesData.updated) : 'hardcoded fallbacks';
   console.log('Live pricing source:', source);
+
+  // Initialize energy monitoring section
+  if (pricesData) initEnergyMonitoring(pricesData);
 
   // Calculate and render portfolio values
   const etfPrices = pricesData?.etf || null;
