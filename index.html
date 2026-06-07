@@ -1041,7 +1041,7 @@
           </div>
           <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
             <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Contract expires</div>
-            <div style="font-size:13px;font-weight:600;color:var(--amber)" id="elec-expiry">~Sep 14, 2026</div>
+            <div style="font-size:13px;font-weight:600;color:var(--amber)" id="elec-expiry">~Sep 12, 2026</div>
             <div style="font-size:10px;color:var(--muted);margin-top:2px" id="elec-days">— days away</div>
           </div>
           <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
@@ -1109,13 +1109,13 @@
         <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px">
           <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
             <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Current supplier</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text)">Ohio Gas &amp; Electric</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px">76.89¢/ccf · unknown term</div>
+            <div style="font-size:13px;font-weight:600;color:var(--amber)">Switching to SCO</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">OGE cancelled · effective Jun 25</div>
           </div>
           <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Contract expiry</div>
-            <div style="font-size:13px;font-weight:600;color:var(--red)">Unknown</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px">Call OGE: 1-866-706-7360</div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Switch effective</div>
+            <div style="font-size:13px;font-weight:600;color:var(--green)">Jun 25, 2026</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px" id="gas-days-to-switch">calculating...</div>
           </div>
           <div style="background:var(--surface2);border-radius:6px;padding:8px 10px">
             <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Columbia Gas SCO</div>
@@ -5370,7 +5370,7 @@ function fmtBal(val) {
 // ── Unified Sync — triggers Drive Sync + Fund Prices + Excel load ─────────────
 // ── Energy Monitoring ────────────────────────────────────────────────────────
 const ELEC_CURRENT_RATE   = 8.29;
-const ELEC_EXPIRY_DATE    = '2026-09-14';
+const ELEC_EXPIRY_DATE    = '2026-09-12';
 const ELEC_AVG_USAGE      = 1371;
 const ELEC_SUPPLIER       = 'Better Buy Energy';
 
@@ -5454,24 +5454,35 @@ function initEnergyMonitoring(pricesData) {
     const badgesEl = document.getElementById('gas-badges');
     if (badgesEl) {
       const pill = (text, color) => `<span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:${color==='green'?'rgba(34,197,94,0.12)':color==='amber'?'rgba(251,146,60,0.12)':'rgba(248,113,113,0.12)'};color:var(--${color})">${text}</span>`;
-      const overSCO = ((GAS_CURRENT_RATE - sco) * GAS_AVG_USAGE / 100).toFixed(2);
-      let html = pill(`Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO · $${overSCO}/mo combined`, 'red');
-      if (lowestRate) {
-        const savings = ((GAS_CURRENT_RATE - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
-        html += ' ' + pill(`Switch to ${lowestRate.toFixed(4)}¢ — saves $${savings}/mo`, 'green');
+      const switchDate = new Date('2026-06-25');
+      const daysToSwitch = Math.ceil((switchDate - new Date()) / 86400000);
+      const daysEl = document.getElementById('gas-days-to-switch');
+      if (daysEl) daysEl.textContent = daysToSwitch > 0 ? daysToSwitch + ' days away' : 'Effective now';
+      const scoSavings = ((76.89 - sco) * GAS_AVG_USAGE / 100).toFixed(2);
+      let html = daysToSwitch > 0
+        ? pill(`OGE cancelled · SCO switch effective Jun 25 (${daysToSwitch} days)`, 'amber')
+        : pill('SCO switch effective — verify on July bill', 'green');
+      html += ' ' + pill(`SCO saves $${scoSavings}/mo vs old OGE rate`, 'green');
+      if (lowestRate && lowestRate < sco) {
+        const fixedSavings = ((sco - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
+        html += ' ' + pill(`Best fixed ${lowestRate.toFixed(4)}¢ beats SCO by $${fixedSavings}/mo`, 'green');
       }
-      html += ' ' + pill('Confirm OGE cancellation terms before switching', 'amber');
       badgesEl.innerHTML = html;
     }
     const recEl = document.getElementById('gas-rec');
     if (recEl) {
-      const scoSavings = ((GAS_CURRENT_RATE - sco) * GAS_AVG_USAGE / 100).toFixed(2);
-      if (lowestRate) {
-        const savings = ((GAS_CURRENT_RATE - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
-        const scoVsBest = ((sco - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
-        recEl.textContent = `Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO ($${scoSavings}/mo wasted across both accounts). Best fixed offer: ${lowestRate.toFixed(4)}¢ — saves $${savings}/mo vs current, $${scoVsBest}/mo vs SCO. Switch immediately after confirming OGE cancellation terms. Alternative: cancel OGE → SCO at ${sco.toFixed(2)}¢ (saves $${scoSavings}/mo, no enrollment needed — call OGE 1-866-706-7360).`;
+      const switchDate = new Date('2026-06-25');
+      const daysToSwitch = Math.ceil((switchDate - new Date()) / 86400000);
+      const scoSavings = ((76.89 - sco) * GAS_AVG_USAGE / 100).toFixed(2);
+      if (daysToSwitch > 0) {
+        if (lowestRate && lowestRate < sco) {
+          const fixedSavings = ((sco - lowestRate) * GAS_AVG_USAGE / 100).toFixed(2);
+          recEl.textContent = `OGE cancellation pending — SCO takes effect Jun 25. Once on SCO at ${sco.toFixed(2)}¢, saves $${scoSavings}/mo vs old rate. Consider also locking in ${lowestRate.toFixed(4)}¢ fixed (${lowestRate < sco ? 'beats SCO by $' + fixedSavings + '/mo' : 'above SCO'}). Verify switch on July bill — both accounts should show Columbia Gas SCO supply charges.`;
+        } else {
+          recEl.textContent = `OGE cancellation pending — SCO takes effect Jun 25. Once effective, saves $${scoSavings}/mo combined vs old OGE rate. No further action needed until a fixed-rate offer beats the SCO. Verify switch on July bill — both accounts should show Columbia Gas SCO supply charges.`;
+        }
       } else {
-        recEl.textContent = `Paying ${(GAS_CURRENT_RATE - sco).toFixed(2)}¢ above SCO ($${scoSavings}/mo combined). Cancel OGE and revert to SCO at ${sco.toFixed(2)}¢ — no new supplier needed, just a cancellation call to OGE at 1-866-706-7360.`;
+        recEl.textContent = `Now on Columbia Gas SCO at ${sco.toFixed(2)}¢/ccf. Compare monthly against fixed-rate offers — switch to a fixed supplier only if the rate meaningfully beats the current SCO. Open Rate Review to analyze current offers and market outlook.`;
       }
     }
   }
