@@ -3714,6 +3714,24 @@ function computeDeployment() {
   };
 }
 
+
+function getLiveNetWorth() {
+  // Priority: _liveNetWorth (set by updateInvestmentDOM) > nw-total-val DOM > kpi-net-worth DOM
+  if (window._liveNetWorth && window._liveNetWorth > 100000) return window._liveNetWorth;
+  var el = document.getElementById('nw-total-val');
+  if (el) {
+    var val = parseFloat(el.textContent.replace(/[$,]/g,''));
+    if (val > 100000) return val;
+  }
+  var kpi = document.getElementById('kpi-net-worth');
+  if (kpi) {
+    var txt = kpi.textContent.replace(/[$,]/g,'').trim();
+    if (txt.endsWith('M')) return parseFloat(txt) * 1000000;
+    if (txt.endsWith('K')) return parseFloat(txt) * 1000;
+    return parseFloat(txt) || 1545345;
+  }
+  return 1545345;
+}
 function buildMonthlyReviewPrompt(plan) {
   if (!plan) return 'https://claude.ai';
 
@@ -3723,7 +3741,7 @@ function buildMonthlyReviewPrompt(plan) {
   var cr = plan.crypto;
 
   // Always use the freshest net worth available at click time
-  var netWorth = window._liveNetWorth || parseFloat((document.getElementById("nw-total-val")||{}).textContent.replace(/[$,]/g,"")) || 1545345;
+  var netWorth = getLiveNetWorth();
 
   var MLABELS = {
     '2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026',
@@ -3865,7 +3883,7 @@ function buildCryptoReviewPrompt(plan) {
   var cr = plan.crypto;
 
   // Always use the freshest net worth available at click time
-  var netWorth = window._liveNetWorth || parseFloat((document.getElementById("nw-total-val")||{}).textContent.replace(/[$,]/g,"")) || 1545345;
+  var netWorth = getLiveNetWorth();
 
   var prompt =
     'You are doing a monthly crypto deployment review for the Martin family.\n\n' +
