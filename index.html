@@ -3722,6 +3722,9 @@ function buildMonthlyReviewPrompt(plan) {
   var mo = plan.mortgage;
   var cr = plan.crypto;
 
+  // Always use the freshest net worth available at click time
+  var netWorth = window._liveNetWorth || plan.netWorth;
+
   var MLABELS = {
     '2026-01':'January 2026','2026-02':'February 2026','2026-03':'March 2026',
     '2026-04':'April 2026','2026-05':'May 2026','2026-06':'June 2026',
@@ -3748,7 +3751,7 @@ function buildMonthlyReviewPrompt(plan) {
     '- M1 Finance (factor-tilted): ' + fmt(plan.m1.value) + ' · 20% VTI / 10% QQQM / 30% AVUV / 25% AVDV / 15% AVES · $500/mo floor\n' +
     '- Kraken crypto: ' + fmt(cr.value) + ' (' + cr.pct + '% of net worth · 3-5% NW ceiling · headroom: ' + fmt(cr.headroom) + ')\n' +
     '- TSP/Fidelity contributions continue automatically — not part of deployment\n\n' +
-    'NET WORTH: ' + fmt(plan.netWorth) + '\n\n' +
+    'NET WORTH: ' + fmt(netWorth) + '\n\n' +
     'RETIREMENT TARGET: Isaac age 57, November 2038 (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
     'MORTGAGE PAYDOWN NOTE: At minimum P&I only ($613.87/mo), mortgage pays off Oct 2051 — 13 years past retirement. ' +
     'Need approximately $' + mo.extraNeeded + '/mo in extra principal from now to clear by Nov 2038. ' +
@@ -3861,12 +3864,15 @@ function buildCryptoReviewPrompt(plan) {
   var fmt = function(n){ return '$' + Math.round(n).toLocaleString(); };
   var cr = plan.crypto;
 
+  // Always use the freshest net worth available at click time
+  var netWorth = window._liveNetWorth || plan.netWorth;
+
   var prompt =
     'You are doing a monthly crypto deployment review for the Martin family.\n\n' +
     'CURRENT CRYPTO PORTFOLIO (Kraken):\n' +
     'Total value: ' + fmt(cr.value) + '\n' +
-    'As % of net worth (' + fmt(plan.netWorth) + '): ' + cr.pct + '%\n' +
-    'Target ceiling: 3-5% of net worth = ' + fmt(cr.value > 0 ? plan.netWorth * 0.03 : 0) + ' floor / ' + fmt(cr.ceiling) + ' ceiling\n' +
+    'As % of net worth (' + fmt(netWorth) + '): ' + cr.pct + '%\n' +
+    'Target ceiling: 3-5% of net worth = ' + fmt(cr.value > 0 ? netWorth * 0.03 : 0) + ' floor / ' + fmt(cr.ceiling) + ' ceiling\n' +
     'Headroom before hitting 5% ceiling: ' + fmt(cr.headroom) + '\n\n' +
     'TARGET ALLOCATION: BTC 45% · ETH 20% · SOL 10% · TAO 8% · HYPE 7% · LINK 7% · XRP 3%\n\n' +
     'DEPLOYABLE THIS MONTH: ' + fmt(plan.deployable) + ' total (crypto is discretionary portion after debt/M1 allocation)\n\n' +
