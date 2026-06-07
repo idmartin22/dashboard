@@ -3626,7 +3626,7 @@ function computeDeployment() {
     return parseFloat(txt) || 1200000;
   };
   var nwEl = document.getElementById('kpi-net-worth');
-  var netWorth = parseNW(nwEl);
+  var netWorth = window._liveNetWorth || parseNW(nwEl);
   var cryptoEl = document.getElementById('val-crypto');
   var cryptoVal = cryptoEl ? parseFloat(cryptoEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
   var cryptoCeiling = netWorth * 0.05;
@@ -3784,7 +3784,7 @@ function openPhysicalAssetReview() {
   var corolla03  = document.getElementById('pa-corolla03')   ? document.getElementById('pa-corolla03').textContent   : '$2,000';
   var gulfstream = document.getElementById('pa-gulfstream')  ? document.getElementById('pa-gulfstream').textContent  : '$25,000';
   var lastValued = document.getElementById('phys-last-valued') ? document.getElementById('phys-last-valued').textContent : 'unknown';
-  var nw         = parseNW('kpi-net-worth') || '~$1.2M';
+  var nw = window._liveNetWorth ? '$' + Math.round(window._liveNetWorth).toLocaleString() : (parseNW('kpi-net-worth') || '~$1.2M');
 
   var prompt =
     'You are conducting a physical asset valuation review for the Martin family in Elyria, Ohio.\n\n' +
@@ -3824,7 +3824,7 @@ function openAllocationReview() {
   var m1      = document.getElementById('val-m1')       ? document.getElementById('val-m1').textContent       : '~$90K';
   var crypto  = document.getElementById('val-crypto')   ? document.getElementById('val-crypto').textContent   : '~$19K';
   var cryptoPct = document.getElementById('val-crypto-pct') ? document.getElementById('val-crypto-pct').textContent : '~1.6%';
-  var nw      = parseNW('kpi-net-worth') || '~$1.2M';
+  var nw      = window._liveNetWorth ? '$' + Math.round(window._liveNetWorth).toLocaleString() : (parseNW('kpi-net-worth') || '~$1.2M');
   var total   = parseNW('kpi-total-investable') || '~$1.15M';
 
   var prompt =
@@ -5571,7 +5571,10 @@ function updateInvestmentDOM(vals) {
   const nwEl = document.getElementById('nw-liquid-cash');
   const kpiNW = document.getElementById('kpi-net-worth');
   const kpiInv = document.getElementById('kpi-total-investable');
-  if (kpiNW && !isNaN(netWorth)) kpiNW.textContent = '$' + (netWorth/1000000).toFixed(2) + 'M';
+  if (kpiNW && !isNaN(netWorth)) {
+    kpiNW.textContent = '$' + (netWorth/1000000).toFixed(2) + 'M';
+    window._liveNetWorth = netWorth; // store for prompt builders
+  }
   if (kpiInv && !isNaN(vals.total)) kpiInv.textContent = fmt(vals.total);
 
   // Crypto % of NW
