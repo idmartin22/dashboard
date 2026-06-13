@@ -5775,7 +5775,14 @@ async function fetchCryptoPrices() {
 
 // ── 3. Main entry point ───────────────────────────────────────────────────────
 async function fetchLivePrices() {
-  if (!_shareCounts || Object.keys(_shareCounts).length === 0) return;
+  if (!_shareCounts || Object.keys(_shareCounts).length === 0) {
+    // Still fetch prices.json for energy monitoring even without share counts
+    try {
+      const pricesData = await fetchPricesJSON();
+      if (pricesData) initEnergyMonitoring(pricesData);
+    } catch(e) {}
+    return;
+  }
 
   console.log('Fetching live prices...');
 
