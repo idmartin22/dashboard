@@ -2013,12 +2013,15 @@ function calcRetire() {
   // invested assets at retirement. We'll let calcNetWorth handle 2026–2038
   // with its own accumulation logic, but from RETIRE_YEAR onward we override.
 
+  // Real age gap derived from actual birthdates (replaces old AGE_GAP constant)
+  const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS * -1; // positive: Lorri younger
+
   let bal = isaacPool;
   let inPhase2 = false;
 
   for (let y = 0; y < totalYears; y++) {
     const isaacAge = ISAAC_RETIRE + y;
-    const lorriAge = Math.round(isaacAge - AGE_GAP);
+    const lorriAge = Math.round(isaacAge - REAL_AGE_GAP);
     const year     = RETIRE_YEAR + y;
     const isPhase2Start = !inPhase2 && y >= phase1Years; // phase1Years is already integer
 
