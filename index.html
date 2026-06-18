@@ -1360,7 +1360,12 @@
               <th style="text-align:left;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Phase</th>
               <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Opening</th>
               <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Growth</th>
-              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Draw</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--blue)">TSP draw</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--coral)">403b/401a draw</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">TSP bal</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">403b/401a bal</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">M1 bal</th>
+              <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Kraken bal</th>
               <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Closing</th>
               <th style="text-align:right;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Total income</th>
               <th style="text-align:left;padding:5px 6px;font-size:10px;font-weight:500;color:var(--muted)">Events</th>
@@ -2057,10 +2062,17 @@ function calcRetire() {
 
   const totalYears = exhaustAge - ISAAC_RETIRE;
 
-  // ── binary search for required draw (Phase 2 only — Phase 1 uses smaller draw) ──
-  // Strategy: find a Phase2 draw such that combined pool exhausts at exhaustAge
-  // Phase 1 draw = isaacPool amortized over Phase1 years at retireRate
-  // (we use a fraction — Isaac draws modestly in Phase 1 knowing Phase 2 pool grows)
+  // ── binary search for required draw ──────────────────────────────────────
+  // Sizes the draw against the FULL combined pool (TSP + Lorri + M1 + Kraken).
+  // All four accounts draw down proportionally each year in the table loop
+  // below, so sizing against the combined total is correct here.
+  const isaacGrowthMultiple0 = ISAAC_CURRENT > 0 ? isaacPool / ISAAC_CURRENT : 1;
+  const live0 = window._livePoolValues || {};
+  const tspShare0 = (live0.tspCiv !== undefined && live0.tspUni !== undefined && ISAAC_CURRENT > 0)
+                      ? (live0.tspCiv + live0.tspUni) / ISAAC_CURRENT : 0.70;
+  const m1Share0    = (live0.m1 !== undefined && ISAAC_CURRENT > 0) ? live0.m1 / ISAAC_CURRENT : 0.20;
+  const cryptoShare0 = (live0.crypto !== undefined && ISAAC_CURRENT > 0) ? live0.crypto / ISAAC_CURRENT : 0.10;
+  const isaacFullPoolAtRetire = isaacPool; // TSP + M1 + Kraken combined, already projected
 
   // Use integer phase years throughout — binary search and table must agree exactly
   const phase1Years = Math.round(lorriYearsAfterIsaacRetire);
@@ -2068,29 +2080,30 @@ function calcRetire() {
 
   // Compute draw1Final first — binary search MUST use this exact value
   // so its Phase 1 simulation matches the table exactly.
+  // Phase 1 draws from Isaac's full pool (TSP+M1+Kraken) — Lorri hasn't retired yet.
   let draw1Final;
   if (phase1Years <= 0) {
     draw1Final = 0; // placeholder — will be set to draw2 after binary search
   } else {
-    const annuity = (isaacPool * retireRate * Math.pow(1+retireRate, phase1Years)) /
+    const annuity = (isaacFullPoolAtRetire * retireRate * Math.pow(1+retireRate, phase1Years)) /
                     (Math.pow(1+retireRate, phase1Years) - 1);
-    draw1Final = Math.min(annuity * 0.45, isaacPool * 0.15);
+    draw1Final = Math.min(annuity * 0.45, isaacFullPoolAtRetire * 0.15);
   }
 
-  // Binary search on Phase2 draw — finds draw that exhausts combined pool at exhaustAge.
-  // Uses draw1Final (same as table) for Phase 1 so Phase 2 opening balance is identical.
+  // Binary search on Phase2 draw — finds draw that exhausts the full combined
+  // pool (TSP + Lorri + M1 + Kraken) by exhaustAge.
   let lo = 0, hi = 2000000, draw2 = 0;
   for (let iter = 0; iter < 80; iter++) {
     const mid = (lo + hi) / 2;
 
-    // Phase 1: use draw1Final — exactly what the table uses
-    let bal1 = isaacPool;
+    // Phase 1: Isaac's full pool — use draw1Final, exactly what the table uses
+    let bal1 = isaacFullPoolAtRetire;
     for (let y = 0; y < phase1Years; y++) {
       bal1 = bal1 * (1 + retireRate) - draw1Final;
       if (bal1 < 0) { bal1 = 0; break; }
     }
 
-    // Phase 2: combined pool — same integer iteration as table
+    // Phase 2: Isaac's remainder + Lorri's pool — full combined total
     let bal2 = bal1 + lorriPool;
     for (let y = 0; y < phase2Years; y++) {
       bal2 = bal2 * (1 + retireRate) - mid;
@@ -2135,27 +2148,66 @@ function calcRetire() {
   // Real age gap derived from actual birthdates (replaces old AGE_GAP constant)
   const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS * -1; // positive: Lorri younger
 
-  let bal = isaacPool;
+  // ── separate account tracking for drawdown ───────────────────────────────
+  // Drawable accounts: Isaac's TSP, Lorri's 403b+401a — drawn proportionally each year
+  // Reserve accounts: Isaac's M1, Isaac's Kraken — grow untouched until drawables exhaust
+  const live = window._livePoolValues || {};
+  const TSP_SHARE   = (live.tspCiv !== undefined && live.tspUni !== undefined && (live.tspCiv + live.tspUni) > 0 && ISAAC_CURRENT > 0)
+                        ? (live.tspCiv + live.tspUni) / ISAAC_CURRENT : 0.70; // fallback ~70% TSP
+  const M1_SHARE    = (live.m1 !== undefined && ISAAC_CURRENT > 0) ? live.m1 / ISAAC_CURRENT : 0.20;
+  const CRYPTO_SHARE = (live.crypto !== undefined && ISAAC_CURRENT > 0) ? live.crypto / ISAAC_CURRENT : 0.10;
+
+  // Project each Isaac sub-account to his retirement date using the same growth path
+  const isaacGrowthMultiple = ISAAC_CURRENT > 0 ? isaacPool / ISAAC_CURRENT : 1;
+  let tspBal    = (live.tspCiv !== undefined ? (live.tspCiv + live.tspUni) : ISAAC_CURRENT * TSP_SHARE) * isaacGrowthMultiple;
+  let m1Bal     = (live.m1 !== undefined ? live.m1 : ISAAC_CURRENT * M1_SHARE) * isaacGrowthMultiple;
+  let cryptoBal = (live.crypto !== undefined ? live.crypto : ISAAC_CURRENT * CRYPTO_SHARE) * isaacGrowthMultiple;
+  let lorriBal  = lorriPool; // 403b + 401a
+
   let inPhase2 = false;
 
   for (let y = 0; y < totalYears; y++) {
     const isaacAge = ISAAC_RETIRE + y;
     const lorriAge = Math.round(isaacAge - REAL_AGE_GAP);
     const year     = RETIRE_YEAR + y;
-    const isPhase2Start = !inPhase2 && y >= phase1Years; // phase1Years is already integer
+    const isPhase2Start = !inPhase2 && y >= phase1Years;
 
-    if (isPhase2Start) {
-      bal += lorriPool;
-      inPhase2 = true;
+    if (isPhase2Start) inPhase2 = true;
+
+    // All four accounts draw proportionally each year — no account is
+    // ring-fenced. Phase 1: TSP + M1 + Kraken (Lorri not yet retired).
+    // Phase 2: all four accounts combined.
+    const drawableTotal = inPhase2 ? (tspBal + lorriBal + m1Bal + cryptoBal) : (tspBal + m1Bal + cryptoBal);
+    const opening = tspBal + lorriBal + m1Bal + cryptoBal;
+
+    const poolExhausted = drawableTotal <= 0;
+    const targetDraw = poolExhausted ? 0 : (inPhase2 ? draw2 : draw1Final);
+
+    // Proportional split of the draw across all participating accounts
+    let tspDraw = 0, lorriDraw = 0, m1Draw = 0, cryptoDraw = 0;
+    if (!poolExhausted) {
+      tspDraw    = targetDraw * (tspBal    / drawableTotal);
+      m1Draw     = targetDraw * (m1Bal     / drawableTotal);
+      cryptoDraw = targetDraw * (cryptoBal / drawableTotal);
+      if (inPhase2) lorriDraw = targetDraw * (lorriBal / drawableTotal);
     }
 
-    // Once portfolio is exhausted, draw is $0 — only guaranteed income remains
-    const portfolioExhausted = inPhase2 && bal <= 0;
-    const draw = portfolioExhausted ? 0 : (inPhase2 ? draw2 : draw1Final);
-    const opening = bal;
-    const growth  = portfolioExhausted ? 0 : bal * retireRate;
-    const closing = portfolioExhausted ? 0 : Math.max(0, bal * (1 + retireRate) - draw);
-    bal = closing;
+    // Growth applied to all four sub-accounts independently
+    const tspGrowth    = tspBal * retireRate;
+    const lorriGrowth  = lorriBal * retireRate;
+    const m1Growth     = m1Bal * retireRate;
+    const cryptoGrowth = cryptoBal * retireRate;
+    const totalGrowth  = tspGrowth + lorriGrowth + m1Growth + cryptoGrowth;
+
+    // Apply draws, clamped at zero
+    tspBal    = Math.max(0, tspBal    * (1 + retireRate) - tspDraw);
+    lorriBal  = Math.max(0, lorriBal  * (1 + retireRate) - lorriDraw);
+    m1Bal     = Math.max(0, m1Bal     * (1 + retireRate) - m1Draw);
+    cryptoBal = Math.max(0, cryptoBal * (1 + retireRate) - cryptoDraw);
+
+    const actualDraw = tspDraw + lorriDraw + m1Draw + cryptoDraw;
+    const closing = tspBal + lorriBal + m1Bal + cryptoBal;
+    const portfolioExhausted = closing <= 0 && actualDraw === 0;
     yearlyPortfolio[year] = Math.max(0, closing);
 
     // Guaranteed income this year
@@ -2166,7 +2218,7 @@ function calcRetire() {
     if (!inPhase2)       guaranteed += LORRI_CC;
     if (inPhase2 && lorriAge >= lorriSSAge) guaranteed += lorriSSAmount;
 
-    const totalIncome = draw + guaranteed;
+    const totalIncome = actualDraw + guaranteed;
 
     // Events
     const events = [];
@@ -2198,8 +2250,13 @@ function calcRetire() {
       <td style="padding:5px 6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${year}</td>
       <td style="padding:5px 6px;font-size:11px;font-weight:500;color:${phaseColor}">P${phase}</td>
       <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px">${fmtFull(opening)}</td>
-      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--green)">${portfolioExhausted?'—':'+'+fmtFull(growth)}</td>
-      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--red)">${portfolioExhausted?'—':'-'+fmtFull(draw)}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--green)">${portfolioExhausted?'—':'+'+fmtFull(totalGrowth)}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--blue)">${tspDraw>0?'-'+fmtFull(tspDraw):'—'}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--coral)">${lorriDraw>0?'-'+fmtFull(lorriDraw):'—'}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--text)">${fmtFull(tspBal)}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--text)">${fmtFull(lorriBal)}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${fmtFull(m1Bal)}</td>
+      <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)">${fmtFull(cryptoBal)}</td>
       <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:${isEmpty?'var(--red)':isLow?'var(--amber)':'var(--text)'}">${isEmpty?'$0':fmtFull(Math.max(0,closing))}</td>
       <td style="padding:5px 6px;text-align:right;font-family:'DM Mono',monospace;font-size:11px;color:${portfolioExhausted?'var(--amber)':'var(--green)'}">${fmtFull(totalIncome)}</td>
       <td style="padding:5px 6px;font-size:10px;color:var(--hint)">${events.join(' · ')}</td>
