@@ -2062,48 +2062,35 @@ function calcRetire() {
 
   const totalYears = exhaustAge - ISAAC_RETIRE;
 
-  // ── binary search for required draw ──────────────────────────────────────
-  // Sizes the draw against the FULL combined pool (TSP + Lorri + M1 + Kraken).
-  // All four accounts draw down proportionally each year in the table loop
-  // below, so sizing against the combined total is correct here.
-  const isaacGrowthMultiple0 = ISAAC_CURRENT > 0 ? isaacPool / ISAAC_CURRENT : 1;
-  const live0 = window._livePoolValues || {};
-  const tspShare0 = (live0.tspCiv !== undefined && live0.tspUni !== undefined && ISAAC_CURRENT > 0)
-                      ? (live0.tspCiv + live0.tspUni) / ISAAC_CURRENT : 0.70;
-  const m1Share0    = (live0.m1 !== undefined && ISAAC_CURRENT > 0) ? live0.m1 / ISAAC_CURRENT : 0.20;
-  const cryptoShare0 = (live0.crypto !== undefined && ISAAC_CURRENT > 0) ? live0.crypto / ISAAC_CURRENT : 0.10;
+  // ── unified binary search for required draw ──────────────────────────────
+  // Solves for a single annual draw rate applied across the ENTIRE retirement
+  // timeline (Phase 1 + Phase 2) that exhausts the full combined pool exactly
+  // at exhaustAge. Phase 1 draws only from Isaac's pool (TSP+M1+Kraken) since
+  // Lorri hasn't retired yet; Phase 2 draws from the combined total once her
+  // accounts unlock. No arbitrary multipliers — the search finds the real
+  // amortized draw directly from the actual pool sizes and timeline.
   const isaacFullPoolAtRetire = isaacPool; // TSP + M1 + Kraken combined, already projected
 
   // Use integer phase years throughout — binary search and table must agree exactly
   const phase1Years = Math.round(lorriYearsAfterIsaacRetire);
   const phase2Years = totalYears - phase1Years;
 
-  // Compute draw1Final first — binary search MUST use this exact value
-  // so its Phase 1 simulation matches the table exactly.
-  // Phase 1 draws from Isaac's full pool (TSP+M1+Kraken) — Lorri hasn't retired yet.
-  let draw1Final;
-  if (phase1Years <= 0) {
-    draw1Final = 0; // placeholder — will be set to draw2 after binary search
-  } else {
-    const annuity = (isaacFullPoolAtRetire * retireRate * Math.pow(1+retireRate, phase1Years)) /
-                    (Math.pow(1+retireRate, phase1Years) - 1);
-    draw1Final = Math.min(annuity * 0.45, isaacFullPoolAtRetire * 0.15);
-  }
+  // Upper bound scales with actual pool size so the search always has enough
+  // room to find the true required draw regardless of portfolio size
+  const combinedAtRetire = isaacFullPoolAtRetire + lorriPool;
+  let lo = 0, hi = Math.max(2000000, combinedAtRetire), draw2 = 0, draw1Final = 0;
 
-  // Binary search on Phase2 draw — finds draw that exhausts the full combined
-  // pool (TSP + Lorri + M1 + Kraken) by exhaustAge.
-  let lo = 0, hi = 2000000, draw2 = 0;
-  for (let iter = 0; iter < 80; iter++) {
+  for (let iter = 0; iter < 100; iter++) {
     const mid = (lo + hi) / 2;
 
-    // Phase 1: Isaac's full pool — use draw1Final, exactly what the table uses
+    // Phase 1: Isaac's pool only, drawing at the same rate as Phase 2
     let bal1 = isaacFullPoolAtRetire;
     for (let y = 0; y < phase1Years; y++) {
-      bal1 = bal1 * (1 + retireRate) - draw1Final;
+      bal1 = bal1 * (1 + retireRate) - mid;
       if (bal1 < 0) { bal1 = 0; break; }
     }
 
-    // Phase 2: Isaac's remainder + Lorri's pool — full combined total
+    // Phase 2: Isaac's remainder + Lorri's pool, combined
     let bal2 = bal1 + lorriPool;
     for (let y = 0; y < phase2Years; y++) {
       bal2 = bal2 * (1 + retireRate) - mid;
@@ -2113,6 +2100,7 @@ function calcRetire() {
     if (bal2 > 0) lo = mid;
     else hi = mid;
     draw2 = mid;
+    draw1Final = mid;
   }
 
   // If no Phase 1, draw1Final equals draw2
