@@ -5921,6 +5921,8 @@ function updateInvestmentDOM(vals) {
       fid403b: vals.fid403b, fid401a: vals.fid401a,
       m1: vals.m1, crypto: vals.crypto
     };
+    // Re-run retirement projection now that live values are available
+    try { if (typeof calcRetire === 'function') calcRetire(); } catch(e) {}
   }
   if (!isNaN(lorriPool)) set('lorriCurrentPool', fmt(lorriPool));
 
