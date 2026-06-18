@@ -2083,15 +2083,18 @@ function calcRetire() {
   for (let iter = 0; iter < 100; iter++) {
     const mid = (lo + hi) / 2;
 
-    // Phase 1: Isaac's pool only, drawing at the same rate as Phase 2
+    // Phase 1: Isaac's pool only, drawing at the same rate as Phase 2.
+    // Lorri's pool grows untouched during Phase 1 (matches table loop behavior).
     let bal1 = isaacFullPoolAtRetire;
+    let lorriDuringPhase1 = lorriPool;
     for (let y = 0; y < phase1Years; y++) {
       bal1 = bal1 * (1 + retireRate) - mid;
+      lorriDuringPhase1 = lorriDuringPhase1 * (1 + retireRate);
       if (bal1 < 0) { bal1 = 0; break; }
     }
 
-    // Phase 2: Isaac's remainder + Lorri's pool, combined
-    let bal2 = bal1 + lorriPool;
+    // Phase 2: Isaac's remainder + Lorri's grown pool, combined
+    let bal2 = bal1 + lorriDuringPhase1;
     for (let y = 0; y < phase2Years; y++) {
       bal2 = bal2 * (1 + retireRate) - mid;
       if (bal2 < 0) break;
