@@ -1277,14 +1277,25 @@
           </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em">Lorri retires at age</div>
-          <div style="display:flex;align-items:center;gap:6px">
-            <input type="range" id="lorriRetireAge" min="53" max="70" step="1" value="53" style="flex:1" oninput="calcRetire()">
-            <span id="lorriRetireAgeVal" style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--coral);min-width:38px">60</span>
+
+      <!-- Retirement target dates -->
+      <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em">Retirement target dates</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px">
+          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border2)">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Isaac's planned retirement date</div>
+            <input type="date" id="isaacRetireDate" value="2040-06-01" style="width:100%;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px" oninput="calcRetire()">
+            <div style="font-size:10px;color:var(--blue);margin-top:6px" id="isaacDateNote">Age — · in — years</div>
+          </div>
+          <div style="background:var(--surface2);border-radius:8px;padding:10px 12px;border:1px solid var(--border2)">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:6px">Lorri's planned retirement date</div>
+            <input type="date" id="lorriRetireDate" value="2040-06-01" style="width:100%;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:6px;color:var(--text);padding:5px 8px" oninput="calcRetire()">
+            <div style="font-size:10px;color:var(--coral);margin-top:6px" id="lorriDateNote">Age — · in — years</div>
           </div>
         </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
         <div>
           <div style="font-size:10px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.07em">Isaac claims SS at age</div>
           <div style="display:flex;align-items:center;gap:6px">
@@ -1805,14 +1816,43 @@ function fmtFull(n) { return '$' + Math.round(Math.max(0,n)).toLocaleString(); }
 function calcRetire() {
   const growthRate    = parseFloat(document.getElementById('growthRate').value) / 100;
   const retireRate    = parseFloat(document.getElementById('retireRate').value) / 100;
-  const lorriRetireAge = parseInt(document.getElementById('lorriRetireAge').value);
   const exhaustAge    = parseInt(document.getElementById('exhaustAge').value);
   const isaacSSAge    = parseInt(document.getElementById('isaacSSAge').value);
   const lorriSSAge    = parseInt(document.getElementById('lorriSSAge').value);
 
+  // ── retirement dates (replaces age-slider + AGE_GAP approximation) ───────
+  const ISAAC_BIRTHDATE = new Date('1981-11-01');
+  const LORRI_BIRTHDATE = new Date('1986-06-27');
+  const TODAY = new Date();
+
+  const isaacDateInput = document.getElementById('isaacRetireDate');
+  const lorriDateInput = document.getElementById('lorriRetireDate');
+  const isaacRetireDate = new Date(isaacDateInput.value || '2040-06-01');
+  const lorriRetireDate = new Date(lorriDateInput.value || '2040-06-01');
+
+  const YEAR_MS = 1000 * 60 * 60 * 24 * 365.25;
+  const isaacAgeAtRetire = (isaacRetireDate - ISAAC_BIRTHDATE) / YEAR_MS;
+  const lorriAgeAtRetire = (lorriRetireDate - LORRI_BIRTHDATE) / YEAR_MS;
+  const isaacYearsToRetire = (isaacRetireDate - TODAY) / YEAR_MS;
+  const lorriYearsToRetire = (lorriRetireDate - TODAY) / YEAR_MS;
+
+  document.getElementById('isaacDateNote').textContent =
+    'Age ' + isaacAgeAtRetire.toFixed(1) + ' · in ' + Math.max(0,isaacYearsToRetire).toFixed(1) + ' years';
+  const dateDiffYears = (lorriRetireDate - isaacRetireDate) / YEAR_MS;
+  const dateDiffLabel = Math.abs(dateDiffYears) < 0.08 ? 'same date as Isaac'
+    : dateDiffYears > 0 ? Math.abs(dateDiffYears).toFixed(1) + ' yrs after Isaac'
+    : Math.abs(dateDiffYears).toFixed(1) + ' yrs before Isaac';
+  document.getElementById('lorriDateNote').textContent =
+    'Age ' + lorriAgeAtRetire.toFixed(1) + ' · in ' + Math.max(0,lorriYearsToRetire).toFixed(1) + ' years · ' + dateDiffLabel;
+
+  // Values used downstream — kept under original names so the rest of the
+  // function (table rendering, calcNetWorth call, summary note) needs no changes
+  const lorriRetireAge = Math.round(lorriAgeAtRetire);
+  const ISAAC_RETIRE   = Math.round(isaacAgeAtRetire);
+  const RETIRE_YEAR    = isaacRetireDate.getFullYear();
+
   document.getElementById('growthRateVal').textContent    = (growthRate*100).toFixed(1)+'%';
   document.getElementById('retireRateVal').textContent    = (retireRate*100).toFixed(1)+'%';
-  document.getElementById('lorriRetireAgeVal').textContent = lorriRetireAge;
   document.getElementById('exhaustAgeVal').textContent    = exhaustAge;
   document.getElementById('isaacSSAgeVal').textContent    = isaacSSAge;
   document.getElementById('lorriSSAgeVal').textContent    = lorriSSAge;
@@ -1833,19 +1873,6 @@ function calcRetire() {
   document.getElementById('isaacSSNote').textContent = fmtFull(isaacSSAmount) + '/yr at ' + isaacSSAge;
   document.getElementById('lorriSSNote').textContent = fmtFull(lorriSSAmount) + '/yr at ' + lorriSSAge;
 
-  // ── birth years & key ages ───────────────────────────────────────────
-  const ISAAC_BORN  = 1981;   // Nov 1981
-  const LORRI_BORN  = 1986;   // Jun 1986
-  const ISAAC_NOW   = 44;
-  const LORRI_NOW   = 39;     // turns 40 Jun 2026
-  const AGE_GAP     = 4.6;    // Lorri is ~4y 11m younger
-
-  const ISAAC_RETIRE = 57;
-  const RETIRE_YEAR  = 2038;  // Isaac turns 57 Nov 2038
-
-  // When Isaac is X, Lorri is X - AGE_GAP (rounded)
-  const isaacAgeWhenLorriRetires = Math.round(lorriRetireAge + AGE_GAP); // varies
-
   // ── account splits ───────────────────────────────────────────────────
   // Use live portfolio values if available, else fall back to hardcoded snapshot
   const _liveIsaac = window._livePoolValues?.isaac;
@@ -1855,10 +1882,8 @@ function calcRetire() {
   const ISAAC_CONTRIB  = 990;      // TSP 5% + 5% match ~$868 + Guard TSP ~$122 = ~$990/mo
   const LORRI_CONTRIB  = 2153;     // 403b 7% ~$1,005 + match ~$431 + IPP $717 = ~$2,153/mo
 
-  // ── project Isaac's pool to retirement (dynamic years remaining) ─────────
-  const TODAY        = new Date();
-  const RETIRE_DATE  = new Date('2038-11-01');
-  const yearsToRetire = (RETIRE_DATE - TODAY) / (1000 * 60 * 60 * 24 * 365.25);
+  // ── project Isaac's pool to his retirement date (dynamic years remaining) ──
+  const yearsToRetire = Math.max(0, isaacYearsToRetire);
   const fullYears    = Math.floor(yearsToRetire);
   const partialYear  = yearsToRetire - fullYears;
 
@@ -1871,11 +1896,8 @@ function calcRetire() {
     isaacPool = isaacPool * (1 + growthRate * partialYear) + ISAAC_CONTRIB * 12 * partialYear;
   }
 
-  // ── project Lorri's pool from today until her retirement ─────────────
-  // Calculate Lorri's current age dynamically from birthdate Jun 27, 1986
-  const LORRI_BIRTHDATE = new Date('1986-06-27');
-  const LORRI_AGE_NOW = (TODAY - LORRI_BIRTHDATE) / (1000 * 60 * 60 * 24 * 365.25);
-  const lorriTotalYears = lorriRetireAge - LORRI_AGE_NOW;
+  // ── project Lorri's pool from today until her retirement date ────────────
+  const lorriTotalYears = Math.max(0, lorriYearsToRetire);
   const lorriFullYears = Math.floor(lorriTotalYears);
 
   let lorriPool = LORRI_CURRENT;
@@ -1888,13 +1910,10 @@ function calcRetire() {
     lorriPool = lorriPool * (1 + growthRate * lorriPartialYear) + LORRI_CONTRIB * 12 * lorriPartialYear;
   }
 
-  // Phase 1 years = years between Isaac's retirement (age 57) and Lorri's retirement.
-  // Isaac retires at 57. Lorri is AGE_GAP (4.6 yrs) younger, so at Isaac's
-  // retirement Lorri's age = 57 - 4.6 = 52.4.
-  // Lorri can NEVER retire before Isaac — she is always ~4.6 years younger.
-  // Slider minimum is 53, so lorriYearsAfterIsaacRetire is always positive.
-  const lorriAgeAtIsaacRetire = ISAAC_RETIRE - AGE_GAP; // 57 - 4.6 = 52.4
-  const lorriYearsAfterIsaacRetire = lorriRetireAge - lorriAgeAtIsaacRetire; // always > 0
+  // Phase 1 years = years between Isaac's retirement date and Lorri's retirement date.
+  // Calculated directly from the two dates — no age-gap approximation needed.
+  // Can be 0 (same date) or negative (Lorri retires first) — both handled below.
+  const lorriYearsAfterIsaacRetire = (lorriRetireDate - isaacRetireDate) / YEAR_MS;
 
   const combinedPool = isaacPool + lorriPool;
 
@@ -2080,7 +2099,7 @@ function calcRetire() {
   const phase1Income = Math.round(draw1Final + FERS + RENTAL + LORRI_CC);
   const phase2IncomeBase = Math.round(draw2 + FERS + GUARD + ISAAC_SS + RENTAL);
   document.getElementById('calcNote').innerHTML =
-    `<strong style="color:var(--blue)">Phase 1</strong> (Isaac 57 → Lorri retires at ${lorriRetireAge}): Isaac draws ~<strong style="color:var(--amber)">${fmtFull(Math.round(draw1Final))}/yr</strong> from his accounts · Lorri's CC income adds <strong style="color:var(--green)">$110,348/yr</strong> · Isaac SS starts at ${isaacSSAge} (${fmtFull(isaacSSAmount)}/yr)
+    `<strong style="color:var(--blue)">Phase 1</strong> (Isaac ${ISAAC_RETIRE} → Lorri retires at ${lorriRetireAge}): Isaac draws ~<strong style="color:var(--amber)">${fmtFull(Math.round(draw1Final))}/yr</strong> from his accounts · Lorri's CC income adds <strong style="color:var(--green)">$110,348/yr</strong> · Isaac SS starts at ${isaacSSAge} (${fmtFull(isaacSSAmount)}/yr)
     &nbsp;|&nbsp;
     <strong style="color:var(--green)">Phase 2</strong> (both retired · Lorri's ${fmt(lorriPool)} unlocked): combined draw rises to <strong style="color:var(--amber)">${fmtFull(Math.round(draw2))}/yr</strong> · Lorri SS starts at ${lorriSSAge} (${fmtFull(lorriSSAmount)}/yr) · portfolio exhausts at Isaac age <strong style="color:var(--amber)">${exhaustAge}</strong> · pensions + SS continue for life regardless`;
 }
