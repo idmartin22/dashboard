@@ -1855,20 +1855,27 @@ function calcRetire() {
   const ISAAC_CONTRIB  = 990;      // TSP 5% + 5% match ~$868 + Guard TSP ~$122 = ~$990/mo
   const LORRI_CONTRIB  = 2153;     // 403b 7% ~$1,005 + match ~$431 + IPP $717 = ~$2,153/mo
 
-  // ── project Isaac's pool to retirement (13 yrs) ─────────────────────
-  // Note: Lorri's 2.17x higher contribution rate means her pool will
-  // overtake Isaac's and be significantly larger by Isaac's retirement
+  // ── project Isaac's pool to retirement (dynamic years remaining) ─────────
+  const TODAY        = new Date();
+  const RETIRE_DATE  = new Date('2038-11-01');
+  const yearsToRetire = (RETIRE_DATE - TODAY) / (1000 * 60 * 60 * 24 * 365.25);
+  const fullYears    = Math.floor(yearsToRetire);
+  const partialYear  = yearsToRetire - fullYears;
+
   let isaacPool = ISAAC_CURRENT;
-  for (let y = 0; y < 13; y++) {
+  for (let y = 0; y < fullYears; y++) {
     isaacPool = isaacPool * (1 + growthRate) + ISAAC_CONTRIB * 12;
+  }
+  // Partial final year
+  if (partialYear > 0) {
+    isaacPool = isaacPool * (1 + growthRate * partialYear) + ISAAC_CONTRIB * 12 * partialYear;
   }
 
   // ── project Lorri's pool from today until her retirement ─────────────
-  // Lorri is currently 39.9 (turns 40 Jun 2026)
-  // Total years Lorri works from today = lorriRetireAge - 39.9
-  // This correctly handles all cases including Lorri retiring at same time as Isaac
-  const LORRI_AGE_NOW = 39.9;
-  const lorriTotalYears = lorriRetireAge - LORRI_AGE_NOW; // e.g. 52 - 39.9 = 12.1 yrs
+  // Calculate Lorri's current age dynamically from birthdate Jun 27, 1986
+  const LORRI_BIRTHDATE = new Date('1986-06-27');
+  const LORRI_AGE_NOW = (TODAY - LORRI_BIRTHDATE) / (1000 * 60 * 60 * 24 * 365.25);
+  const lorriTotalYears = lorriRetireAge - LORRI_AGE_NOW;
   const lorriFullYears = Math.floor(lorriTotalYears);
 
   let lorriPool = LORRI_CURRENT;
