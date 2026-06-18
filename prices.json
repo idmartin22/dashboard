@@ -86,7 +86,7 @@
   },
   "retirementSettings": {
     "growthRate": "11.5",
-    "retireRate": "6.5",
+    "retireRate": "5.5",
     "exhaustAge": "110",
     "isaacSSAge": "62",
     "lorriSSAge": "62",
