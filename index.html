@@ -1314,6 +1314,14 @@
         </div>
       </div>
 
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+        <button onclick="saveRetireSettingsToGitHub()" id="save-retire-btn"
+          style="padding:6px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">
+          Save Settings — All Devices
+        </button>
+        <span id="save-retire-status" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
         <div style="background:var(--surface2);border-radius:8px;padding:11px;text-align:center">
           <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Isaac's pool at 57</div>
@@ -1813,7 +1821,118 @@ function fmt(n) {
 }
 function fmtFull(n) { return '$' + Math.round(Math.max(0,n)).toLocaleString(); }
 
+async function saveRetireSettingsToGitHub() {
+  const btn = document.getElementById('save-retire-btn');
+  const status = document.getElementById('save-retire-status');
+  if (btn) { btn.disabled = true; }
+  if (status) { status.textContent = 'Saving...'; status.style.color = 'var(--muted)'; }
+
+  try {
+    const inputs = {
+      growthRate: document.getElementById('growthRate').value,
+      retireRate: document.getElementById('retireRate').value,
+      exhaustAge: document.getElementById('exhaustAge').value,
+      isaacSSAge: document.getElementById('isaacSSAge').value,
+      lorriSSAge: document.getElementById('lorriSSAge').value,
+      isaacRetireDate: document.getElementById('isaacRetireDate').value,
+      lorriRetireDate: document.getElementById('lorriRetireDate').value,
+    };
+
+    // 1. Fetch current prices.json + its SHA (required for update)
+    const getResp = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/prices.json`,
+      { headers: { 'Authorization': `Bearer ${GITHUB_PAT}`, 'Accept': 'application/vnd.github+json' } }
+    );
+    if (!getResp.ok) throw new Error('Could not fetch prices.json (HTTP ' + getResp.status + ')');
+    const fileData = await getResp.json();
+    const sha = fileData.sha;
+    const currentContent = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+
+    // 2. Merge in retirement settings
+    currentContent.retirementSettings = inputs;
+
+    // 3. Encode and push updated content
+    const newContentStr = JSON.stringify(currentContent, null, 2);
+    const newContentB64 = btoa(unescape(encodeURIComponent(newContentStr)));
+
+    const putResp = await fetch(
+      `https://api.github.com/repos/${GITHUB_REPO}/contents/prices.json`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${GITHUB_PAT}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: 'Update retirement calculator settings ' + new Date().toISOString().slice(0,10),
+          content: newContentB64,
+          sha: sha,
+        })
+      }
+    );
+    if (!putResp.ok) {
+      const err = await putResp.json().catch(() => ({}));
+      throw new Error(err.message || 'HTTP ' + putResp.status);
+    }
+
+    if (status) { status.textContent = 'Saved ✓ — visible on all devices'; status.style.color = 'var(--green)'; }
+    setTimeout(() => { if (status) status.textContent = ''; }, 6000);
+  } catch(e) {
+    if (status) { status.textContent = 'Save failed: ' + e.message; status.style.color = 'var(--red)'; }
+    console.error('saveRetireSettingsToGitHub error:', e);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+function loadRetireSettingsFromPrices(pricesData) {
+  const settings = pricesData?.retirementSettings;
+  if (!settings) return;
+  try {
+    if (settings.growthRate) document.getElementById('growthRate').value = settings.growthRate;
+    if (settings.retireRate) document.getElementById('retireRate').value = settings.retireRate;
+    if (settings.exhaustAge) document.getElementById('exhaustAge').value = settings.exhaustAge;
+    if (settings.isaacSSAge) document.getElementById('isaacSSAge').value = settings.isaacSSAge;
+    if (settings.lorriSSAge) document.getElementById('lorriSSAge').value = settings.lorriSSAge;
+    if (settings.isaacRetireDate) document.getElementById('isaacRetireDate').value = settings.isaacRetireDate;
+    if (settings.lorriRetireDate) document.getElementById('lorriRetireDate').value = settings.lorriRetireDate;
+    calcRetire();
+  } catch(e) {}
+}
+
+function saveRetireInputs() {
+  try {
+    const inputs = {
+      growthRate: document.getElementById('growthRate').value,
+      retireRate: document.getElementById('retireRate').value,
+      exhaustAge: document.getElementById('exhaustAge').value,
+      isaacSSAge: document.getElementById('isaacSSAge').value,
+      lorriSSAge: document.getElementById('lorriSSAge').value,
+      isaacRetireDate: document.getElementById('isaacRetireDate').value,
+      lorriRetireDate: document.getElementById('lorriRetireDate').value,
+    };
+    localStorage.setItem('mf_retire_inputs', JSON.stringify(inputs));
+  } catch(e) {}
+}
+
+function restoreRetireInputs() {
+  try {
+    const saved = localStorage.getItem('mf_retire_inputs');
+    if (!saved) return;
+    const inputs = JSON.parse(saved);
+    if (inputs.growthRate) document.getElementById('growthRate').value = inputs.growthRate;
+    if (inputs.retireRate) document.getElementById('retireRate').value = inputs.retireRate;
+    if (inputs.exhaustAge) document.getElementById('exhaustAge').value = inputs.exhaustAge;
+    if (inputs.isaacSSAge) document.getElementById('isaacSSAge').value = inputs.isaacSSAge;
+    if (inputs.lorriSSAge) document.getElementById('lorriSSAge').value = inputs.lorriSSAge;
+    if (inputs.isaacRetireDate) document.getElementById('isaacRetireDate').value = inputs.isaacRetireDate;
+    if (inputs.lorriRetireDate) document.getElementById('lorriRetireDate').value = inputs.lorriRetireDate;
+  } catch(e) {}
+}
+
 function calcRetire() {
+  saveRetireInputs();
   const growthRate    = parseFloat(document.getElementById('growthRate').value) / 100;
   const retireRate    = parseFloat(document.getElementById('retireRate').value) / 100;
   const exhaustAge    = parseInt(document.getElementById('exhaustAge').value);
@@ -2370,6 +2489,7 @@ function calcDrift() {
 }
 
 calcDrift();
+restoreRetireInputs();
 calcRetire();
 initDrillModal(); // drives calcNetWorth internally with actual retireRate + draw2
 // ── STORAGE COMPATIBILITY SHIM ───────────────────────────────────────────────
@@ -5404,6 +5524,7 @@ const ELEC_AVG_USAGE      = 1371;
 const ELEC_SUPPLIER       = 'Better Buy Energy';
 
 function initEnergyMonitoring(pricesData) {
+  loadRetireSettingsFromPrices(pricesData);
   const energy = pricesData?.energy;
   if (!energy) return;
   const elec = energy.electric;
