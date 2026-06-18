@@ -2137,7 +2137,7 @@ function calcRetire() {
   // with its own accumulation logic, but from RETIRE_YEAR onward we override.
 
   // Real age gap derived from actual birthdates (replaces old AGE_GAP constant)
-  const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS * -1; // positive: Lorri younger
+  const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS; // positive: Lorri younger
 
   // ── separate account tracking for drawdown ───────────────────────────────
   // Drawable accounts: Isaac's TSP, Lorri's 403b+401a — drawn proportionally each year
