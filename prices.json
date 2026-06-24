@@ -1,87 +1,23 @@
 {
-  "updated": "2026-06-23",
+  "updated": "2026-06-24",
   "tsp": {
-    "G": 19.9944,
-    "F": 20.9577,
-    "C": 120.2339,
-    "S": 116.0268,
-    "I": 65.732
+    "G": 19.9968,
+    "F": 20.9829,
+    "C": 118.5099,
+    "S": 115.0693,
+    "I": 63.8369
   },
   "fidelity": {
-    "VIIIX": 599.81,
-    "VTPSX": 186.76,
-    "VEMPX": 450.9
+    "VIIIX": 591.2,
+    "VTPSX": 181.14,
+    "VEMPX": 447.19
   },
   "etf": {
-    "VTI": 368.81,
-    "QQQM": 303.9,
+    "VTI": 363.7,
+    "QQQM": 293.87,
     "AVUV": 122.38,
-    "AVDV": 107.34,
-    "AVES": 68.1,
-    "VXUS": 87.06
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-06-23",
-      "ptc": 10.83,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 9.09,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 12
-        },
-        "18_24": {
-          "rate": 9.39,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.99,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-06-23",
-      "sco": 52.9,
-      "best": {
-        "3": {
-          "rate": 39.9,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 59.9,
-          "supplier": "Shipley Choice  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 55.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 66.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "AVDV": 104.89,
+    "AVES": 65.2,
+    "VXUS": 84.41
   }
 }
