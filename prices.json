@@ -1,87 +1,23 @@
 {
-  "updated": "2026-06-25",
+  "updated": "2026-06-26",
   "tsp": {
-    "G": 19.9993,
-    "F": 21.0819,
-    "C": 118.3949,
-    "S": 115.4845,
-    "I": 63.7583
+    "G": 20.0018,
+    "F": 21.0942,
+    "C": 118.3881,
+    "S": 116.1112,
+    "I": 64.4268
   },
   "fidelity": {
-    "VIIIX": 588.81,
-    "VTPSX": 181.11,
-    "VEMPX": 447.7
+    "VIIIX": 588.78,
+    "VTPSX": 182.46,
+    "VEMPX": 450.1
   },
   "etf": {
-    "VTI": 363.65,
-    "QQQM": 292.63,
-    "AVUV": 123.17,
-    "AVDV": 104.1,
-    "AVES": 65.04,
-    "VXUS": 84.34
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-06-25",
-      "ptc": 10.83,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 9.09,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 12
-        },
-        "18_24": {
-          "rate": 9.39,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.99,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-06-25",
-      "sco": 52.9,
-      "best": {
-        "3": {
-          "rate": 39.9,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 59.9,
-          "supplier": "Shipley Choice  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 55.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 66.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 363.98,
+    "QQQM": 294.88,
+    "AVUV": 124.16,
+    "AVDV": 104.22,
+    "AVES": 64.84,
+    "VXUS": 85.08
   }
 }
