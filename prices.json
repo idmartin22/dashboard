@@ -1,87 +1,23 @@
 {
-  "updated": "2026-07-08",
+  "updated": "2026-07-09",
   "tsp": {
-    "G": 20.0316,
-    "F": 20.941,
-    "C": 120.7787,
-    "S": 116.6563,
-    "I": 64.1444
+    "G": 20.0341,
+    "F": 20.9085,
+    "C": 120.4389,
+    "S": 115.635,
+    "I": 63.6064
   },
   "fidelity": {
-    "VIIIX": 600.67,
-    "VTPSX": 181.89,
-    "VEMPX": 452.2
+    "VIIIX": 598.98,
+    "VTPSX": 181.32,
+    "VEMPX": 448.24
   },
   "etf": {
-    "VTI": 369.61,
-    "QQQM": 292.14,
-    "AVUV": 123.15,
-    "AVDV": 103.78,
+    "VTI": 368.25,
+    "QQQM": 292.87,
+    "AVUV": 122.39,
+    "AVDV": 103.06,
     "AVES": 64.61,
-    "VXUS": 84.65
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-08",
-      "ptc": 10.83,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 9.09,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 12
-        },
-        "18_24": {
-          "rate": 9.39,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.99,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-08",
-      "sco": 52.9,
-      "best": {
-        "3": {
-          "rate": 39.9,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 59.9,
-          "supplier": "Shipley Choice  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 55.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 66.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VXUS": 84.44
   }
 }
