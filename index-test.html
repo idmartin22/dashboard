@@ -3889,7 +3889,8 @@ function calcMortgageExtraPrincipal() {
     extraNeeded: extraNeeded,
     monthsToRetire: monthsToRetire,
     retirementDate: RETIREMENT_DATE,
-    balance: MORTGAGE_BALANCE
+    balance: MORTGAGE_BALANCE,
+    pi: MORTGAGE_PI
   };
 }
 
@@ -4026,7 +4027,7 @@ function computeDeployment() {
     projBal: projBal,
     // Full context for monthly review prompt
     debts: { lowes2, lowes3, rav4, pool, deck, mortgage },
-    mortgage: { balance: MORTGAGE_BALANCE, extraNeeded, monthsToRetire, pi: MORTGAGE_PI, retirementDate: RETIREMENT_DATE },
+    mortgage: { balance: MORTGAGE_BALANCE, extraNeeded, monthsToRetire, pi: mtgCalc.pi, retirementDate: RETIREMENT_DATE },
     crypto: { value: cryptoVal, pct: cryptoPct, headroom: cryptoHeadroom, ceiling: cryptoCeiling },
     m1: { value: m1Val },
     netWorth: netWorth,
