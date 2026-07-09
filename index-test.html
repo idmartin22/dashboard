@@ -470,6 +470,7 @@
           <div class="row"><div class="rl">2013 Toyota Corolla LE<div class="rsub">KBB est.</div></div><div class="rv" id="pa-corolla13">$7,000</div></div>
           <div class="row"><div class="rl">2003 Toyota Corolla<div class="rsub">KBB est.</div></div><div class="rv" id="pa-corolla03">$2,000</div></div>
           <div class="row"><div class="rl">2005 Gulf Stream Sun Voyager 8368<div class="rsub">Class A · KBB est.</div></div><div class="rv" id="pa-gulfstream">$25,000</div></div>
+          <div class="row"><div class="rl">Custom EZGO TXT — Navitas AC / Jake's Long Travel<div class="rsub">EcoBattery 105Ah lithium · Madjax Storm body · custom build est.</div></div><div class="rv" id="pa-golfcart">$0</div></div>
           <div class="row"><div class="rl">Cash (checking + savings)</div><div class="rv" id="nw-liquid-cash">$25,157</div></div>
         </div>
       </div>
@@ -4127,6 +4128,7 @@ function openPhysicalAssetReview() {
   var corolla13  = document.getElementById('pa-corolla13')   ? document.getElementById('pa-corolla13').textContent   : '$7,000';
   var corolla03  = document.getElementById('pa-corolla03')   ? document.getElementById('pa-corolla03').textContent   : '$2,000';
   var gulfstream = document.getElementById('pa-gulfstream')  ? document.getElementById('pa-gulfstream').textContent  : '$25,000';
+  var golfcart   = document.getElementById('pa-golfcart')    ? document.getElementById('pa-golfcart').textContent    : '$0';
   var lastValued = document.getElementById('phys-last-valued') ? document.getElementById('phys-last-valued').textContent : 'unknown';
   var nw = window._liveNetWorth ? '$' + Math.round(window._liveNetWorth).toLocaleString() : (parseNW('kpi-net-worth') || '~$1.2M');
 
@@ -4139,12 +4141,14 @@ function openPhysicalAssetReview() {
     '- 2019 Toyota RAV4 XLE AWD: ' + rav4 + '\n' +
     '- 2013 Toyota Corolla LE: ' + corolla13 + '\n' +
     '- 2003 Toyota Corolla: ' + corolla03 + '\n' +
-    '- 2005 Gulf Stream Sun Voyager 8368 Class A RV: ' + gulfstream + '\n\n' +
+    '- 2005 Gulf Stream Sun Voyager 8368 Class A RV: ' + gulfstream + '\n' +
+    '- Custom EZGO TXT golf cart (Navitas AC conversion, EcoBattery 105Ah lithium, Jake\'s Long Travel suspension, Madjax Storm body): ' + golfcart + '\n\n' +
     'HOUSEHOLD NET WORTH: ' + nw + '\n\n' +
     'YOUR TASK:\n' +
     'For each PROPERTY: Search Zillow, Redfin, Realtor.com, recent comparable sales within 0.5 miles, Lorain County Auditor tax records, FHFA regional house price index for Cleveland metro, and local MLS days-on-market trends. Provide a recommended current market value with source breakdown.\n\n' +
     'For each VEHICLE: Search KBB private party value, Edmunds TMV, CarGurus market price, local Northeast Ohio dealer listings, and Manheim wholesale index. Account for condition, mileage, and regional market. Provide a recommended current value with source breakdown.\n\n' +
     'For the RV: Search NADA RV guides, RVTrader.com listings for comparable 2005 Gulf Stream Class A units, and recent sale prices. Provide a recommended value.\n\n' +
+    'For the CUSTOM GOLF CART: this is not a stock EZGO — it has a Navitas AC motor/controller conversion, EcoBattery 105Ah lithium battery pack, Jake\'s Long Travel suspension, and a Madjax Storm body, all aftermarket upgrades that add meaningfully to resale value over a stock cart. Standard KBB/NADA golf cart values will understate this. Search specialty golf cart marketplaces (GolfCartResource, Golf Cart Classifieds), Facebook Marketplace listings for comparable Navitas-converted or similarly upgraded carts, and any recent sold listings for EZGO TXT carts with lithium conversions. Provide a recommended value that accounts for the specific aftermarket components, with source breakdown.\n\n' +
     'After all valuations, provide a summary table showing old vs new values and the net worth impact. The owner will update the Net Worth sheet in Excel with your recommended values.';
 
   window.open('https://claude.ai/new?q=' + encodeURIComponent(prompt), '_blank');
@@ -6782,8 +6786,10 @@ async function processWorkbook(wb, lastModified) {
           return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         };
 
-        // Row indices (0-based): 28=Main Home, 29=Rental, 33=Silverado,
-        //   34=RAV4, 35=2013Corolla, 36=2003Corolla, 37=GulfStream
+        // Row indices (0-based array position = Excel row - 1):
+        //   28=Main Home (Excel row 29), 29=Rental (Excel row 30), 33=Silverado (Excel row 34),
+        //   34=RAV4 (Excel row 35), 35=2013Corolla (Excel row 36), 36=2003Corolla (Excel row 37),
+        //   37=GulfStream (Excel row 38), 38=GolfCart (Excel row 39)
         const PA_ROWS = [
           { row: 28, id: 'pa-main-home' },
           { row: 29, id: 'pa-rental'    },
@@ -6792,6 +6798,7 @@ async function processWorkbook(wb, lastModified) {
           { row: 35, id: 'pa-corolla13' },
           { row: 36, id: 'pa-corolla03' },
           { row: 37, id: 'pa-gulfstream'},
+          { row: 38, id: 'pa-golfcart'  },
         ];
 
         let totalProps = 0, totalVeh = 0, latestAssetDate = null;
