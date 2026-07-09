@@ -19,5 +19,14 @@
     "AVDV": 103.06,
     "AVES": 64.61,
     "VXUS": 84.44
+  },
+  "retirementSettings": {
+    "growthRate": "11.5",
+    "retireRate": "5.5",
+    "exhaustAge": "110",
+    "isaacSSAge": "62",
+    "lorriSSAge": "62",
+    "isaacRetireDate": "2038-11-16",
+    "lorriRetireDate": "2041-06-27"
   }
 }
