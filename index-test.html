@@ -420,11 +420,6 @@
   <div class="page" id="page-nw">
     <div class="two-col">
       <div>
-        <!-- Milestone countdown -->
-        <div class="card" style="margin-bottom:10px">
-          <div class="card-title">Upcoming milestones</div>
-          <div id="milestoneList"></div>
-        </div>
         <div class="card">
           <div class="card-title">Net worth summary</div>
           <div class="net-worth-big" id="nw-big-val">$1.50M</div>
@@ -4868,43 +4863,6 @@ function initDrillModal() {
 }
 
 // ── MILESTONE COUNTDOWN ───────────────────────────────────────────────────────
-function renderMilestones() {
-  const el = document.getElementById('milestoneList');
-  if (!el) return;
-  const now = new Date();
-
-  const milestones = [
-    { date: new Date('2026-06-01'), label: 'Silverado final payment', sub: 'Frees $655/mo → redirect to RAV4', color: 'var(--green)' },
-    { date: new Date('2026-06-27'), label: "Lorri's 40th birthday 🎂", sub: '$1.5M+ net worth milestone', color: 'var(--purple)' },
-    { date: new Date('2026-08-14'), label: '⚠ Lowes Aug 14 promo expires', sub: 'Clear $1,441 balance — deferred interest risk', color: 'var(--red)' },
-    { date: new Date('2026-12-15'), label: 'Lowes Dec 15 promo expires', sub: 'Clear $3,944 balance', color: 'var(--amber)' },
-    { date: new Date('2027-03-15'), label: 'Lowes Mar 15 promo expires', sub: 'Clear $815 balance', color: 'var(--muted)' },
-    { date: new Date('2027-09-01'), label: 'RAV4 payoff target', sub: 'Frees $530/mo → M1 contributions', color: 'var(--green)' },
-    { date: new Date('2028-02-03'), label: 'WF Deck promo expires', sub: 'Confirm paid off — 29.49% deferred APR', color: 'var(--amber)' },
-    { date: new Date('2030-08-01'), label: 'WF Pool payoff target', sub: 'Frees $200/mo', color: 'var(--muted)' },
-    { date: new Date('2038-11-01'), label: '🎯 Isaac retires — age 57', sub: 'Zero debt · FERS + Guard pensions begin', color: 'var(--green)' },
-  ];
-
-  const upcoming = milestones.filter(m => m.date >= now).slice(0, 5);
-  let html = '';
-  upcoming.forEach(m => {
-    const diff = Math.ceil((m.date - now) / (1000 * 60 * 60 * 24));
-    const weeks = Math.floor(diff / 7);
-    const timeStr = diff <= 0 ? 'Today!' : diff === 1 ? '1 day' : diff < 14 ? diff + ' days' : weeks < 52 ? weeks + ' weeks' : Math.floor(diff/365) + ' yrs ' + Math.floor((diff%365)/30) + ' mo';
-    html += `<div style="display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);gap:8px">
-      <div>
-        <div style="font-size:12px;color:${m.color};font-weight:500">${m.label}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:1px">${m.sub}</div>
-      </div>
-      <div style="text-align:right;white-space:nowrap">
-        <div style="font-family:'DM Mono',monospace;font-size:11px;color:${diff<=30?'var(--red)':diff<=90?'var(--amber)':'var(--muted)'}">${timeStr}</div>
-        <div style="font-size:10px;color:var(--hint)">${m.date.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}</div>
-      </div>
-    </div>`;
-  });
-  el.innerHTML = html;
-}
-
 // ── KIDS ACCOUNT PROJECTION ───────────────────────────────────────────────────
 function renderKidsProjection() {
   const el = document.getElementById('kids-projection');
@@ -4938,7 +4896,6 @@ const CHECKLIST_ITEMS = [
   { id:'cl8',  cat:'📈 Investments', label:'Check portfolio drift vs targets' },
   { id:'cl9',  cat:'🏠 Property',   label:'Confirm rental rent received' },
   { id:'cl10', cat:'🏠 Property',   label:'Log utility reimbursements' },
-  { id:'cl11', cat:'🎯 Goals',      label:'Review upcoming milestone countdown' },
   { id:'cl12', cat:'🎯 Goals',      label:'Update dashboard balances if changed' },
 ];
 
@@ -5007,7 +4964,6 @@ async function resetChecklist() {
 }
 
 // Init all new features
-renderMilestones();
 renderKidsProjection();
 renderChecklist();
 
