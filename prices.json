@@ -8,25 +8,16 @@
     "I": 63.6064
   },
   "fidelity": {
-    "VIIIX": 598.98,
-    "VTPSX": 181.32,
-    "VEMPX": 448.24
+    "VIIIX": 603.88,
+    "VTPSX": 182.28,
+    "VEMPX": 454.3
   },
   "etf": {
-    "VTI": 368.25,
-    "QQQM": 292.87,
-    "AVUV": 122.39,
-    "AVDV": 103.06,
-    "AVES": 64.61,
-    "VXUS": 84.44
-  },
-  "retirementSettings": {
-    "growthRate": "11.5",
-    "retireRate": "5.5",
-    "exhaustAge": "110",
-    "isaacSSAge": "62",
-    "lorriSSAge": "62",
-    "isaacRetireDate": "2038-11-16",
-    "lorriRetireDate": "2041-06-27"
+    "VTI": 371.45,
+    "QQQM": 297.78,
+    "AVUV": 123.22,
+    "AVDV": 103.13,
+    "AVES": 64.77,
+    "VXUS": 84.9
   }
 }
