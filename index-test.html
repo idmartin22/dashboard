@@ -647,7 +647,7 @@
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
             <div class="card-title" style="margin:0">Debt master list</div>
           </div>
-          <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff 2038 · needs ~$500-600/mo extra principal</div></div><div class="rv blue" id="debt-mortgage">$136,517 <span class="pill pill-blue">low rate</span></div></div>
+          <div class="row"><div class="rl">Rocket Mortgage — 41377 Elmwood<div class="rsub">2.625% · target payoff <span id="mtg-target-year">2038</span> · needs <span id="mtg-extra-1">~$500-600/mo</span> extra principal</div></div><div class="rv blue" id="debt-mortgage">$136,517 <span class="pill pill-blue">low rate</span></div></div>
           <div class="row"><div class="rl">RAV4 — Toyota Financial<div class="rsub">&gt;5% · $530/mo · full $1,185/mo attack begins ~Jan 2027 once Lowe's cleared</div></div><div class="rv amber" id="debt-rav4">$19,392 <span class="pill pill-amber">attack</span></div></div>
           <div class="row"><div class="rl">WF Pool (...3845)<div class="rsub">0% / 28.99% lurking · $200/mo · exp ~Aug 2030</div></div><div class="rv green" id="debt-wfpool">$10,040 <span class="pill pill-green">on track</span></div></div>
           <div class="row"><div class="rl">WF Deck (...2848)<div class="rsub">0% / 29.49% lurking · $600/mo · exp Feb 3, 2028</div></div><div class="rv green" id="debt-wfdeck">$11,965 <span class="pill pill-green">on track</span></div></div>
@@ -660,9 +660,9 @@
           <div class="card-title">Monthly surplus trajectory</div>
           <div class="row"><div class="rl">Today<div class="rsub">Silverado paid off · Lowe's Aug 14 cleared · $655/mo now attacking Lowe's Dec 15</div></div><div class="rv" id="income-surplus-today">~$4,672/mo</div></div>
           <div class="row"><div class="rl">Dec 2026 — Remaining Lowe's cleared<div class="rsub">Promo deadlines met · no retroactive interest risk</div></div><div class="rv green">~$4,672/mo (attacking RAV4)</div></div>
-          <div class="row"><div class="rl">~May 2028 — RAV4 paid off<div class="rsub">+$530/mo freed · redirect $557/mo to mortgage extra principal · WF Deck also cleared</div></div><div class="rv green">~$5,802/mo · mortgage attack begins</div></div>
+          <div class="row"><div class="rl">~May 2028 — RAV4 paid off<div class="rsub">+$530/mo freed · redirect <span id="mtg-extra-2">$557</span>/mo to mortgage extra principal · WF Deck also cleared</div></div><div class="rv green">~$5,802/mo · mortgage attack begins</div></div>
           <div class="row"><div class="rl">Aug 2030 — WF Pool done<div class="rsub">+$200/mo freed · all consumer debt gone · surplus redirects to M1/crypto/mortgage</div></div><div class="rv green">~$6,002/mo</div></div>
-          <div class="row"><div class="rl">Nov 2038 — Mortgage paid off<div class="rsub">Zero debt at retirement · requires $557/mo extra principal from May 2028</div></div><div class="rv green">~$7,300/mo · debt free</div></div>
+          <div class="row"><div class="rl"><span id="mtg-target-label-1">Nov 2038</span> — Mortgage paid off<div class="rsub">Zero debt at retirement · requires <span id="mtg-extra-3">$557</span>/mo extra principal from May 2028</div></div><div class="rv green">~$7,300/mo · debt free</div></div>
         </div>
       </div>
       <div>
@@ -672,9 +672,9 @@
           <div class="row"><div class="rl">② Lowe's Mar 2027 cleared<div class="rsub">Knocked out in ~1 month after Dec deadline met</div></div><div class="rv amber">~Dec 2026 · <span id="cascade-lowes3">$815</span></div></div>
           <div class="row"><div class="rl">③ Full $655 → RAV4 attack<div class="rsub">$655 + minimum $530 = ~$1,185/mo attack · >5% rate</div></div><div class="rv amber">Jan 2027 start · ~May 2028 done · <span id="cascade-rav4">$18,968</span></div></div>
           <div class="row"><div class="rl">④ WF Deck cleared before promo<div class="rsub">29.49% deferred APR · promo expires Feb 3, 2028 · redirect freed Silverado payment here</div></div><div class="rv amber">Before Feb 2028 · <span id="cascade-deck">$11,965</span></div></div>
-          <div class="row"><div class="rl">⑤ Redirect freed RAV4 $530 → Mortgage extra principal<div class="rsub">RAV4 payoff frees $530/mo · need ~$557/mo extra total to clear mortgage by Nov 2038 · covers nearly all of requirement</div></div><div class="rv blue">May 2028 start · $557/mo extra</div></div>
+          <div class="row"><div class="rl">⑤ Redirect freed RAV4 $530 → Mortgage extra principal<div class="rsub">RAV4 payoff frees $530/mo · need ~<span id="mtg-extra-4">$557</span>/mo extra total to clear mortgage by <span id="mtg-target-label-2">Nov 2038</span> · covers nearly all of requirement</div></div><div class="rv blue">May 2028 start · <span id="mtg-extra-5">$557</span>/mo extra</div></div>
           <div class="row"><div class="rl">⑥ WF Pool coasting to promo end<div class="rsub">28.99% deferred APR · $200/mo minimum · promo Aug 2030</div></div><div class="rv green">Aug 2030 · <span id="cascade-pool">$10,040</span></div></div>
-          <div class="row"><div class="rl">⑦ Mortgage — extra principal to retirement<div class="rsub">@ 2.625% · $557/mo extra starting May 2028 · without extra, payoff Oct 2051 — 13 yrs past retirement</div></div><div class="rv blue">Nov 2038 · <span id="cascade-mortgage">$136,517</span></div></div>
+          <div class="row"><div class="rl">⑦ Mortgage — extra principal to retirement<div class="rsub">@ 2.625% · <span id="mtg-extra-6">$557</span>/mo extra starting May 2028 · without extra, payoff Oct 2051 — 13 yrs past retirement</div></div><div class="rv blue"><span id="mtg-target-label-3">Nov 2038</span> · <span id="cascade-mortgage">$136,517</span></div></div>
           <div class="total-row"><span>Target</span><span class="rv green">Age 57 — debt free</span></div>
         </div>
         <div class="card">
@@ -2263,6 +2263,9 @@ function calcRetire() {
     `<strong style="color:var(--blue)">Phase 1</strong> (Isaac ${ISAAC_RETIRE} → Lorri retires at ${lorriRetireAge}): Isaac draws ~<strong style="color:var(--amber)">${fmtFull(Math.round(draw1Final))}/yr</strong> from his accounts · Lorri's CC income adds <strong style="color:var(--green)">$110,348/yr</strong> · Isaac SS starts at ${isaacSSAge} (${fmtFull(isaacSSAmount)}/yr)
     &nbsp;|&nbsp;
     <strong style="color:var(--green)">Phase 2</strong> (both retired · Lorri's ${fmt(lorriPool)} unlocked): combined draw rises to <strong style="color:var(--amber)">${fmtFull(Math.round(draw2))}/yr</strong> · Lorri SS starts at ${lorriSSAge} (${fmtFull(lorriSSAmount)}/yr) · portfolio exhausts at Isaac age <strong style="color:var(--amber)">${exhaustAge}</strong> · pensions + SS continue for life regardless`;
+
+  // Keep Debts tab mortgage figures in sync with the retirement date picker
+  try { syncMortgageDisplays(); } catch(e) {}
 }
 
 function calcNetWorth(growthRate, retireRate, lorriRetireYear, yearlyPortfolio, retireYear) {
@@ -3849,6 +3852,69 @@ function filterSavingsTx() {
   });
 }
 
+function calcMortgageExtraPrincipal() {
+  var rows = window._debtRows || [];
+  var get = function(k) { var r = rows.find(function(d){return d.desc.includes(k);}); return r ? r.bal : 0; };
+  var mortgage = get('Rocket') || get('Mortgage');
+
+  var MORTGAGE_BALANCE = mortgage || 136202;
+  var MORTGAGE_RATE    = 0.02625 / 12;
+  var MORTGAGE_PI      = 613.87;
+
+  // Pull the ACTUAL retirement date from the Retirement tab's date picker,
+  // not a hardcoded fallback — this is the fix for the sync issue.
+  var retireDateEl = document.getElementById('isaacRetireDate');
+  var RETIREMENT_DATE = (retireDateEl && retireDateEl.value) ? new Date(retireDateEl.value) : new Date('2038-11-01');
+
+  var now = new Date();
+  var monthsToRetire = Math.max(0, Math.ceil((RETIREMENT_DATE - now) / (1000*60*60*24*30.44)));
+
+  var bal = MORTGAGE_BALANCE;
+  var extraNeeded = 0;
+  if (bal > 0 && monthsToRetire > 0) {
+    var lo = 0, hi = 10000;
+    for (var i = 0; i < 60; i++) {
+      var mid = (lo + hi) / 2;
+      var b2 = bal;
+      for (var m = 0; m < monthsToRetire; m++) {
+        b2 -= (MORTGAGE_PI + mid - b2 * MORTGAGE_RATE);
+        if (b2 <= 0) break;
+      }
+      if (b2 <= 0) hi = mid; else lo = mid;
+    }
+    extraNeeded = Math.ceil(hi + 1);
+  }
+
+  return {
+    extraNeeded: extraNeeded,
+    monthsToRetire: monthsToRetire,
+    retirementDate: RETIREMENT_DATE,
+    balance: MORTGAGE_BALANCE
+  };
+}
+
+function syncMortgageDisplays() {
+  try {
+    var m = calcMortgageExtraPrincipal();
+    var yearNum = m.retirementDate.getFullYear();
+    var monthLabel = m.retirementDate.toLocaleDateString('en-US', {month:'short', year:'numeric'});
+    var extraStr = '$' + m.extraNeeded;
+
+    var setText = function(id, val) { var el = document.getElementById(id); if (el) el.textContent = val; };
+
+    setText('mtg-target-year',   String(yearNum));
+    setText('mtg-extra-1',       extraStr + '/mo');
+    setText('mtg-extra-2',       extraStr);
+    setText('mtg-extra-3',       extraStr);
+    setText('mtg-extra-4',       extraStr);
+    setText('mtg-extra-5',       extraStr);
+    setText('mtg-extra-6',       extraStr);
+    setText('mtg-target-label-1', monthLabel);
+    setText('mtg-target-label-2', monthLabel);
+    setText('mtg-target-label-3', monthLabel);
+  } catch(e) { console.warn('syncMortgageDisplays error:', e.message); }
+}
+
 function computeDeployment() {
   if (!window._closedMonth) return null;
 
@@ -3868,30 +3934,14 @@ function computeDeployment() {
   var deck     = get('Deck');
   var mortgage = get('Rocket') || get('Mortgage');
 
-  // Mortgage extra principal needed
-  var MORTGAGE_BALANCE  = mortgage || 136202;
-  var MORTGAGE_RATE     = 0.02625 / 12;
-  var MORTGAGE_PI       = 613.87;
-  var RETIREMENT_DATE   = new Date('2038-11-01');
+  // Mortgage extra principal needed — uses the shared calc function so this
+  // number always matches the Debts tab and the retirement date picker
+  var mtgCalc        = calcMortgageExtraPrincipal();
+  var MORTGAGE_BALANCE  = mtgCalc.balance;
+  var monthsToRetire    = mtgCalc.monthsToRetire;
+  var extraNeeded       = mtgCalc.extraNeeded;
+  var RETIREMENT_DATE   = mtgCalc.retirementDate;
   var now               = new Date();
-  var monthsToRetire    = Math.max(0, Math.ceil((RETIREMENT_DATE - now) / (1000*60*60*24*30.44)));
-
-  // Calculate how much extra principal per month is needed from NOW to pay off by retirement
-  var bal = MORTGAGE_BALANCE;
-  var extraNeeded = 0;
-  if (bal > 0 && monthsToRetire > 0) {
-    var lo = 0, hi = 10000;
-    for (var i = 0; i < 60; i++) {
-      var mid = (lo + hi) / 2;
-      var b2 = bal;
-      for (var m = 0; m < monthsToRetire; m++) {
-        b2 -= (MORTGAGE_PI + mid - b2 * MORTGAGE_RATE);
-        if (b2 <= 0) break;
-      }
-      if (b2 <= 0) hi = mid; else lo = mid;
-    }
-    extraNeeded = Math.ceil(hi + 1);
-  }
 
   // Parse net worth — handles both $1.50M and $1,234,567 formats
   var parseNW = function(el) {
@@ -3976,7 +4026,7 @@ function computeDeployment() {
     projBal: projBal,
     // Full context for monthly review prompt
     debts: { lowes2, lowes3, rav4, pool, deck, mortgage },
-    mortgage: { balance: MORTGAGE_BALANCE, extraNeeded, monthsToRetire, pi: MORTGAGE_PI },
+    mortgage: { balance: MORTGAGE_BALANCE, extraNeeded, monthsToRetire, pi: MORTGAGE_PI, retirementDate: RETIREMENT_DATE },
     crypto: { value: cryptoVal, pct: cryptoPct, headroom: cryptoHeadroom, ceiling: cryptoCeiling },
     m1: { value: m1Val },
     netWorth: netWorth,
@@ -4038,9 +4088,9 @@ function buildMonthlyReviewPrompt(plan) {
     '- Kraken crypto: ' + fmt(cr.value) + ' (' + cr.pct + '% of net worth · 3-5% NW ceiling · headroom: ' + fmt(cr.headroom) + ')\n' +
     '- TSP/Fidelity contributions continue automatically — not part of deployment\n\n' +
     'NET WORTH: ' + fmt(netWorth) + '\n\n' +
-    'RETIREMENT TARGET: Isaac age 57, November 2038 (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
+    'RETIREMENT TARGET: Isaac age 57, ' + mo.retirementDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + ' (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
     'MORTGAGE PAYDOWN NOTE: At minimum P&I only ($613.87/mo), mortgage pays off Oct 2051 — 13 years past retirement. ' +
-    'Need approximately $' + mo.extraNeeded + '/mo in extra principal from now to clear by Nov 2038. ' +
+    'Need approximately $' + mo.extraNeeded + '/mo in extra principal from now to clear by ' + mo.retirementDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}) + '. ' +
     'RAV4 payoff (~May 2028) will free $530/mo which nearly covers this.\n\n' +
     'YOUR TASK:\n' +
     '1. Search for current market conditions, Fed rate environment, and any relevant economic context for this month.\n' +
@@ -4284,7 +4334,7 @@ function renderDeploymentCard() {
   if (plan.mortgage.balance > 0) {
     var mo = plan.mortgage;
     h += '<div style="background:rgba(251,146,60,0.06);border:1px solid rgba(251,146,60,0.15);border-radius:8px;padding:10px 12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">';
-    h += '<div><div style="font-size:10px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Mortgage Paydown Target — 2038</div>';
+    h += '<div><div style="font-size:10px;font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">Mortgage Paydown Target — '+mo.retirementDate.getFullYear()+'</div>';
     h += '<div style="font-size:11px;color:var(--muted)">Balance: <span style="color:var(--text)">'+fmt(mo.balance)+'</span> @ 2.625% · P&I $613.87/mo · <span style="color:'+( mo.extraNeeded > 0 ? 'var(--red)' : 'var(--green)')+'">'+(mo.extraNeeded > 0 ? '$'+mo.extraNeeded+'/mo extra needed to clear by retirement' : 'On track')+'</span></div></div>';
     h += '<div style="font-size:11px;color:var(--hint)">'+mo.monthsToRetire+' months to retirement</div></div>';
   }
@@ -6770,6 +6820,7 @@ async function processWorkbook(wb, lastModified) {
       try { localStorage.setItem('mf_debt_rows', JSON.stringify(debtRows)); localStorage.setItem('mf_debt_total', String(debtTotal)); } catch(e) {}
       console.log('Debt rows parsed:', debtRows.length, 'total:', debtTotal);
       renderDebts(debtRows, debtTotal, lastVerified);
+      try { syncMortgageDisplays(); } catch(e) {}
 
       // ── Parse physical assets from Net Worth sheet (rows 29-38, 0-indexed 28-37) ──
       try {
@@ -6966,6 +7017,7 @@ try {
     window._debtRows = JSON.parse(dr);
     window._debtTotal = parseFloat(dt);
     renderDebts(window._debtRows, window._debtTotal, null);
+    syncMortgageDisplays();
   }
 } catch(e) {}
 // Restore utility and rental income transactions from cache and render
