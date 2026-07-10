@@ -2843,11 +2843,17 @@ function renderBudget() {
   });
 
   // Income total + net row
-  // Net cash flow = 0 by definition — every dollar of income is accounted for
-  // (spending lines + savings line s39 = total income)
-  // Show $0 when we have actuals, — when we don't
-  const netFlow = hasIncome && anyActuals ? 0 : null;
-  const netColor = netFlow === null ? 'var(--muted)' : netFlow >= 0 ? 'var(--green)' : 'var(--red)';
+  // Net cash flow = Total Income - Total Spend, calculated live.
+  // By design, Our Savings (s39) is a plug that should make these match —
+  // but only once that month's Our Savings transfer has actually been logged
+  // in Excel (typically done at month-end). Until then, this will show the
+  // real gap rather than assuming it's already balanced.
+  const netFlow = (hasIncome && anyActuals) ? (totalIncome - totalActual) : null;
+  const netIsBalanced = netFlow !== null && Math.abs(netFlow) < 0.01;
+  const netColor = netFlow === null ? 'var(--muted)' : netIsBalanced ? 'var(--green)' : 'var(--amber)';
+  const netNote = netFlow === null ? ''
+    : netIsBalanced ? 'Every dollar of income is accounted for'
+    : 'Not yet balanced — pending Our Savings transfer for this month';
   html += `<tr style="border-top:1px solid var(--border2);background:rgba(255,255,255,0.03)">
     <td colspan="2" style="padding:8px 12px;font-weight:500;color:var(--text)">Total Income</td>
     <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:var(--muted)">$${Math.round(monthlyBudget).toLocaleString()}</td>
@@ -2856,8 +2862,8 @@ function renderBudget() {
   </tr>
   <tr style="background:rgba(139,92,246,0.08);border-top:1px solid var(--border2)">
     <td colspan="2" style="padding:8px 12px;font-weight:600;color:var(--purple)">Net Cash Flow</td>
-    <td colspan="2" style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;font-size:13px;color:${netColor}">${netFlow===null?'—':(netFlow>=0?'+':'')+' $'+Math.abs(netFlow).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-    <td colspan="2" style="padding:8px 12px;font-size:10px;color:var(--hint)">${netFlow===null?'':'Every dollar of income is accounted for'}</td>
+    <td colspan="2" style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;font-size:13px;color:${netColor}">${netFlow===null?'—':(netFlow>=0?'+':'-')+' $'+Math.abs(netFlow).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    <td colspan="2" style="padding:8px 12px;font-size:10px;color:var(--hint)">${netNote}</td>
   </tr>`;
 
   tbody.innerHTML = html;
@@ -3041,9 +3047,15 @@ function renderAnnualBudget() {
   });
 
   // Income total + net cash flow
-  // Net cash flow YTD = 0 by definition — every dollar of income is accounted for
-  const netFlow = anyActuals && totalIncomeYTD > 0 ? 0 : null;
-  const netColor = netFlow === null ? 'var(--muted)' : netFlow >= 0 ? 'var(--green)' : 'var(--red)';
+  // Net cash flow YTD = Total Income YTD - Total Spend YTD, calculated live.
+  // Same caveat as the monthly version: only balances to $0 once each month's
+  // Our Savings transfer has actually been logged in Excel.
+  const netFlow = (anyActuals && totalIncomeYTD > 0) ? (totalIncomeYTD - totalActualYTD) : null;
+  const netIsBalanced = netFlow !== null && Math.abs(netFlow) < 0.01;
+  const netColor = netFlow === null ? 'var(--muted)' : netIsBalanced ? 'var(--green)' : 'var(--amber)';
+  const netNote = netFlow === null ? ''
+    : netIsBalanced ? n + ' months · income fully accounted for'
+    : n + ' months · not yet balanced — pending Our Savings transfer for current month';
   html += `<tr style="border-top:1px solid var(--border2);background:rgba(255,255,255,0.03)">
     <td colspan="2" style="padding:8px 12px;font-weight:500;color:var(--text)">Total Income YTD</td>
     <td style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">$${ytdBudgetCorrect.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
@@ -3053,7 +3065,7 @@ function renderAnnualBudget() {
   <tr style="background:rgba(139,92,246,0.08);border-top:1px solid var(--border2)">
     <td colspan="2" style="padding:8px 12px;font-weight:600;color:var(--purple)">Net Cash Flow YTD</td>
     <td colspan="2" style="padding:8px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:600;font-size:13px;color:${netColor}">${netFlow===null?'—':(netFlow>=0?'+$':'-$')+Math.abs(netFlow).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
-    <td colspan="2" style="padding:8px 12px;font-size:10px;color:var(--hint)">${n} months · income fully accounted for</td>
+    <td colspan="2" style="padding:8px 12px;font-size:10px;color:var(--hint)">${netNote}</td>
   </tr>`;
 
   tbody.innerHTML = html;
