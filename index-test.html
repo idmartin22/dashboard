@@ -428,12 +428,7 @@
             <div class="row"><div class="rl">Total gross assets</div><div class="rv green" id="nw-gross-assets">$1,681,318</div></div>
             <div class="row"><div class="rl">Total liabilities<div class="rsub">click to expand</div></div><div class="rv red" id="liab-toggle" onclick="document.getElementById('liab-detail').style.display=document.getElementById('liab-detail').style.display==='none'?'block':'none';this.querySelector('.rsub-inline').textContent=document.getElementById('liab-detail').style.display==='none'?'▸':'▾'" style="cursor:pointer"><span id="nw-liab-total">−$185,424</span> <span class="rsub-inline" style="font-size:10px;opacity:0.6">▸</span></div></div>
             <div id="liab-detail" style="display:none;margin:4px 0 8px 0;padding:0 0 0 8px;border-left:2px solid var(--border2)"><div id="liab-detail-body">
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Rocket Mortgage<div class="rsub">2.625% · payoff 2038</div></div><div class="rv red" style="font-size:11px">−$136,517</div></div>
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Toyota RAV4<div class="rsub">auto loan · ~Jun 2027</div></div><div class="rv red" style="font-size:11px">−$19,392</div></div>
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">WF Pool Card<div class="rsub">28.99% deferred APR · 0% promo</div></div><div class="rv red" style="font-size:11px">−$10,040</div></div>
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">WF Deck Card<div class="rsub">29.49% deferred APR · 0% promo</div></div><div class="rv red" style="font-size:11px">−$11,965</div></div>
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Lowes (...2659)<div class="rsub">deferred interest · clear Aug 2026</div></div><div class="rv red" style="font-size:11px">−$6,200</div></div>
-              <div class="row" style="padding:3px 0"><div class="rl" style="font-size:11px">Chevy Silverado<div class="rsub">final payment ~Jun 2026</div></div><div class="rv red" style="font-size:11px">−$655</div></div>
+              <div style="padding:6px 0;font-size:11px;color:var(--hint)">Syncing debt breakdown…</div>
             </div></div>
             <div class="total-row"><span>Net worth</span><span class="rv green" id="nw-total-val">$1,495,894</span></div>
           </div>
@@ -6342,6 +6337,7 @@ function updateInvestmentDOM(vals) {
     set('nw-big-val',      '$' + (nwFull/1000000).toFixed(2) + 'M');
     set('nw-total-val',    fmt(nwFull));
     window._liveNetWorth = nwFull; // authoritative net worth for all prompt builders
+    try { localStorage.setItem('mf_net_worth', String(nwFull)); localStorage.setItem('mf_net_worth_ts', String(Date.now())); localStorage.setItem('mf_gross_assets', String(totalGross)); } catch(e) {}
     set('nw-gross-assets', fmt(totalGross));
     if (kpiNW) kpiNW.textContent = '$' + (nwFull/1000000).toFixed(2) + 'M';
     const retireTotal = vals.tspCiv + vals.tspUni + vals.fid403b + vals.fid401a;
@@ -7225,6 +7221,25 @@ try {
   if (re) { window._rentalExpenseTx = JSON.parse(re); }
   if (window._rentalIncomeTx && window._rentalIncomeTx.length) renderRentalIncome();
   else if (window._utilityTx && window._utilityTx.length) renderTenantUtility();
+} catch(e) {}
+// Restore last-known net worth from cache immediately, before any live sync
+// completes — replaces a stale hardcoded fallback with the real last value.
+try {
+  const cachedNW = localStorage.getItem('mf_net_worth');
+  if (cachedNW) {
+    const nwVal = parseFloat(cachedNW);
+    if (!isNaN(nwVal) && nwVal > 100000) {
+      const fmtNW = n => '$' + Math.round(n).toLocaleString();
+      const setNW = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setNW('nw-big-val', '$' + (nwVal/1000000).toFixed(2) + 'M');
+      setNW('nw-total-val', fmtNW(nwVal));
+      const cachedGross = localStorage.getItem('mf_gross_assets');
+      if (cachedGross) { const grossVal = parseFloat(cachedGross); if (!isNaN(grossVal)) setNW('nw-gross-assets', fmtNW(grossVal)); }
+      const kpiNWEl = document.getElementById('kpi-net-worth');
+      if (kpiNWEl) kpiNWEl.textContent = '$' + (nwVal/1000000).toFixed(2) + 'M';
+      window._liveNetWorth = nwVal;
+    }
+  }
 } catch(e) {}
 // Load cached portfolio values instantly
 loadCachedPortfolio();
