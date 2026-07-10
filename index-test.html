@@ -542,6 +542,7 @@
               <th style="text-align:left;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Asset class</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Value</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Units / Price</th>
+              <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Target %</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Acct %</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">Portfolio %</th>
               <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;white-space:nowrap">ER</th>
@@ -6524,18 +6525,20 @@ function updateConsolidatedTable(vals) {
 
   const hdr = (label, val, color='var(--blue)') =>
     `<tr style="border-bottom:1px solid var(--border);background:rgba(96,165,250,0.04)">
-      <td colspan="8" style="padding:5px 10px;font-size:10px;font-weight:500;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${fmt(val)}</td>
+      <td colspan="9" style="padding:5px 10px;font-size:10px;font-weight:500;color:${color};text-transform:uppercase;letter-spacing:.06em">${label} — ${fmt(val)}</td>
     </tr>`;
 
-  const row = (fund, acct, cls, val, acctTotal, er, shares, price) => {
+  const row = (fund, acct, cls, val, acctTotal, er, shares, price, targetPct) => {
     const acctPct = acctTotal ? (val/acctTotal*100).toFixed(1)+'%' : '—';
     const portPct = total     ? (val/total*100).toFixed(1)+'%'     : '—';
+    const targetStr = (targetPct !== undefined && targetPct !== null) ? targetPct.toFixed(1)+'%' : '—';
     return `<tr style="border-bottom:1px solid var(--border)">
       <td style="padding:6px 10px;color:var(--text);font-weight:500">${fund}</td>
       <td style="padding:6px 10px;color:var(--muted)">${acct}</td>
       <td style="padding:6px 10px;color:var(--muted)">${cls}</td>
       <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(val)}</td>
       <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted);font-size:10px">${fmtSh(shares)}<br><span style="color:var(--hint)">${fmtP(price)}</span></td>
+      <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--hint)">${targetStr}</td>
       <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--blue)">${acctPct}</td>
       <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${portPct}</td>
       <td style="padding:6px 10px;text-align:right;font-family:'DM Mono',monospace;color:var(--muted)">${er}</td>
@@ -6564,40 +6567,40 @@ function updateConsolidatedTable(vals) {
   const tspCivActual = cCiv*tspC + sCiv*tspS + iCiv*tspI;
   const tspUniActual = cUni*tspC + sUni*tspS;
   html += hdr('TSP Civilian', tspCivActual);
-  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, tspCivActual,'0.054%', cCiv,  tspC);
-  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, tspCivActual,'0.054%', sCiv,  tspS);
-  html += row('I Fund','TSP Civ','International',  iCiv*tspI, tspCivActual,'0.054%', iCiv,  tspI);
+  html += row('C Fund','TSP Civ','US large cap',   cCiv*tspC, tspCivActual,'0.054%', cCiv,  tspC, 55);
+  html += row('S Fund','TSP Civ','US small/mid',   sCiv*tspS, tspCivActual,'0.054%', sCiv,  tspS, 25);
+  html += row('I Fund','TSP Civ','International',  iCiv*tspI, tspCivActual,'0.054%', iCiv,  tspI, 20);
   html += hdr('TSP Uniformed', tspUniActual);
-  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, tspUniActual,'0.054%', cUni,  tspC);
-  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, tspUniActual,'0.054%', sUni,  tspS);
+  html += row('C Fund','TSP Uni','US large cap',   cUni*tspC, tspUniActual,'0.054%', cUni,  tspC, 40);
+  html += row('S Fund','TSP Uni','US small/mid',   sUni*tspS, tspUniActual,'0.054%', sUni,  tspS, 60);
   // Use actual sum of displayed values as acctTotal to avoid proxy rounding issues
   const fid403bActual = viiix*fidViiixV + vtpsx*fidVtpsxV + vempx*fidVempxV;
   const fid401aActual = v401*fidVtpsxV;
   html += hdr('Fidelity 403b', fid403bActual, 'var(--coral)');
-  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, fid403bActual,'0.02%', viiix, fidViiixV);
-  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, fid403bActual,'0.07%', vtpsx, fidVtpsxV);
-  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, fid403bActual,'0.04%', vempx, fidVempxV);
+  html += row('VIIIX','Fid 403b','US large cap',   viiix*fidViiixV, fid403bActual,'0.02%', viiix, fidViiixV, 30);
+  html += row('VTPSX','Fid 403b','International',  vtpsx*fidVtpsxV, fid403bActual,'0.07%', vtpsx, fidVtpsxV, 55);
+  html += row('VEMPX','Fid 403b','US ext. market', vempx*fidVempxV, fid403bActual,'0.04%', vempx, fidVempxV, 15);
   html += hdr('Fidelity 401a', fid401aActual, 'var(--coral)');
-  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, fid401aActual,'0.07%', v401, fidVtpsxV);
+  html += row('VTPSX','Fid 401a','International',  v401*fidVtpsxV, fid401aActual,'0.07%', v401, fidVtpsxV, 100);
   const m1Actual = vtiSh*vtiP + qqqmSh*qqqmP + avuvSh*avuvP + avdvSh*avdvP + avesSh*avesP;
   html += hdr('M1 Finance', m1Actual, 'var(--green)');
-  html += row('VTI','M1','US total market',  vtiSh*vtiP,   m1Actual,'0.03%', vtiSh,  vtiP);
-  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, m1Actual,'0.15%', qqqmSh, qqqmP);
-  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, m1Actual,'0.25%', avuvSh, avuvP);
-  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, m1Actual,'0.36%', avdvSh, avdvP);
-  html += row('AVES','M1','EM value',        avesSh*avesP, m1Actual,'0.36%', avesSh, avesP);
+  html += row('VTI','M1','US total market',  vtiSh*vtiP,   m1Actual,'0.03%', vtiSh,  vtiP, 20);
+  html += row('QQQM','M1','US Nasdaq 100',   qqqmSh*qqqmP, m1Actual,'0.15%', qqqmSh, qqqmP, 10);
+  html += row('AVUV','M1','US small cap val',avuvSh*avuvP, m1Actual,'0.25%', avuvSh, avuvP, 30);
+  html += row('AVDV','M1','Intl small val',  avdvSh*avdvP, m1Actual,'0.36%', avdvSh, avdvP, 25);
+  html += row('AVES','M1','EM value',        avesSh*avesP, m1Actual,'0.36%', avesSh, avesP, 15);
   html += hdr('Crypto (Kraken)', vals.crypto, 'var(--purple)');
-  html += row('BTC','Kraken','Crypto',  btcSh*(cp.BTC||80861),  vals.crypto,'—', btcSh,  cp.BTC||80861);
-  html += row('ETH','Kraken','Crypto',  ethSh*(cp.ETH||2381),   vals.crypto,'—', ethSh,  cp.ETH||2381);
-  html += row('SOL','Kraken','Crypto',  solSh*(cp.SOL||84.79),  vals.crypto,'—', solSh,  cp.SOL||84.79);
-  html += row('TAO','Kraken','Crypto',  taoSh*(cp.TAO||283.53), vals.crypto,'—', taoSh,  cp.TAO||283.53);
-  html += row('HYPE','Kraken','Crypto', hypeSh*(cp.HYPE||40.97),vals.crypto,'—', hypeSh, cp.HYPE||40.97);
-  html += row('LINK','Kraken','Crypto', linkSh*(cp.LINK||9.59), vals.crypto,'—', linkSh, cp.LINK||9.59);
-  html += row('XRP','Kraken','Crypto',  xrpSh*(cp.XRP||1.40),  vals.crypto,'—', xrpSh,  cp.XRP||1.40);
+  html += row('BTC','Kraken','Crypto',  btcSh*(cp.BTC||80861),  vals.crypto,'—', btcSh,  cp.BTC||80861, 45);
+  html += row('ETH','Kraken','Crypto',  ethSh*(cp.ETH||2381),   vals.crypto,'—', ethSh,  cp.ETH||2381, 20);
+  html += row('SOL','Kraken','Crypto',  solSh*(cp.SOL||84.79),  vals.crypto,'—', solSh,  cp.SOL||84.79, 10);
+  html += row('TAO','Kraken','Crypto',  taoSh*(cp.TAO||283.53), vals.crypto,'—', taoSh,  cp.TAO||283.53, 8);
+  html += row('HYPE','Kraken','Crypto', hypeSh*(cp.HYPE||40.97),vals.crypto,'—', hypeSh, cp.HYPE||40.97, 7);
+  html += row('LINK','Kraken','Crypto', linkSh*(cp.LINK||9.59), vals.crypto,'—', linkSh, cp.LINK||9.59, 7);
+  html += row('XRP','Kraken','Crypto',  xrpSh*(cp.XRP||1.40),  vals.crypto,'—', xrpSh,  cp.XRP||1.40, 3);
   html += `<tr style="border-top:2px solid var(--border2);font-weight:600">
     <td colspan="3" style="padding:8px 10px">Total Portfolio</td>
     <td style="padding:8px 10px;text-align:right;font-family:'DM Mono',monospace">${fmt(total)}</td>
-    <td colspan="4"></td>
+    <td colspan="5"></td>
   </tr>`;
 
   // Also add a "Units Owned" column header if it doesn't exist
