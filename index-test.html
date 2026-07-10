@@ -3668,9 +3668,21 @@ function mergeBudgetTxLog(wsCtl) {
     const data = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
     const newTx = [];
 
-    // Excel type letter -> BUDGET_LINES/INCOME_LINES id prefix.
-    // Note: Excel's "R" (Periodic) maps to internal prefix 'b', all others match directly.
-    const TYPE_TO_PREFIX = { d:'d', f:'f', r:'b', s:'s', i:'i' };
+    // These match the EXACT remap tables used elsewhere in the dashboard
+    // (parseMonthlyBreakdown) — must stay in sync with those.
+    const WATER_REMAP = { 42: 'f25', 43: 'f26' };
+    const R_TO_B = {25:'b27',26:'b28',27:'b29',28:'b30',29:'b31',
+                    30:'b32',31:'b33',32:'b34',33:'b35',34:'b36',35:'b37'};
+    const S_REMAP = { 36: 's38', 37: 's39' };
+
+    function resolveId(typeKey, lineNum) {
+      if (typeKey === 'd') return 'd' + lineNum;
+      if (typeKey === 'f') return WATER_REMAP[lineNum] || ('f' + lineNum);
+      if (typeKey === 'r') return R_TO_B[lineNum] || null;
+      if (typeKey === 's') return S_REMAP[lineNum] || null;
+      if (typeKey === 'i') return 'i' + lineNum;
+      return null;
+    }
 
     data.forEach((row, i) => {
       if (i < 4) return; // skip header rows
@@ -3684,13 +3696,14 @@ function mergeBudgetTxLog(wsCtl) {
       if (!type || !date || !desc || !lineId) return;
 
       const typeKey = String(type).toLowerCase();
-      const prefix = TYPE_TO_PREFIX[typeKey];
-      if (!prefix) return; // not one of D/F/R/S/I — excluded (e.g. stray 'x'/'xx')
+      if (!['d','f','r','s','i'].includes(typeKey)) return; // excluded (stray x/xx/z/etc.)
 
       const lineNum = parseInt(lineId);
       if (isNaN(lineNum)) return;
 
-      const fullId = prefix + lineNum;
+      const fullId = resolveId(typeKey, lineNum);
+      if (!fullId) return;
+
       // Look up label — income lines live in INCOME_LINES, everything else in BUDGET_LINES
       let label = null;
       if (typeKey === 'i') {
