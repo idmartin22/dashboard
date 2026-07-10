@@ -6985,7 +6985,7 @@ async function processWorkbook(wb, lastModified) {
           break; // done
         }
         const balNum = typeof bal === 'number' ? bal : parseFloat(bal);
-        if (isNaN(balNum)) continue;
+        if (isNaN(balNum) || balNum <= 0) continue; // skip paid-off debts (zero/negative balance)
         let dateStr = null;
         if (date) {
           let d = null;
