@@ -1677,27 +1677,8 @@
       </div>
     </div>
 
-    <!-- Budget table -->
-    <div class="card" style="padding:0;overflow:hidden">
-      <div style="overflow-x:auto">
-        <table id="budgetTable" style="width:100%;border-collapse:collapse;font-size:12px">
-          <thead>
-            <tr style="background:var(--surface2);border-bottom:1px solid var(--border2)">
-              <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;width:30px">#</th>
-              <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Line item</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Budget/mo</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Actual</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Variance</th>
-              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Annual</th>
-            </tr>
-          </thead>
-          <tbody id="budgetBody"></tbody>
-        </table>
-      </div>
-    </div>
-
     <!-- Transaction log -->
-    <div class="card" style="padding:0;overflow:hidden;margin-top:12px">
+    <div class="card" style="padding:0;overflow:hidden">
       <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center">
         <div class="card-title" style="margin:0">Transaction log</div>
         <select id="bt-tx-filter" onchange="filterBudgetTx()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;max-width:220px">
@@ -1715,6 +1696,25 @@
             </tr>
           </thead>
           <tbody id="bt-tx-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Budget table -->
+    <div class="card" style="padding:0;overflow:hidden;margin-top:12px">
+      <div style="overflow-x:auto">
+        <table id="budgetTable" style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead>
+            <tr style="background:var(--surface2);border-bottom:1px solid var(--border2)">
+              <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;width:30px">#</th>
+              <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Line item</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Budget/mo</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Actual</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Variance</th>
+              <th style="text-align:right;padding:8px 12px;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Annual</th>
+            </tr>
+          </thead>
+          <tbody id="budgetBody"></tbody>
         </table>
       </div>
     </div>
