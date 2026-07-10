@@ -4240,7 +4240,7 @@ function buildMonthlyReviewPrompt(plan) {
   if (d.rav4   > 0) debtLines += '\n- RAV4 Toyota Financial: ' + fmt(d.rav4) + ' (~7% rate)';
   if (d.pool   > 0) debtLines += '\n- WF Pool: ' + fmt(d.pool) + ' (0% promo, $200/mo minimum, expires Aug 2030)';
   if (d.deck   > 0) debtLines += '\n- WF Deck: ' + fmt(d.deck) + ' (0% promo, expires Feb 2028)';
-  if (d.mortgage > 0) debtLines += '\n- Rocket Mortgage: ' + fmt(d.mortgage) + ' @ 2.625% (P&I $613.87/mo, need $' + mo.extraNeeded + '/mo extra to pay off by Nov 2038 retirement — ' + mo.monthsToRetire + ' months away)';
+  if (d.mortgage > 0) debtLines += '\n- Rocket Mortgage: ' + fmt(d.mortgage) + ' @ 2.625% (P&I $613.87/mo, need $' + mo.extraNeeded + '/mo extra to pay off by ' + mo.retirementDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + ' retirement — ' + mo.monthsToRetire + ' months away)';
 
   var prompt =
     'You are reviewing the Martin family monthly financial deployment for ' + ml + '.\n\n' +
@@ -4252,7 +4252,7 @@ function buildMonthlyReviewPrompt(plan) {
     '- Kraken crypto: ' + fmt(cr.value) + ' (' + cr.pct + '% of net worth · 3-5% NW ceiling · headroom: ' + fmt(cr.headroom) + ')\n' +
     '- TSP/Fidelity contributions continue automatically — not part of deployment\n\n' +
     'NET WORTH: ' + fmt(netWorth) + '\n\n' +
-    'RETIREMENT TARGET: Isaac age 57, ' + mo.retirementDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + ' (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
+    'RETIREMENT TARGET: Isaac age ' + Math.round((mo.retirementDate - new Date('1981-11-01')) / (365.25*24*60*60*1000)) + ', ' + mo.retirementDate.toLocaleDateString('en-US',{month:'long',year:'numeric'}) + ' (' + mo.monthsToRetire + ' months away) · Goal: zero debt at retirement\n\n' +
     'MORTGAGE PAYDOWN NOTE: At minimum P&I only ($613.87/mo), mortgage pays off Oct 2051 — 13 years past retirement. ' +
     'Need approximately $' + mo.extraNeeded + '/mo in extra principal from now to clear by ' + mo.retirementDate.toLocaleDateString('en-US',{month:'short',year:'numeric'}) + '. ' +
     'RAV4 payoff (~May 2028) will free $530/mo which nearly covers this.\n\n' +
@@ -4292,6 +4292,11 @@ function openAffordabilityReview() {
   var deck     = getDebt('Deck');
   var liveDebt = window._liveDebtTotal ? fmt(window._liveDebtTotal) : '$181,000';
 
+  // Live retirement date/age — matches whatever is set in the Retirement tab
+  var mtgLive = calcMortgageExtraPrincipal();
+  var retireDateStr = mtgLive.retirementDate.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+  var retireAge = Math.round((mtgLive.retirementDate - new Date('1981-11-01')) / (365.25*24*60*60*1000));
+
   var prompt =
     'You are providing a financial affordability analysis for Isaac and Lorri Martin in Elyria, Ohio.\n\n' +
     'QUESTION: ' + question.trim() + '\n\n' +
@@ -4300,8 +4305,8 @@ function openAffordabilityReview() {
     '- Total investable assets: ' + totalInvest + '\n' +
     '- Savings balance: ' + fmt(savBal) + ' (deployable after $10K floor: ' + fmt(deployable) + ')\n' +
     '- Total debt: ' + liveDebt + '\n' +
-    '  · Mortgage: ' + mortgage + ' @ 2.625% (target payoff Nov 2038)\n' +
-    '  · RAV4: ' + rav4 + ' (>5% rate, attack target)\n' +
+    '  · Mortgage: ' + mortgage + ' @ 2.625% (target payoff ' + retireDateStr + ')\n' +
+    '  · RAV4: ' + rav4 + ' (currently ~$530/mo; full attack begins ~Jan 2027 once Lowe\'s balances clear)\n' +
     (pool ? '  · WF Pool: ' + pool + ' (0% promo, Aug 2030)\n' : '') +
     (deck ? '  · WF Deck: ' + deck + ' (0% promo, Feb 2028)\n' : '') +
     '\nINVESTMENT ACCOUNTS:\n' +
@@ -4309,7 +4314,7 @@ function openAffordabilityReview() {
     '- Fidelity 403b: ' + fid403b + ' · Fidelity 401a: ' + fid401a + '\n' +
     '- M1 Finance: ' + m1 + ' · Kraken crypto: ' + crypto + '\n\n' +
     'HOUSEHOLD CONTEXT:\n' +
-    '- Isaac: federal civilian WS-10, National Guard CW4 · retirement target age 57, November 2038\n' +
+    '- Isaac: federal civilian WS-10, National Guard CW4 · retirement target age ' + retireAge + ', ' + retireDateStr + '\n' +
     '- Lorri: Cleveland Clinic RN · continues working post-Isaac retirement (Phase 1)\n' +
     '- Dual pension floor at retirement: FERS ~$34K + Guard ~$43K/yr · zero debt goal at retirement\n' +
     '- Monthly contributions: Isaac TSP ~$990, Lorri 403b/401a ~$2,153, M1 surplus ~$500\n\n' +
