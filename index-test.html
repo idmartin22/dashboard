@@ -1708,6 +1708,29 @@
       </div>
     </div>
 
+    <!-- Transaction log -->
+    <div class="card" style="padding:0;overflow:hidden;margin-top:12px">
+      <div style="padding:14px 16px 10px;border-bottom:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center">
+        <div class="card-title" style="margin:0">Transaction log</div>
+        <select id="bt-tx-filter" onchange="filterBudgetTx()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 8px;border-radius:6px;cursor:pointer;max-width:220px">
+          <option value="all">All categories</option>
+        </select>
+      </div>
+      <div style="overflow-y:auto;max-height:520px;overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;border-collapse:collapse;font-size:11px">
+          <thead style="position:sticky;top:0;background:var(--surface2)">
+            <tr>
+              <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Date</th>
+              <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Description</th>
+              <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Category</th>
+              <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.07em">Amount</th>
+            </tr>
+          </thead>
+          <tbody id="bt-tx-body"></tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
   <!-- AFFORD IT -->
   <!-- REGAN INVESTMENTS -->
@@ -3640,6 +3663,120 @@ const ACCT_COLOR = {
 };
 
 // Merge synced checking transactions (non-Jan-Apr) into CHECKING_TX
+function mergeBudgetTxLog(wsCtl) {
+  try {
+    const data = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
+    const newTx = [];
+
+    // Excel type letter -> BUDGET_LINES/INCOME_LINES id prefix.
+    // Note: Excel's "R" (Periodic) maps to internal prefix 'b', all others match directly.
+    const TYPE_TO_PREFIX = { d:'d', f:'f', r:'b', s:'s', i:'i' };
+
+    data.forEach((row, i) => {
+      if (i < 4) return; // skip header rows
+      const type = row[0];
+      const lineId = row[1];
+      const date = row[2];
+      const desc = row[3];
+      const debit = row[4];
+      const credit = row[5];
+
+      if (!type || !date || !desc || !lineId) return;
+
+      const typeKey = String(type).toLowerCase();
+      const prefix = TYPE_TO_PREFIX[typeKey];
+      if (!prefix) return; // not one of D/F/R/S/I — excluded (e.g. stray 'x'/'xx')
+
+      const lineNum = parseInt(lineId);
+      if (isNaN(lineNum)) return;
+
+      const fullId = prefix + lineNum;
+      // Look up label — income lines live in INCOME_LINES, everything else in BUDGET_LINES
+      let label = null;
+      if (typeKey === 'i') {
+        const found = INCOME_LINES.find(l => l.id === fullId);
+        label = found ? found.label : null;
+      } else {
+        const found = BUDGET_LINES.find(l => l.id === fullId);
+        label = found ? found.label : null;
+      }
+      if (!label) return; // no matching category — skip rather than show "Unknown"
+
+      // Parse date
+      let dateStr, monthKey;
+      if (date instanceof Date) {
+        dateStr = (date.getMonth()+1).toString().padStart(2,'0') + '/' +
+                  date.getDate().toString().padStart(2,'0') + '/' + date.getFullYear();
+        monthKey = date.getFullYear() + '-' + (date.getMonth()+1).toString().padStart(2,'0');
+      } else if (typeof date === 'number') {
+        const d = new Date(Math.round((date - 25569) * 86400 * 1000));
+        dateStr = (d.getMonth()+1).toString().padStart(2,'0') + '/' +
+                  d.getDate().toString().padStart(2,'0') + '/' + d.getFullYear();
+        monthKey = d.getFullYear() + '-' + (d.getMonth()+1).toString().padStart(2,'0');
+      } else return;
+
+      newTx.push({
+        date: dateStr,
+        month: monthKey,
+        desc: String(desc).trim(),
+        typeCode: typeKey,
+        line: lineNum,
+        category: label,
+        debit: typeof debit === 'number' ? Math.round(debit*100)/100 : 0,
+        credit: typeof credit === 'number' ? Math.round(credit*100)/100 : 0,
+      });
+    });
+
+    window._budgetTxLog = newTx;
+    try { localStorage.setItem('mf_budget_tx_log', JSON.stringify(newTx)); } catch(e) {}
+    console.log('Budget tx log parsed — total:', newTx.length);
+    renderBudgetTx();
+  } catch(e) {
+    console.warn('mergeBudgetTxLog error:', e.message);
+  }
+}
+
+function renderBudgetTx() {
+  const tbody = document.getElementById('bt-tx-body');
+  if (!tbody) return;
+
+  const rawTx = window._budgetTxLog;
+  if (!rawTx || rawTx.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--muted)">No transactions found — sync Excel to populate</td></tr>';
+    return;
+  }
+
+  const filterEl = document.getElementById('bt-tx-filter');
+  const filter = filterEl ? filterEl.value : 'all';
+
+  // Sort newest first, across all months
+  const sorted = [...rawTx].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+  const CAT_COLOR = {
+    d:'var(--coral)', f:'var(--blue)', r:'var(--amber)', s:'var(--purple)', i:'var(--green)'
+  };
+
+  let html = '';
+  sorted.forEach(tx => {
+    if (filter !== 'all' && tx.category !== filter) return;
+    const isCredit = tx.credit > 0;
+    const amt = isCredit ? tx.credit : tx.debit;
+    const amtColor = isCredit ? 'var(--green)' : 'var(--red)';
+    const amtStr = (isCredit ? '+' : '−') + '$' + amt.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    const catColor = CAT_COLOR[tx.typeCode] || 'var(--muted)';
+    html += `<tr data-category="${tx.category}" style="border-bottom:1px solid var(--border)">
+      <td style="padding:5px 12px;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);white-space:nowrap">${tx.date}</td>
+      <td style="padding:5px 12px;color:var(--text)">${tx.desc}</td>
+      <td style="padding:5px 12px;font-size:10px;color:${catColor}">${tx.category}</td>
+      <td style="padding:5px 12px;text-align:right;font-family:'DM Mono',monospace;font-weight:500;color:${amtColor}">${amtStr}</td>
+    </tr>`;
+  });
+  if (!html) html = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--muted)">No transactions found</td></tr>';
+  tbody.innerHTML = html;
+}
+
+function filterBudgetTx() { renderBudgetTx(); }
+
 function mergeSyncedCheckingTx(wsCtl) {
   try {
     const data = window.XLSX.utils.sheet_to_json(wsCtl, {header:1, defval:null, raw:true});
@@ -4776,6 +4913,27 @@ function renderSavingsTx() {
 
 // Render on page load
 renderSavingsTx();
+
+function populateBudgetTxFilter() {
+  const sel = document.getElementById('bt-tx-filter');
+  if (!sel) return;
+  const groups = [
+    { label: 'Discretionary', lines: BUDGET_LINES.filter(l => l.cat === 'D') },
+    { label: 'Fixed',         lines: BUDGET_LINES.filter(l => l.cat === 'F') },
+    { label: 'Periodic',      lines: BUDGET_LINES.filter(l => l.cat === 'B') },
+    { label: 'Savings',       lines: BUDGET_LINES.filter(l => l.cat === 'S') },
+    { label: 'Income',        lines: INCOME_LINES },
+  ];
+  let html = '<option value="all">All categories</option>';
+  groups.forEach(g => {
+    if (g.lines.length === 0) return;
+    html += `<optgroup label="${g.label}">`;
+    g.lines.forEach(l => { html += `<option value="${l.label}">${l.label}</option>`; });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+populateBudgetTxFilter();
 
 // ── CHECKING TRANSACTION DATA ─────────────────────────────────────────────────
 let CHECKING_TX = []; // populated by sync from Checking Transaction Log
@@ -6736,6 +6894,7 @@ async function processWorkbook(wb, lastModified) {
 
   // 5. Checking transactions for drill-down
   mergeSyncedCheckingTx(wsCtl);
+  mergeBudgetTxLog(wsCtl);
 
   // 6. Share counts
   if (wb.SheetNames.includes('Share Count')) {
@@ -7051,6 +7210,8 @@ try {
   if (sd) { window._savingsDisbursements = JSON.parse(sd); }
   const st = localStorage.getItem('mf_savings_raw_tx');
   if (st) window._savingsRawTx = JSON.parse(st);
+  const bt = localStorage.getItem('mf_budget_tx_log');
+  if (bt) { window._budgetTxLog = JSON.parse(bt); renderBudgetTx(); }
   // Restore sub-account balances
   const sb = localStorage.getItem('mf_sav_balances');
   if (sb) {
