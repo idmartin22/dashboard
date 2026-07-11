@@ -1,5 +1,5 @@
 {
-  "updated": "2026-07-10",
+  "updated": "2026-07-11",
   "tsp": {
     "G": 20.0366,
     "F": 20.9359,
@@ -8,80 +8,16 @@
     "I": 64.0071
   },
   "fidelity": {
-    "VIIIX": 603.88,
-    "VTPSX": 182.28,
-    "VEMPX": 454.3
+    "VIIIX": 606.48,
+    "VTPSX": 182.97,
+    "VEMPX": 451.72
   },
   "etf": {
-    "VTI": 371.45,
-    "QQQM": 297.78,
-    "AVUV": 123.22,
-    "AVDV": 103.13,
-    "AVES": 64.77,
-    "VXUS": 84.9
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-10",
-      "ptc": 10.83,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 9.09,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 12
-        },
-        "18_24": {
-          "rate": 9.39,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.99,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-10",
-      "sco": 52.9,
-      "best": {
-        "3": {
-          "rate": 39.9,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 59.9,
-          "supplier": "Shipley Choice  LLC",
-          "term": 6
-        },
-        "12": {
-          "rate": 55.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 66.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 372.69,
+    "QQQM": 298.72,
+    "AVUV": 123.95,
+    "AVDV": 104.2,
+    "AVES": 65.63,
+    "VXUS": 85.34
   }
 }
