@@ -13,71 +13,11 @@
     "VEMPX": 449.89
   },
   "etf": {
-    "VTI": 371.16,
-    "QQQM": null,
-    "AVUV": 124.08,
-    "AVDV": 104.14,
-    "AVES": 64.23,
-    "VXUS": 84.66
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-15",
-      "ptc": 10.92,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 5
-        },
-        "12": {
-          "rate": 9.19,
-          "supplier": "Energy Harbor LLC",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 9.49,
-          "supplier": "Better Buy Energy",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.89,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-15",
-      "sco": 54.81,
-      "best": {
-        "3": {
-          "rate": 51.0,
-          "supplier": "NRG Home",
-          "term": 1
-        },
-        "6": null,
-        "12": {
-          "rate": 54.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 9
-        },
-        "18_24": {
-          "rate": 64.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 372.12,
+    "QQQM": 296.86,
+    "AVUV": 124.17,
+    "AVDV": 104.615,
+    "AVES": 64.67,
+    "VXUS": 84.84
   }
 }
