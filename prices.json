@@ -1,83 +1,23 @@
 {
-  "updated": "2026-07-16",
+  "updated": "2026-07-17",
   "tsp": {
-    "G": 20.0515,
-    "F": 20.9393,
-    "C": 121.9037,
-    "S": 116.053,
-    "I": 64.1752
+    "G": 20.054,
+    "F": 20.9324,
+    "C": 121.2823,
+    "S": 115.645,
+    "I": 63.5023
   },
   "fidelity": {
-    "VIIIX": 606.28,
-    "VTPSX": 182.54,
-    "VEMPX": 449.9
+    "VIIIX": 603.19,
+    "VTPSX": 180.71,
+    "VEMPX": 448.29
   },
   "etf": {
-    "VTI": 372.42,
-    "QQQM": 295.56,
-    "AVUV": 124.67,
-    "AVDV": 104.92,
-    "AVES": 64.41,
-    "VXUS": 84.99
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-16",
-      "ptc": 10.92,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 5
-        },
-        "12": {
-          "rate": 9.19,
-          "supplier": "Energy Harbor LLC",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 9.49,
-          "supplier": "Better Buy Energy",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.89,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-16",
-      "sco": 54.81,
-      "best": {
-        "3": {
-          "rate": 51.0,
-          "supplier": "NRG Home",
-          "term": 1
-        },
-        "6": null,
-        "12": {
-          "rate": 54.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 9
-        },
-        "18_24": {
-          "rate": 64.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 370.58,
+    "QQQM": 290.68,
+    "AVUV": 126.17,
+    "AVDV": 103.87,
+    "AVES": 63.88,
+    "VXUS": 84.06
   }
 }
