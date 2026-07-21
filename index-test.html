@@ -650,7 +650,7 @@
           <div class="row"><div class="rl">Isaac — Guard gross (IDT + AT)</div><div class="rv">$20,347</div></div>
           <div class="row"><div class="rl">Lorri — Cleveland Clinic gross</div><div class="rv">$172,250</div></div>
           <div class="row"><div class="rl">Rental income — 41403 Elmwood</div><div class="rv">$9,600</div></div>
-          <div class="total-row"><span>Combined gross income</span><span class="rv" style="color:var(--text)">$306,447</span></div>
+          <div class="total-row"><span>Combined gross income</span><span class="rv" style="color:var(--text)" id="today-gross-income">$306,447</span></div>
           <div class="row"><div class="rl">Combined take-home (net)</div><div class="rv green">$206,163</div></div>
         </div>
       </div>
@@ -1304,6 +1304,28 @@
           <div id="reqDraw" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--amber)">—</div>
           <div style="font-size:10px;color:var(--hint);margin-top:2px">from investments only</div>
         </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px">
+        <div style="background:var(--surface2);border-radius:8px;padding:11px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Retirement gross vs. today</div>
+          <div id="retireIncomeChange" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500">—</div>
+          <div style="font-size:10px;color:var(--hint);margin-top:2px">today: <span id="todayGrossRef">—</span></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:11px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Est. taxes in retirement</div>
+          <div id="retireTaxEst" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--red)">—</div>
+          <div style="font-size:10px;color:var(--hint);margin-top:2px"><span id="retireTaxDetail">—</span></div>
+        </div>
+        <div style="background:var(--surface2);border-radius:8px;padding:11px;text-align:center">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Est. take-home in retirement</div>
+          <div id="retireTakeHome" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--green)">—</div>
+          <div style="font-size:10px;color:var(--hint);margin-top:2px">at steady state · both claiming SS</div>
+        </div>
+      </div>
+
+      <div style="font-size:10px;color:var(--hint);margin-bottom:10px;line-height:1.6">
+        Tax estimate uses current 2026 federal brackets (Married Filing Jointly, $32,200 standard deduction) applied to the full level-income target, plus Ohio's 2026 flat 2.75% rate above $26,050 — with Social Security and Guard (military) retirement pay correctly excluded from Ohio tax, since Ohio fully exempts both. Federal tax likely runs slightly high since Social Security's partial-taxability rule isn't modeled here. Current law only — subject to change before retirement.
       </div>
 
       <div id="calcNote" style="font-size:11px;color:var(--hint);padding:8px 10px;background:rgba(255,255,255,.03);border-radius:6px;line-height:1.7;margin-bottom:14px"></div>
@@ -2104,6 +2126,69 @@ function calcRetire() {
   }
 
   document.getElementById('reqDraw').textContent = fmtFull(Math.round(targetIncome));
+
+  // ── Retirement income vs today + tax estimate (2026 law) ─────────────────
+  // Steady-state guaranteed income: both retired (Phase 2) AND both claiming
+  // Social Security — the representative "typical" retirement year.
+  const steadyGuaranteed = RENTAL + FERS + GUARD + isaacSSAmount + lorriSSAmount;
+
+  // Ohio fully exempts Social Security AND military retirement pay (Guard
+  // pension) — verified against Ohio Dept. of Taxation IT-1040 instructions.
+  // FERS, rental, and portfolio withdrawals are Ohio-taxable as ordinary income.
+  const ohExempt  = GUARD + isaacSSAmount + lorriSSAmount;
+  const ohTaxable = Math.max(0, targetIncome - ohExempt);
+
+  // 2026 federal brackets, Married Filing Jointly (IRS Rev. Proc. 2025-32)
+  const FED_STD_DEDUCTION_MFJ = 32200;
+  function calcFederalTaxMFJ(taxableIncome) {
+    const brackets = [
+      [0, 24800, 0.10], [24800, 100800, 0.12], [100800, 211400, 0.22],
+      [211400, 403550, 0.24], [403550, 512450, 0.32], [512450, 768700, 0.35],
+      [768700, Infinity, 0.37],
+    ];
+    let tax = 0;
+    for (const [lo, hi, rate] of brackets) {
+      if (taxableIncome > lo) tax += (Math.min(taxableIncome, hi) - lo) * rate;
+    }
+    return tax;
+  }
+  const fedTaxableIncome = Math.max(0, targetIncome - FED_STD_DEDUCTION_MFJ);
+  const estFederalTax = calcFederalTaxMFJ(fedTaxableIncome);
+
+  // Ohio: flat 2.75% (2026 law) above $26,050 threshold, applied only to
+  // the Ohio-taxable portion (SS and military retirement pay excluded)
+  const OH_THRESHOLD = 26050, OH_RATE = 0.0275;
+  const estOhioTax = Math.max(0, ohTaxable - OH_THRESHOLD) * OH_RATE;
+
+  const estTotalTax = estFederalTax + estOhioTax;
+  const estTakeHome = targetIncome - estTotalTax;
+
+  // Today's gross income — read live from the Income tab's Annual summary,
+  // so this always compares against your actual current figure, not a
+  // separate hardcoded copy
+  const todayGrossEl = document.getElementById('today-gross-income');
+  const todayGross = todayGrossEl ? parseFloat(todayGrossEl.textContent.replace(/[$,]/g,'')) || 0 : 0;
+  const pctChange = todayGross > 0 ? ((targetIncome - todayGross) / todayGross * 100) : null;
+
+  const changeEl = document.getElementById('retireIncomeChange');
+  if (changeEl) {
+    if (pctChange !== null) {
+      changeEl.textContent = (pctChange >= 0 ? '+' : '') + pctChange.toFixed(1) + '%';
+      changeEl.style.color = pctChange >= 0 ? 'var(--green)' : 'var(--red)';
+    } else {
+      changeEl.textContent = '—';
+    }
+  }
+  const todayRefEl = document.getElementById('todayGrossRef');
+  if (todayRefEl) todayRefEl.textContent = todayGross > 0 ? fmtFull(todayGross) : '—';
+
+  const taxEstEl = document.getElementById('retireTaxEst');
+  if (taxEstEl) taxEstEl.textContent = fmtFull(Math.round(estTotalTax)) + '/yr';
+  const taxDetailEl = document.getElementById('retireTaxDetail');
+  if (taxDetailEl) taxDetailEl.textContent = 'Fed ' + fmtFull(Math.round(estFederalTax)) + ' + OH ' + fmtFull(Math.round(estOhioTax));
+
+  const takeHomeEl = document.getElementById('retireTakeHome');
+  if (takeHomeEl) takeHomeEl.textContent = fmtFull(Math.round(estTakeHome)) + '/yr';
 
   // Lorri's retirement calendar year — Phase 2 starts here in the NW chart
   const lorriRetireYear = RETIRE_YEAR + phase1Years; // phase1Years already integer
