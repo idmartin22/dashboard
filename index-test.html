@@ -6928,10 +6928,10 @@ async function processWorkbook(wb, lastModified) {
   }
 
   // Parse Budget Breakdown for closed month trigger (column D = 'x') AND
-  // projected income per month (column E — the column right after the trigger).
-  // Projected income is read for EVERY month row, not just closed ones, since
-  // it's planned ahead of time in Excel, unlike actual income (column F) which
-  // only exists once a month is actually closed out.
+  // projected income per month (column E, rows 2-13 specifically — E2:E13).
+  // Projected income is read only from this exact range since month labels
+  // (JAN, FEB, etc.) can appear elsewhere further down the sheet for
+  // unrelated data blocks, which would otherwise get matched incorrectly.
   try {
     var wsBb = wb.Sheets['Budget Breakdown'];
     if (wsBb) {
@@ -6939,22 +6939,31 @@ async function processWorkbook(wb, lastModified) {
       var MMAP = {JAN:'2026-01',FEB:'2026-02',MAR:'2026-03',APR:'2026-04',MAY:'2026-05',JUN:'2026-06',JUL:'2026-07',AUG:'2026-08',SEP:'2026-09',OCT:'2026-10',NOV:'2026-11',DEC:'2026-12'};
       var lastClosed = null, lastIncome = 0;
       var projectedByMonth = {};
+
+      // Projected income — ONLY rows 2-13 (Excel) = array indices 1-12 (E2:E13)
+      for (var rIdx = 1; rIdx <= 12; rIdx++) {
+        var pRow = bbData[rIdx];
+        if (!pRow || !pRow[0]) continue;
+        var pLbl = String(pRow[0]).toUpperCase().trim();
+        if (!MMAP[pLbl]) continue;
+        var proj = parseFloat(pRow[4]); // column E
+        if (!isNaN(proj) && proj > 0) projectedByMonth[MMAP[pLbl]] = proj;
+      }
+
+      // Closed-month trigger + actual income — scan the whole sheet as before
       bbData.forEach(function(row) {
         if (!row || !row[0]) return;
         var lbl = String(row[0]).toUpperCase().trim();
         if (!MMAP[lbl]) return;
-        // Column E (index 4) — projected income, read for every month
-        var proj = parseFloat(row[4]);
-        if (!isNaN(proj) && proj > 0) projectedByMonth[MMAP[lbl]] = proj;
-        // Column D (index 3) — closed-month trigger; column F (index 5) — actual income
         if (row[3] && String(row[3]).toLowerCase().trim() === 'x') {
           lastClosed = MMAP[lbl];
           lastIncome = parseFloat(row[5]) || 0;
         }
       });
+
       window._projectedIncomeByMonth = projectedByMonth;
       try { localStorage.setItem('mf_projected_income_by_month', JSON.stringify(projectedByMonth)); } catch(e) {}
-      console.log('Projected income by month:', projectedByMonth);
+      console.log('Projected income by month (E2:E13):', projectedByMonth);
       if (lastClosed) {
         window._closedMonth = lastClosed;
         window._closedIncome = lastIncome;
