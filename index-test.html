@@ -1276,7 +1276,7 @@
           <div style="font-size:10px;color:var(--hint);margin-top:2px">full portfolio</div>
         </div>
         <div style="background:var(--surface2);border-radius:8px;padding:11px;text-align:center">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Required portfolio draw</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Target level income (total, every year)</div>
           <div id="reqDraw" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--amber)">—</div>
           <div style="font-size:10px;color:var(--hint);margin-top:2px">from investments only</div>
         </div>
@@ -2020,54 +2020,66 @@ function calcRetire() {
 
   const totalYears = exhaustAge - ISAAC_RETIRE;
 
-  // ── unified binary search for required draw ──────────────────────────────
-  // Solves for a single annual draw rate applied across the ENTIRE retirement
-  // timeline (Phase 1 + Phase 2) that exhausts the full combined pool exactly
-  // at exhaustAge. Phase 1 draws only from Isaac's pool (TSP+M1+Kraken) since
-  // Lorri hasn't retired yet; Phase 2 draws from the combined total once her
-  // accounts unlock. No arbitrary multipliers — the search finds the real
-  // amortized draw directly from the actual pool sizes and timeline.
+  // Real age gap derived from actual birthdates — needed here for the
+  // guaranteed-income helper below (moved earlier so the binary search can use it)
+  const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS; // positive: Lorri younger
+
+  // ── level-income binary search ────────────────────────────────────────────
+  // Instead of solving for a FLAT portfolio draw (which produces a fluctuating
+  // total income as guaranteed income sources turn on/off), this solves for a
+  // FLAT TOTAL INCOME target. The portfolio draw becomes the flexible piece
+  // that fills whatever gap exists between guaranteed income and that level
+  // target each year — smaller when SS/pensions are active, larger when they
+  // aren't yet. The search finds the target income that exhausts the combined
+  // pool exactly at exhaustAge.
   const isaacFullPoolAtRetire = isaacPool; // TSP + M1 + Kraken combined, already projected
 
   // Use integer phase years throughout — binary search and table must agree exactly
   const phase1Years = Math.round(lorriYearsAfterIsaacRetire);
   const phase2Years = totalYears - phase1Years;
 
-  // Upper bound scales with actual pool size so the search always has enough
-  // room to find the true required draw regardless of portfolio size
-  const combinedAtRetire = isaacFullPoolAtRetire + lorriPool;
-  let lo = 0, hi = Math.max(2000000, combinedAtRetire), draw2 = 0, draw1Final = 0;
-
-  for (let iter = 0; iter < 100; iter++) {
-    const mid = (lo + hi) / 2;
-
-    // Phase 1: Isaac's pool only, drawing at the same rate as Phase 2.
-    // Lorri's pool grows untouched during Phase 1 (matches table loop behavior).
-    let bal1 = isaacFullPoolAtRetire;
-    let lorriDuringPhase1 = lorriPool;
-    for (let y = 0; y < phase1Years; y++) {
-      bal1 = bal1 * (1 + retireRate) - mid;
-      lorriDuringPhase1 = lorriDuringPhase1 * (1 + retireRate);
-      if (bal1 < 0) { bal1 = 0; break; }
-    }
-
-    // Phase 2: Isaac's remainder + Lorri's grown pool, combined
-    let bal2 = bal1 + lorriDuringPhase1;
-    for (let y = 0; y < phase2Years; y++) {
-      bal2 = bal2 * (1 + retireRate) - mid;
-      if (bal2 < 0) break;
-    }
-
-    if (bal2 > 0) lo = mid;
-    else hi = mid;
-    draw2 = mid;
-    draw1Final = mid;
+  function guaranteedForYear(y, inPhase2Flag) {
+    const isaacAge = ISAAC_RETIRE + y;
+    const lorriAge  = Math.round(isaacAge - REAL_AGE_GAP);
+    let g = RENTAL;
+    if (isaacAge >= 57) g += FERS;
+    if (isaacAge >= 59) g += GUARD;
+    if (isaacAge >= isaacSSAge) g += ISAAC_SS;
+    if (!inPhase2Flag) g += LORRI_CC;
+    if (inPhase2Flag && lorriAge >= lorriSSAge) g += LORRI_SS;
+    return g;
   }
 
-  // If no Phase 1, draw1Final equals draw2
-  if (phase1Years <= 0) draw1Final = draw2;
+  // Upper bound scales with actual pool size so the search always has enough
+  // room to find the true required target income regardless of portfolio size
+  const combinedAtRetire = isaacFullPoolAtRetire + lorriPool;
+  let lo = 0, hi = Math.max(2000000, combinedAtRetire), targetIncome = 0;
 
-  document.getElementById('reqDraw').textContent = fmtFull(Math.round(draw2));
+  for (let iter = 0; iter < 100; iter++) {
+    const mid = (lo + hi) / 2; // candidate flat total-income target
+
+    let bal = isaacFullPoolAtRetire;
+    let lorriGrowingUntouched = lorriPool;
+    let inPhase2 = false;
+
+    for (let y = 0; y < totalYears; y++) {
+      if (!inPhase2 && y >= phase1Years) {
+        inPhase2 = true;
+        bal += lorriGrowingUntouched; // Lorri's grown pool merges in at Phase 2 start
+      }
+      const guaranteed = guaranteedForYear(y, inPhase2);
+      const draw = Math.max(0, mid - guaranteed);
+
+      bal = bal * (1 + retireRate) - draw;
+      if (!inPhase2) lorriGrowingUntouched = lorriGrowingUntouched * (1 + retireRate);
+      if (bal < 0) { bal = 0; break; }
+    }
+
+    if (bal > 0) lo = mid; else hi = mid;
+    targetIncome = mid;
+  }
+
+  document.getElementById('reqDraw').textContent = fmtFull(Math.round(targetIncome));
 
   // Lorri's retirement calendar year — Phase 2 starts here in the NW chart
   const lorriRetireYear = RETIRE_YEAR + phase1Years; // phase1Years already integer
@@ -2093,9 +2105,6 @@ function calcRetire() {
   // Pre-retirement years: use isaacPool + lorriPool as proxy for combined
   // invested assets at retirement. We'll let calcNetWorth handle 2026–2038
   // with its own accumulation logic, but from RETIRE_YEAR onward we override.
-
-  // Real age gap derived from actual birthdates (replaces old AGE_GAP constant)
-  const REAL_AGE_GAP = (LORRI_BIRTHDATE - ISAAC_BIRTHDATE) / YEAR_MS; // positive: Lorri younger
 
   // ── separate account tracking for drawdown ───────────────────────────────
   // Drawable accounts: Isaac's TSP, Lorri's 403b+401a — drawn proportionally each year
@@ -2123,6 +2132,10 @@ function calcRetire() {
 
     if (isPhase2Start) inPhase2 = true;
 
+    // Guaranteed income this year — computed via the same shared helper the
+    // binary search used, so the table always agrees with what was solved for
+    const guaranteed = guaranteedForYear(y, inPhase2);
+
     // All four accounts draw proportionally each year — no account is
     // ring-fenced. Phase 1: TSP + M1 + Kraken (Lorri not yet retired).
     // Phase 2: all four accounts combined.
@@ -2130,11 +2143,14 @@ function calcRetire() {
     const opening = tspBal + lorriBal + m1Bal + cryptoBal;
 
     const poolExhausted = drawableTotal <= 0;
-    const targetDraw = poolExhausted ? 0 : (inPhase2 ? draw2 : draw1Final);
+    // Level-income draw: only draw enough from the portfolio to bring total
+    // income up to the flat target — smaller when guaranteed income is high
+    // (SS/pensions active), larger when it isn't yet.
+    const targetDraw = poolExhausted ? 0 : Math.max(0, targetIncome - guaranteed);
 
     // Proportional split of the draw across all participating accounts
     let tspDraw = 0, lorriDraw = 0, m1Draw = 0, cryptoDraw = 0;
-    if (!poolExhausted) {
+    if (!poolExhausted && targetDraw > 0) {
       tspDraw    = targetDraw * (tspBal    / drawableTotal);
       m1Draw     = targetDraw * (m1Bal     / drawableTotal);
       cryptoDraw = targetDraw * (cryptoBal / drawableTotal);
@@ -2159,14 +2175,6 @@ function calcRetire() {
     const portfolioExhausted = closing <= 0 && actualDraw === 0;
     yearlyPortfolio[year] = Math.max(0, closing);
 
-    // Guaranteed income this year
-    let guaranteed = RENTAL;
-    if (isaacAge >= 57)  guaranteed += FERS;
-    if (isaacAge >= 59)  guaranteed += GUARD;
-    if (isaacAge >= isaacSSAge) guaranteed += isaacSSAmount;
-    if (!inPhase2)       guaranteed += LORRI_CC;
-    if (inPhase2 && lorriAge >= lorriSSAge) guaranteed += lorriSSAmount;
-
     const totalIncome = actualDraw + guaranteed;
 
     // Events
@@ -2177,7 +2185,7 @@ function calcRetire() {
     if (isPhase2Start)                                 events.push(`🔓 Lorri retires (${lorriAge}) · accounts unlock`);
     if (inPhase2 && lorriAge === lorriSSAge)           events.push(`+ Lorri SS (${fmtFull(lorriSSAmount)}/yr)`);
     if (isaacAge === 65)                               events.push('Medicare');
-    if (portfolioExhausted && draw === 0 && opening <= 0) events.push('⚠ Portfolio exhausted — pensions + SS only');
+    if (portfolioExhausted && actualDraw === 0 && opening <= 0) events.push('⚠ Portfolio exhausted — pensions + SS only');
 
     const phase  = inPhase2 ? '2' : '1';
     const phaseColor = inPhase2 ? 'var(--green)' : 'var(--blue)';
@@ -2224,12 +2232,14 @@ function calcRetire() {
   calcNetWorth(growthRate, retireRate, lorriRetireYear, yearlyPortfolio, RETIRE_YEAR);
 
   // ── summary note ─────────────────────────────────────────────────────
-  const phase1Income = Math.round(draw1Final + FERS + RENTAL + LORRI_CC);
-  const phase2IncomeBase = Math.round(draw2 + FERS + GUARD + ISAAC_SS + RENTAL);
+  const drawAtRetireStart = Math.round(Math.max(0, targetIncome - guaranteedForYear(0, false)));
+  const drawAtPhase2Start = Math.round(Math.max(0, targetIncome - guaranteedForYear(phase1Years, true)));
   document.getElementById('calcNote').innerHTML =
-    `<strong style="color:var(--blue)">Phase 1</strong> (Isaac ${ISAAC_RETIRE} → Lorri retires at ${lorriRetireAge}): Isaac draws ~<strong style="color:var(--amber)">${fmtFull(Math.round(draw1Final))}/yr</strong> from his accounts · Lorri's CC income adds <strong style="color:var(--green)">$110,348/yr</strong> · Isaac SS starts at ${isaacSSAge} (${fmtFull(isaacSSAmount)}/yr)
+    `<strong style="color:var(--purple)">Level income target</strong>: total household income is held flat at <strong style="color:var(--amber)">${fmtFull(Math.round(targetIncome))}/yr</strong> every year — the portfolio draw flexes to fill whatever gap exists between guaranteed income and that target.
     &nbsp;|&nbsp;
-    <strong style="color:var(--green)">Phase 2</strong> (both retired · Lorri's ${fmt(lorriPool)} unlocked): combined draw rises to <strong style="color:var(--amber)">${fmtFull(Math.round(draw2))}/yr</strong> · Lorri SS starts at ${lorriSSAge} (${fmtFull(lorriSSAmount)}/yr) · portfolio exhausts at Isaac age <strong style="color:var(--amber)">${exhaustAge}</strong> · pensions + SS continue for life regardless`;
+    <strong style="color:var(--blue)">Phase 1</strong> (Isaac ${ISAAC_RETIRE} → Lorri retires at ${lorriRetireAge}): portfolio draw starts at ~<strong style="color:var(--amber)">${fmtFull(drawAtRetireStart)}/yr</strong> · Lorri's CC income adds <strong style="color:var(--green)">$110,348/yr</strong> · Isaac SS starts at ${isaacSSAge} (${fmtFull(isaacSSAmount)}/yr, draw drops accordingly)
+    &nbsp;|&nbsp;
+    <strong style="color:var(--green)">Phase 2</strong> (both retired · Lorri's ${fmt(lorriPool)} unlocked): draw resets to ~<strong style="color:var(--amber)">${fmtFull(drawAtPhase2Start)}/yr</strong> to replace Lorri's CC income · Lorri SS starts at ${lorriSSAge} (${fmtFull(lorriSSAmount)}/yr, draw drops accordingly) · portfolio exhausts at Isaac age <strong style="color:var(--amber)">${exhaustAge}</strong> · pensions + SS continue for life regardless`;
 
   // Keep Debts tab mortgage figures in sync with the retirement date picker
   try { syncMortgageDisplays(); } catch(e) {}
@@ -2500,7 +2510,7 @@ function calcDrift() {
 calcDrift();
 restoreRetireInputs();
 calcRetire();
-initDrillModal(); // drives calcNetWorth internally with actual retireRate + draw2
+initDrillModal(); // drives calcNetWorth internally with actual retireRate + level-income target
 // ── STORAGE COMPATIBILITY SHIM ───────────────────────────────────────────────
 // window.storage only works inside Claude.ai
 // localStorage works everywhere (GitHub Pages, local file, etc.)
