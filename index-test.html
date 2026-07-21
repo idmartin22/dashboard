@@ -3279,14 +3279,26 @@ const THREE_PAY_MONTHS = ['2026-04', '2026-09'];
 
 function refreshFrameworkBudgets() {
   if (!window._lineBudgets) return;
+  // Dashboard IDs b27-b37 assumed their Excel line number was their own ID
+  // number, but the real Proposed Budget sheet has these Periodic categories
+  // at lines 25-35 (an off-by-2 shift) — verified directly against the actual
+  // workbook. Without this map, b36/b37 were silently pulling in 'S'-type
+  // (Savings) rows instead — b37 in particular was pulling in "Our Savings"
+  // ($4,130+) and counting it as 100% Need, wildly inflating the total.
+  const B_LINE_REMAP = {
+    b27: 25, b28: 26, b29: 27, b30: 28, b31: 29,
+    b32: 30, b33: 31, b34: 32, b35: 33, b36: 34, b37: 35,
+    s38: 36, // Kids Savings — same off-by-2 pattern; currently harmless since
+              // no Excel row uses raw line 38, but fixed defensively
+  };
   FRAMEWORK_LINES = FRAMEWORK_LINES.map(line => {
     const [id, budget, nPct, wPct, sPct] = line;
     // Map dashboard ID to Proposed Budget line number
     const numStr = id.replace(/[a-z]/g,'');
     const lineNum = parseInt(numStr);
     if (isNaN(lineNum)) return line;
-    // Handle special cases: f25->42, f26->43 in proposed budget
-    const pbNum = id === 'f25' ? 42 : id === 'f26' ? 43 : lineNum;
+    // Handle special cases: f25->42, f26->43, and the b27-b37 off-by-2 remap
+    const pbNum = id === 'f25' ? 42 : id === 'f26' ? 43 : (B_LINE_REMAP[id] || lineNum);
     const newBudget = window._lineBudgets[pbNum];
     return newBudget !== undefined ? [id, newBudget, nPct, wPct, sPct] : line;
   });
