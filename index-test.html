@@ -3325,25 +3325,39 @@ function renderFramework(month) {
     ? 'Full year · 10 standard + 2 three-paycheck months'
     : (is3Pay ? '3-paycheck month 🎉' : '2-paycheck month');
 
-  // Compute fixed lines total (all except Our Savings)
-  const fixedTotal  = FRAMEWORK_LINES.reduce((s, l) => s + l[1], 0); // sum of all fixed line budgets
-  const ourSavings  = (isAnnual ? income / 12 : income) - fixedTotal;
-  const adjIncome   = isAnnual ? income / 12 : income; // per-month for calcs
+  // Prefer the authoritative 50-30-20 sheet (verified directly against the
+  // user's own Excel breakdown) for Needs/Wants/Savings targets. Falls back
+  // to the old FRAMEWORK_LINES reconstruction only if that sheet hasn't
+  // synced yet — that fallback path had the off-by-2 line-mapping bug fixed
+  // earlier, but the 50-30-20 sheet is the real source of truth going forward.
+  let N, W, S, Inc;
+  if (window._framework503020) {
+    const f = window._framework503020;
+    if (isAnnual) {
+      N = f.needsAnnual; W = f.wantsAnnual; S = f.savingsAnnual; Inc = f.incomeAnnual;
+    } else {
+      N = f.needsAnnual / 12; W = f.wantsAnnual / 12; S = f.savingsAnnual / 12; Inc = f.incomeAnnual / 12;
+    }
+  } else {
+    // Compute fixed lines total (all except Our Savings)
+    const fixedTotal  = FRAMEWORK_LINES.reduce((s, l) => s + l[1], 0); // sum of all fixed line budgets
+    const ourSavings  = (isAnnual ? income / 12 : income) - fixedTotal;
 
-  let fixedNeeds    = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[2], 0);
-  let fixedWants    = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[3], 0);
-  let fixedSavings  = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[4], 0);
+    let fixedNeeds    = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[2], 0);
+    let fixedWants    = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[3], 0);
+    let fixedSavings  = FRAMEWORK_LINES.reduce((s, l) => s + l[1] * l[4], 0);
 
-  const totalNeeds   = fixedNeeds;
-  const totalWants   = fixedWants;
-  const totalSavings = fixedSavings + ourSavings;
+    const totalNeeds   = fixedNeeds;
+    const totalWants   = fixedWants;
+    const totalSavings = fixedSavings + ourSavings;
 
-  // For annual — multiply by 12 months (savings varies by month but avg works)
-  const scale = isAnnual ? 12 : 1;
-  const N = totalNeeds   * scale;
-  const W = totalWants   * scale;
-  const S = totalSavings * scale;
-  const Inc = income;
+    // For annual — multiply by 12 months (savings varies by month but avg works)
+    const scale = isAnnual ? 12 : 1;
+    N = totalNeeds   * scale;
+    W = totalWants   * scale;
+    S = totalSavings * scale;
+    Inc = income;
+  }
 
   // Get actuals from budget data for current month
   let aN = 0, aW = 0, aS = 0, actualIncome = 0;
@@ -6938,6 +6952,40 @@ async function processWorkbook(wb, lastModified) {
     setTimeout(fetchLivePrices, 500);
   }
 
+  // Parse 50-30-20 sheet — this is the authoritative, already-correct
+  // Excel-calculated Needs/Wants/Savings breakdown (built and verified
+  // directly by the user). Row 2 has annual proposed totals + percentages
+  // for Income (B2), Needs (H2/I2), Wants (N2/O2), Savings (T2/U2).
+  // This replaces the old fragile approach of reconstructing the same
+  // breakdown in JS via a hardcoded line-number mapping to Proposed Budget,
+  // which had an off-by-2 mapping bug for the Periodic category.
+  try {
+    var ws503020 = wb.Sheets['50-30-20'];
+    if (ws503020) {
+      var data503020 = window.XLSX.utils.sheet_to_json(ws503020, {header:1, defval:null, raw:true});
+      var row2 = data503020[1]; // Excel row 2 = array index 1
+      if (row2) {
+        var incomeAnnual  = parseFloat(row2[1]);  // B2
+        var needsAnnual   = parseFloat(row2[7]);   // H2
+        var needsPct      = parseFloat(row2[8]);   // I2
+        var wantsAnnual   = parseFloat(row2[13]);  // N2
+        var wantsPct      = parseFloat(row2[14]);  // O2
+        var savingsAnnual = parseFloat(row2[19]);  // T2
+        var savingsPct    = parseFloat(row2[20]);  // U2
+        if (!isNaN(incomeAnnual) && !isNaN(needsAnnual) && !isNaN(wantsAnnual) && !isNaN(savingsAnnual)) {
+          window._framework503020 = {
+            incomeAnnual: incomeAnnual, needsAnnual: needsAnnual, needsPct: needsPct,
+            wantsAnnual: wantsAnnual, wantsPct: wantsPct,
+            savingsAnnual: savingsAnnual, savingsPct: savingsPct
+          };
+          try { localStorage.setItem('mf_framework_503020', JSON.stringify(window._framework503020)); } catch(e) {}
+          console.log('50-30-20 sheet synced:', window._framework503020);
+          try { renderBudget(); } catch(e) { console.warn('renderBudget refresh error:', e.message); }
+        }
+      }
+    }
+  } catch(e) { console.warn('50-30-20 sheet parse error:', e.message); }
+
   // Parse Budget Breakdown for closed month trigger (column D = 'x') AND
   // projected income per month (column E, rows 2-13 specifically — E2:E13).
   // Projected income is read only from this exact range since month labels
@@ -7230,6 +7278,15 @@ try {
   var pibm = localStorage.getItem('mf_projected_income_by_month');
   if (pibm) {
     window._projectedIncomeByMonth = JSON.parse(pibm);
+    setTimeout(function(){ try { renderBudget(); } catch(e) {} }, 500);
+  }
+} catch(e) {}
+// Restore 50-30-20 framework data from cache — authoritative Needs/Wants/
+// Savings breakdown, verified directly against the user's Excel sheet
+try {
+  var f503020 = localStorage.getItem('mf_framework_503020');
+  if (f503020) {
+    window._framework503020 = JSON.parse(f503020);
     setTimeout(function(){ try { renderBudget(); } catch(e) {} }, 500);
   }
 } catch(e) {}
