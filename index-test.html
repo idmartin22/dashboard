@@ -3276,8 +3276,6 @@ let FRAMEWORK_LINES = [
 ];
 
 const THREE_PAY_MONTHS = ['2026-04', '2026-09'];
-const INCOME_STANDARD  = 16606.55;
-const INCOME_3PAY      = 19370.34;
 
 function refreshFrameworkBudgets() {
   if (!window._lineBudgets) return;
@@ -3303,9 +3301,13 @@ function renderFramework(month) {
 
   const isAnnual  = month === '2026-annual';
   const is3Pay    = THREE_PAY_MONTHS.includes(month);
+  // Use the same live-synced projected income as everywhere else on the
+  // dashboard (getMonthlyBudget), instead of the separate stale
+  // INCOME_STANDARD/INCOME_3PAY constants this used to reference.
+  const ALL_MONTHS_2026 = ['2026-01','2026-02','2026-03','2026-04','2026-05','2026-06','2026-07','2026-08','2026-09','2026-10','2026-11','2026-12'];
   const income    = isAnnual
-    ? INCOME_STANDARD * 10 + INCOME_3PAY * 2  // full year
-    : (is3Pay ? INCOME_3PAY : INCOME_STANDARD);
+    ? ALL_MONTHS_2026.reduce((s, m) => s + getMonthlyBudget(m), 0)
+    : getMonthlyBudget(month);
 
   if (labelEl) labelEl.textContent = isAnnual
     ? 'Full year · 10 standard + 2 three-paycheck months'
@@ -3418,17 +3420,13 @@ const hasActuals = monthsForActuals.length > 0;
     </div>`;
   }
 
-    // Fixed targets from proposed budget against annual average income
-  // Annual income = (10 × $16,606.55) + (2 × $19,370.34) = $204,806.18 ÷ 12 = $17,067.18/mo avg
-  // B line amounts represent planned annual spend → included in targets at N/W splits
-  // Actuals are driven by real disbursements (sporadic timing = expected monthly swings)
-  const ANNUAL_AVG_INCOME = 17067.18;
-  const PROPOSED_NEEDS    = 7355.00;   // D+F+B need portions ($5,942.50 + $1,412.50)
-  const PROPOSED_WANTS    = 5645.00;   // D+F+B want portions ($5,057.50 + $587.50)
-  const PROPOSED_SAVINGS  = ANNUAL_AVG_INCOME - PROPOSED_NEEDS - PROPOSED_WANTS; // 4067.18
-  const tN = PROPOSED_NEEDS   / ANNUAL_AVG_INCOME;  // 43.09% — fixed regardless of month
-  const tW = PROPOSED_WANTS   / ANNUAL_AVG_INCOME;  // 33.08% — fixed regardless of month
-  const tS = PROPOSED_SAVINGS / ANNUAL_AVG_INCOME;  // 23.83% — fixed regardless of month
+    // Target percentages derived directly from the SAME live-synced dollar
+  // figures (N/W/S) and income (Inc) used everywhere else in this function —
+  // so the displayed % always reconciles exactly with the dollar amount shown
+  // beneath it, and both move together automatically as Excel data changes.
+  const tN = Inc > 0 ? N / Inc : 0;
+  const tW = Inc > 0 ? W / Inc : 0;
+  const tS = Inc > 0 ? S / Inc : 0;
 
   // Actual percentages use actual income as denominator
   const actualIncomeDenom = hasActuals && actualIncome > 0 ? actualIncome : Inc;
