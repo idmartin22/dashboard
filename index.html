@@ -1303,6 +1303,7 @@
           <div style="font-size:10px;color:var(--muted);margin-bottom:3px">Target level income (total, every year)</div>
           <div id="reqDraw" style="font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--amber)">—</div>
           <div style="font-size:10px;color:var(--hint);margin-top:2px">from investments only</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px;padding-top:4px;border-top:1px solid var(--border)">Sustainable draw: <span id="sustainableDraw" style="color:var(--green)">—</span></div>
         </div>
       </div>
 
@@ -2048,6 +2049,15 @@ function calcRetire() {
   document.getElementById('isaacPortfolio').textContent   = fmt(isaacPool);
   document.getElementById('lorriPortfolio').textContent   = fmt(lorriPool);
   document.getElementById('combinedPortfolio').textContent = fmt(combinedPool);
+
+  // Sustainable draw — the amount that exactly offsets portfolio growth,
+  // so the balance theoretically never depletes (infinite duration) rather
+  // than being drawn down to $0 by the chosen exhaust age. Uses the combined
+  // pool once both are retired, since that's the full amount growing at
+  // retireRate from that point forward.
+  const sustainableDraw = combinedPool * retireRate;
+  const sustainableDrawEl = document.getElementById('sustainableDraw');
+  if (sustainableDrawEl) sustainableDrawEl.textContent = fmtFull(Math.round(sustainableDraw)) + '/yr';
 
   // ── income streams ───────────────────────────────────────────────────
   // Isaac guaranteed (by age):
