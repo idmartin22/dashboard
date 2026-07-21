@@ -2623,6 +2623,12 @@ const MONTHLY_BUDGET_NORMAL = 16606.55;
 const MONTHLY_BUDGET_3PAY   = 19370.34;
 
 function getMonthlyBudget(month) {
+  // Prefer the live-synced projected income from the Budget Breakdown sheet
+  // (column E, one column right of the closed-month 'x' trigger) — this is
+  // calculated in Excel and reflects the real planned figure for that month.
+  // Falls back to the hardcoded constants only if that month hasn't synced yet.
+  const synced = window._projectedIncomeByMonth && window._projectedIncomeByMonth[month];
+  if (synced !== undefined && synced > 0) return synced;
   return THREE_PAYCHECK_MONTHS.includes(month) ? MONTHLY_BUDGET_3PAY : MONTHLY_BUDGET_NORMAL;
 }
 
@@ -6921,21 +6927,34 @@ async function processWorkbook(wb, lastModified) {
     setTimeout(fetchLivePrices, 500);
   }
 
-  // Parse Budget Breakdown for closed month trigger (column D = 'x')
+  // Parse Budget Breakdown for closed month trigger (column D = 'x') AND
+  // projected income per month (column E — the column right after the trigger).
+  // Projected income is read for EVERY month row, not just closed ones, since
+  // it's planned ahead of time in Excel, unlike actual income (column F) which
+  // only exists once a month is actually closed out.
   try {
     var wsBb = wb.Sheets['Budget Breakdown'];
     if (wsBb) {
       var bbData = window.XLSX.utils.sheet_to_json(wsBb, {header:1, defval:null, raw:true});
       var MMAP = {JAN:'2026-01',FEB:'2026-02',MAR:'2026-03',APR:'2026-04',MAY:'2026-05',JUN:'2026-06',JUL:'2026-07',AUG:'2026-08',SEP:'2026-09',OCT:'2026-10',NOV:'2026-11',DEC:'2026-12'};
       var lastClosed = null, lastIncome = 0;
+      var projectedByMonth = {};
       bbData.forEach(function(row) {
         if (!row || !row[0]) return;
         var lbl = String(row[0]).toUpperCase().trim();
-        if (MMAP[lbl] && row[3] && String(row[3]).toLowerCase().trim() === 'x') {
+        if (!MMAP[lbl]) return;
+        // Column E (index 4) — projected income, read for every month
+        var proj = parseFloat(row[4]);
+        if (!isNaN(proj) && proj > 0) projectedByMonth[MMAP[lbl]] = proj;
+        // Column D (index 3) — closed-month trigger; column F (index 5) — actual income
+        if (row[3] && String(row[3]).toLowerCase().trim() === 'x') {
           lastClosed = MMAP[lbl];
           lastIncome = parseFloat(row[5]) || 0;
         }
       });
+      window._projectedIncomeByMonth = projectedByMonth;
+      try { localStorage.setItem('mf_projected_income_by_month', JSON.stringify(projectedByMonth)); } catch(e) {}
+      console.log('Projected income by month:', projectedByMonth);
       if (lastClosed) {
         window._closedMonth = lastClosed;
         window._closedIncome = lastIncome;
@@ -6943,6 +6962,8 @@ async function processWorkbook(wb, lastModified) {
         console.log('Closed month:', lastClosed, 'income:', lastIncome);
         try { renderDeploymentCard(); } catch(e) { console.warn('renderDeploymentCard error:', e.message); }
       }
+      // Refresh the Budget tab's Projected Income KPI now that live data is in
+      try { renderBudget(); } catch(e) { console.warn('renderBudget refresh error:', e.message); }
     }
   } catch(e) { console.warn('Budget Breakdown parse error:', e.message); }
 
@@ -7182,6 +7203,15 @@ try {
   var cm = localStorage.getItem('mf_closed_month');
   var ci = localStorage.getItem('mf_closed_income');
   if (cm) { window._closedMonth = cm; window._closedIncome = parseFloat(ci) || 0; setTimeout(function(){ try { renderDeploymentCard(); } catch(e) {} }, 500); }
+} catch(e) {}
+// Restore projected income by month from cache — lets getMonthlyBudget()
+// use the real synced figures immediately, before any fresh sync completes
+try {
+  var pibm = localStorage.getItem('mf_projected_income_by_month');
+  if (pibm) {
+    window._projectedIncomeByMonth = JSON.parse(pibm);
+    setTimeout(function(){ try { renderBudget(); } catch(e) {} }, 500);
+  }
 } catch(e) {}
 // Restore debt data from cache
 try {
