@@ -1,83 +1,23 @@
 {
-  "updated": "2026-07-22",
+  "updated": "2026-07-23",
   "tsp": {
-    "G": 20.0665,
-    "F": 20.8528,
-    "C": 120.8939,
-    "S": 115.6414,
-    "I": 63.5755
+    "G": 20.069,
+    "F": 20.8162,
+    "C": 120.7302,
+    "S": 114.9435,
+    "I": 63.7601
   },
   "fidelity": {
-    "VIIIX": 601.25,
-    "VTPSX": 181.48,
-    "VEMPX": 448.25
+    "VIIIX": 600.44,
+    "VTPSX": 181.45,
+    "VEMPX": 445.56
   },
   "etf": {
-    "VTI": 369.45,
-    "QQQM": 291.9,
-    "AVUV": 126.06,
-    "AVDV": 104.18,
-    "AVES": 63.6,
-    "VXUS": 84.45
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-22",
-      "ptc": 10.92,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 5
-        },
-        "12": {
-          "rate": 9.19,
-          "supplier": "Energy Harbor LLC",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 9.49,
-          "supplier": "Better Buy Energy",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.89,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-22",
-      "sco": 54.81,
-      "best": {
-        "3": {
-          "rate": 51.0,
-          "supplier": "NRG Home",
-          "term": 1
-        },
-        "6": null,
-        "12": {
-          "rate": 54.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 9
-        },
-        "18_24": {
-          "rate": 64.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 368.87,
+    "QQQM": 290.42,
+    "AVUV": 125.92,
+    "AVDV": 104.73,
+    "AVES": 64.03,
+    "VXUS": 84.46
   }
 }
