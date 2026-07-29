@@ -1,83 +1,23 @@
 {
-  "updated": "2026-07-28",
+  "updated": "2026-07-29",
   "tsp": {
-    "G": 20.0814,
-    "F": 20.8369,
-    "C": 119.3625,
-    "S": 114.7314,
-    "I": 63.1346
+    "G": 20.0839,
+    "F": 20.8879,
+    "C": 119.614,
+    "S": 114.7274,
+    "I": 62.5724
   },
   "fidelity": {
-    "VIIIX": 593.64,
-    "VTPSX": 179.83,
-    "VEMPX": 444.76
+    "VIIIX": 594.9,
+    "VTPSX": 178.56,
+    "VEMPX": 444.74
   },
   "etf": {
-    "VTI": 365.18,
-    "QQQM": 280.86,
-    "AVUV": 125.43,
-    "AVDV": 104.07,
-    "AVES": 63.13,
-    "VXUS": 83.79
-  },
-  "energy": {
-    "electric": {
-      "reviewed": "2026-07-28",
-      "ptc": 10.92,
-      "best": {
-        "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
-          "term": 3
-        },
-        "6": {
-          "rate": 8.89,
-          "supplier": "Inspire Energy Holdings  LLC",
-          "term": 5
-        },
-        "12": {
-          "rate": 9.19,
-          "supplier": "Energy Harbor LLC",
-          "term": 10
-        },
-        "18_24": {
-          "rate": 9.49,
-          "supplier": "Better Buy Energy",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 9.89,
-          "supplier": "Better Buy Energy",
-          "term": 36
-        }
-      }
-    },
-    "gas": {
-      "reviewed": "2026-07-28",
-      "sco": 54.81,
-      "best": {
-        "3": {
-          "rate": 51.0,
-          "supplier": "NRG Home",
-          "term": 1
-        },
-        "6": null,
-        "12": {
-          "rate": 54.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 9
-        },
-        "18_24": {
-          "rate": 64.9,
-          "supplier": "Ohio Gas & Electric",
-          "term": 18
-        },
-        "36plus": {
-          "rate": 69.8,
-          "supplier": "Mercury Energy Marketing LLC",
-          "term": 36
-        }
-      }
-    }
+    "VTI": 365.99,
+    "QQQM": 278.14,
+    "AVUV": 126.19,
+    "AVDV": 103.36,
+    "AVES": 61.97,
+    "VXUS": 83.25
   }
 }
