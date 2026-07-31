@@ -26,28 +26,28 @@
       "ptc": 10.92,
       "best": {
         "3": {
-          "rate": 7.39,
-          "supplier": "American Power & Gas of Ohio  LLC",
+          "rate": 8.79,
+          "supplier": "Inspire Energy Holdings  LLC",
           "term": 3
         },
         "6": {
-          "rate": 8.89,
+          "rate": 8.99,
           "supplier": "Inspire Energy Holdings  LLC",
-          "term": 5
+          "term": 4
         },
         "12": {
-          "rate": 9.19,
-          "supplier": "Energy Harbor LLC",
+          "rate": 9.49,
+          "supplier": "Better Buy Energy",
           "term": 10
         },
         "18_24": {
-          "rate": 9.49,
+          "rate": 9.99,
           "supplier": "Better Buy Energy",
           "term": 18
         },
         "36plus": {
-          "rate": 9.89,
-          "supplier": "Better Buy Energy",
+          "rate": 10.19,
+          "supplier": "Public Power LLC",
           "term": 36
         }
       }
@@ -57,7 +57,7 @@
       "sco": 54.81,
       "best": {
         "3": {
-          "rate": 51.0,
+          "rate": 53.9,
           "supplier": "NRG Home",
           "term": 1
         },
@@ -68,8 +68,8 @@
           "term": 9
         },
         "18_24": {
-          "rate": 64.9,
-          "supplier": "Ohio Gas & Electric",
+          "rate": 64.8,
+          "supplier": "Mercury Energy Marketing LLC",
           "term": 18
         },
         "36plus": {
