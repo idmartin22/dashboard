@@ -1,35 +1,46 @@
 name: Update Fund Prices
- 
+
 on:
   schedule:
     - cron: '0 1 * * 1-5'
   workflow_dispatch:
- 
+
 permissions:
   contents: write
- 
+
 jobs:
   update-prices:
     runs-on: ubuntu-latest
- 
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
- 
+
       - name: Fetch prices and write prices.json
         run: |
           python3 - <<'EOF'
           import urllib.request
           import json
+          import os
           from datetime import datetime, timezone
- 
-          prices = {
-            "updated": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-            "tsp": {},
-            "fidelity": {},
-            "etf": {}
-          }
- 
+
+          # Read the EXISTING prices.json first and merge into it, instead of
+          # overwriting from scratch — otherwise this wipes out the 'energy'
+          # key (and anything else, like retirementSettings) written by other
+          # workflows, since this one used to run last and clobber everything.
+          prices = {}
+          if os.path.exists("prices.json"):
+            try:
+              with open("prices.json") as f:
+                prices = json.load(f)
+            except Exception as e:
+              print(f"Could not read existing prices.json, starting fresh: {e}")
+
+          prices["updated"] = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+          prices.setdefault("tsp", {})
+          prices.setdefault("fidelity", {})
+          prices.setdefault("etf", {})
+
           try:
             req = urllib.request.Request(
               "https://api.dailytsp.com/close/",
@@ -48,12 +59,12 @@ jobs:
             print(f"TSP prices: {prices['tsp']}")
           except Exception as e:
             print(f"TSP fetch failed: {e}")
- 
+
           tickers = [
             "VIIIX", "VTPSX", "VEMPX",
             "VTI", "QQQM", "AVUV", "AVDV", "AVES", "VXUS"
           ]
- 
+
           all_prices = {}
           for ticker in tickers:
             try:
@@ -72,13 +83,13 @@ jobs:
               print(f"{ticker}: {price}")
             except Exception as e:
               print(f"{ticker} fetch failed: {e}")
- 
+
           prices["fidelity"] = {
             "VIIIX": all_prices.get("VIIIX"),
             "VTPSX": all_prices.get("VTPSX"),
             "VEMPX": all_prices.get("VEMPX")
           }
- 
+
           prices["etf"] = {
             "VTI":  all_prices.get("VTI"),
             "QQQM": all_prices.get("QQQM"),
@@ -87,18 +98,23 @@ jobs:
             "AVES": all_prices.get("AVES"),
             "VXUS": all_prices.get("VXUS")
           }
- 
+
           with open("prices.json", "w") as f:
             json.dump(prices, f, indent=2)
- 
-          print(f"\nprices.json written:")
+
+          print(f"\nprices.json written (all keys preserved):")
           print(json.dumps(prices, indent=2))
           EOF
- 
+
       - name: Commit prices.json
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add prices.json
-          git diff --staged --quiet || git commit -m "Update fund prices $(date -u '+%Y-%m-%d')"
-          git push
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Update fund prices $(date -u '+%Y-%m-%d')"
+          for i in 1 2 3 4 5; do
+            git pull origin main --no-rebase && git push && break
+            echo "Push attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
